@@ -235,4 +235,21 @@ public class ParserTest {
         assertEquals(asList("Tag3", "Tag4", "Tag5"), step.getTags());
     }
 
+    @Test
+    public void shouldParseDocuments() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Documents\n\nScenario: Documents\nGiven the following string:\n\"\"\"ABC\nDEF\nGHI\"\"\"\n");
+
+        assertEquals("Feature", feature.getKeyword());
+        assertEquals("Documents", feature.getDescription());
+
+        StepContainer scenario = feature.getScenarios().get(0);
+
+        Step step = scenario.getSteps().get(0);
+
+        assertEquals("Given", step.getKeyword());
+        assertEquals("the following string:", step.getDescription());
+        assertEquals(asList("ABC\nDEF\nGHI"), step.getDocs());
+    }
+
 }

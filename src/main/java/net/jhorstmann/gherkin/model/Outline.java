@@ -1,8 +1,7 @@
 package net.jhorstmann.gherkin.model;
 
-import com.google.common.base.Joiner;
-
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -57,10 +56,23 @@ public class Outline extends StepContainer {
         return scenario;
     }
 
+    private static Pattern buildPattern(List<String> cells) {
+        StringBuilder sb = new StringBuilder("<(");
+        for (Iterator<String> it=cells.iterator(); it.hasNext();) {
+            String cell = it.next();
+            sb.append(Pattern.quote(cell));
+            if (it.hasNext()) {
+                sb.append("|");
+            }
+        }
+        sb.append(")>");
+        return Pattern.compile(sb.toString());
+    }
+
     public List<Scenario> buildScenarios() {
         List<Scenario> result = new ArrayList<>(examples.size()-1);
         List<String> header = examples.get(0).getCells();
-        Pattern pattern = Pattern.compile("<(" + Joiner.on("|").join(header) + ")>");
+        Pattern pattern = buildPattern(header);
         for (Row exampleRow : examples.subList(1, examples.size())) {
             Map<String, String> exampleValues = Table.rowToMap(header, exampleRow);
             Scenario scenario = buildScenario(pattern, exampleRow, exampleValues);

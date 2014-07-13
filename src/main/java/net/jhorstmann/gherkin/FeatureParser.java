@@ -1,7 +1,5 @@
 package net.jhorstmann.gherkin;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Charsets;
 import net.jhorstmann.gherkin.antlr.GherkinLexer;
 import net.jhorstmann.gherkin.antlr.GherkinParser;
 import net.jhorstmann.gherkin.model.Feature;
@@ -13,8 +11,11 @@ import java.io.*;
 
 public class FeatureParser {
 
+    private static final String DEFAULT_CHARSET = "utf-8";
+
     public static Feature getFeature(File file) throws IOException {
-        ANTLRInputStream inputStream = new ANTLRInputStream(new InputStreamReader(new FileInputStream(file), Charsets.UTF_8));
+        ANTLRInputStream inputStream = new ANTLRInputStream(new InputStreamReader(new FileInputStream(file),
+                DEFAULT_CHARSET));
         inputStream.name = file.toURI().toASCIIString();
         return getFeature(inputStream);
     }
@@ -37,7 +38,6 @@ public class FeatureParser {
         return listener.getFeature();
     }
 
-    @VisibleForTesting
     static GherkinParser newParser(ANTLRInputStream inputStream) {
         GherkinLexer lexer = new GherkinLexer(inputStream);
         GherkinParser parser = new GherkinParser(new BufferedTokenStream(lexer));

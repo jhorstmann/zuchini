@@ -1,21 +1,20 @@
 grammar Gherkin;
 
-content         : ~EOL+;
-
 tagName         : ~(WS | EOL)+;
 
 tag             : AT tagName;
 
 tags            : WS* tag ((WS | EOL)+ tag)* EOL;
 
+lineContent         : ~EOL+;
 
-comment         : WS* HASH content EOL;
+comment         : WS* HASH lineContent EOL;
 
 comments        : ( comment | WS* EOL)+;
 
 feature         : comments?
                   tags?
-                  start WS* FEATURE_KW WS* COLON WS* (content EOL)+
+                  start WS* FEATURE_KW WS* COLON WS* (lineContent EOL)+
                   EOL*
                   background?
                   abstractScenario*
@@ -23,7 +22,7 @@ feature         : comments?
 
 background      : comments?
                   tags?
-                  start WS* BACKGROUND_KW WS* COLON WS* content EOL
+                  start WS* BACKGROUND_KW WS* COLON WS* lineContent EOL
                   step+
                   EOL*;
 
@@ -31,13 +30,13 @@ abstractScenario: scenario | outline;
 
 scenario        : comments?
                   tags?
-                  start WS* SCENARIO_KW WS* COLON WS* content EOL
+                  start WS* SCENARIO_KW WS* COLON WS* lineContent EOL
                   step+
                   EOL*;
 
 outline         : comments?
                   tags?
-                  start WS* OUTLINE_KW WS* COLON WS* content EOL
+                  start WS* OUTLINE_KW WS* COLON WS* lineContent EOL
                   step+
                   examples
                   EOL*;
@@ -47,7 +46,7 @@ examples        : comments?
 
 step            : comments?
                   tags?
-                  start WS* STEP_KW WS* content EOL
+                  start WS* STEP_KW WS+ lineContent EOL
                   (table | document)?;
 
 table           : row+;
@@ -58,9 +57,9 @@ row             : comments?
 
 cell            : ~(PIPE|EOL)*;
 
-document        : WS* TRIPLE_QUOTE documentContent TRIPLE_QUOTE;
+document        : start WS* TRIPLE_QUOTE documentContent TRIPLE_QUOTE EOL;
 
-documentContent : ~TRIPLE_QUOTE*;
+documentContent : ~TRIPLE_QUOTE*?;
 
 start           : { getCurrentToken().getCharPositionInLine() == 0}?;
 
@@ -86,4 +85,6 @@ HASH            : '#';
 
 TRIPLE_QUOTE    : '"""';
 
-CHAR            : ~[\r\n\t :@#|\\]+;
+QUOTE           : '"';
+
+CHAR            : ~[\r\n\t :@#|\\"]+;
