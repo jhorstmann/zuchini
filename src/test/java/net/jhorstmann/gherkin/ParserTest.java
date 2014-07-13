@@ -34,6 +34,28 @@ public class ParserTest {
     }
 
     @Test
+    public void shouldAllowKeywordsInContent() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Keywords\n\nScenario: Background Given When Then\nGiven Given Examples:\n");
+
+        assertEquals(1, feature.getLineNumber());
+        assertEquals("Feature", feature.getKeyword());
+        assertEquals("Keywords", feature.getDescription());
+
+        StepContainer scenario = feature.getScenarios().get(0);
+        assertEquals("Scenario", scenario.getKeyword());
+        assertEquals("Background Given When Then", scenario.getDescription());
+
+        List<Step> steps = scenario.getSteps();
+        {
+            Step step = steps.get(0);
+            assertEquals(4, step.getLineNumber());
+            assertEquals("Given", step.getKeyword());
+            assertEquals("Given Examples:", step.getDescription());
+        }
+    }
+
+    @Test
     public void shouldParseBackground() {
         Feature feature = FeatureParser.getFeature(
                 "Feature: Simple Feature\n\nBackground: Simple Background\nGiven a customer\n");
@@ -103,9 +125,59 @@ public class ParserTest {
     }
 
     @Test
+    public void shouldParseStepTables() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Tables\n\nScenario: Step with table\nGiven a table:\n  | A | B |\n  | 1 | 2 |\n");
+
+        StepContainer scenario = feature.getScenarios().get(0);
+
+        List<Step> steps = scenario.getSteps();
+        {
+            Step step = steps.get(0);
+            assertEquals("Given", step.getKeyword());
+            assertEquals("a table:", step.getDescription());
+            List<Row> rows = step.getRows();
+
+            {
+                Row row = rows.get(0);
+                assertEquals(asList("A", "B"), row.getCells());
+            }
+            {
+                Row row = rows.get(1);
+                assertEquals(asList("1", "2"), row.getCells());
+            }
+        }
+    }
+
+    @Test
+    public void shouldParseEscapedPipesInTable() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Tables\n\nScenario: Step with table\nGiven a table:\n  |  A  |\n  | X\\|X |\n");
+
+        StepContainer scenario = feature.getScenarios().get(0);
+
+        List<Step> steps = scenario.getSteps();
+        {
+            Step step = steps.get(0);
+            assertEquals("Given", step.getKeyword());
+            assertEquals("a table:", step.getDescription());
+            List<Row> rows = step.getRows();
+
+            {
+                Row row = rows.get(0);
+                assertEquals(asList("A"), row.getCells());
+            }
+            {
+                Row row = rows.get(1);
+                assertEquals(asList("X|X"), row.getCells());
+            }
+        }
+    }
+
+    @Test
     public void shouldParseOutlineExamples() {
         Feature feature = FeatureParser.getFeature(
-                "Feature: Outline\n\nScenario Outline: Scenario outline\n\nGiven a customer from <Country>\nExamples:\n| Country |\n| DE |\n");
+                "Feature: Outline\n\nScenario Outline: Scenario outline\nGiven a customer from <Country>\nExamples:\n| Country |\n| DE |\n");
 
         assertEquals("Feature", feature.getKeyword());
         assertEquals("Outline", feature.getDescription());
@@ -124,4 +196,43 @@ public class ParserTest {
             assertEquals(asList("DE"), row.getCells());
         }
     }
+
+    @Test
+    public void shouldParseTags() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Tags\n\n@TaggedScenario\nScenario: Tags on scenario and steps\n@TaggedStep\nGiven a tagged step\n");
+
+        assertEquals("Feature", feature.getKeyword());
+        assertEquals("Tags", feature.getDescription());
+
+        StepContainer scenario = feature.getScenarios().get(0);
+        assertEquals("Scenario", scenario.getKeyword());
+        assertEquals(asList("TaggedScenario"), scenario.getTags());
+
+        Step step = scenario.getSteps().get(0);
+
+        assertEquals("Given", step.getKeyword());
+        assertEquals("a tagged step", step.getDescription());
+        assertEquals(asList("TaggedStep"), step.getTags());
+    }
+
+    @Test
+    public void shouldParseMultipleTags() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Tags\n\n@Tag1 @Tag2\nScenario: Tags on scenario and steps\n@Tag3\n@Tag4 @Tag5\nGiven a tagged step\n");
+
+        assertEquals("Feature", feature.getKeyword());
+        assertEquals("Tags", feature.getDescription());
+
+        StepContainer scenario = feature.getScenarios().get(0);
+        assertEquals("Scenario", scenario.getKeyword());
+        assertEquals(asList("Tag1", "Tag2"), scenario.getTags());
+
+        Step step = scenario.getSteps().get(0);
+
+        assertEquals("Given", step.getKeyword());
+        assertEquals("a tagged step", step.getDescription());
+        assertEquals(asList("Tag3", "Tag4", "Tag5"), step.getTags());
+    }
+
 }

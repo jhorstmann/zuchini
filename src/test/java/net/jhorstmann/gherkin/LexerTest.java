@@ -13,19 +13,19 @@ public class LexerTest {
         GherkinLexer lexer = new GherkinLexer(new ANTLRInputStream("Scenario Outline: ABC\n"));
         {
             Token keyword = lexer.nextToken();
-            assertEquals("Scenario Outline:", keyword.getText().trim());
+            assertEquals("Scenario Outline", keyword.getText());
         }
         {
             Token ch = lexer.nextToken();
-            assertEquals("A", ch.getText());
+            assertEquals(":", ch.getText());
         }
         {
             Token ch = lexer.nextToken();
-            assertEquals("B", ch.getText());
+            assertEquals(" ", ch.getText());
         }
         {
             Token ch = lexer.nextToken();
-            assertEquals("C", ch.getText());
+            assertEquals("ABC", ch.getText());
         }
     }
 
@@ -34,7 +34,32 @@ public class LexerTest {
         GherkinLexer lexer = new GherkinLexer(new ANTLRInputStream("Examples:\n"));
         {
             Token keyword = lexer.nextToken();
-            assertEquals("Examples:", keyword.getText().trim());
+            assertEquals("Examples", keyword.getText());
+        }
+        {
+            Token ch = lexer.nextToken();
+            assertEquals(":", ch.getText());
+        }
+    }
+
+    @Test
+    public void shouldLexKeywordsOnlyAtBeginning() {
+        GherkinLexer lexer = new GherkinLexer(new ANTLRInputStream("Feature: Given\n"));
+        {
+            Token keyword = lexer.nextToken();
+            assertEquals("Feature", keyword.getText());
+        }
+        {
+            Token keyword = lexer.nextToken();
+            assertEquals(":", keyword.getText());
+        }
+        {
+            Token keyword = lexer.nextToken();
+            assertEquals(" ", keyword.getText());
+        }
+        {
+            Token keyword = lexer.nextToken();
+            assertEquals("Given", keyword.getText());
         }
     }
 

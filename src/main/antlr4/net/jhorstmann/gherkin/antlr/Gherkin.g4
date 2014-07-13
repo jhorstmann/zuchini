@@ -1,90 +1,89 @@
 grammar Gherkin;
 
-content         : CHAR+;
+content         : ~EOL+;
 
-comments        : (COMMENT EOL | EOL)+;
+tagName         : ~(WS | EOL)+;
 
-tags            : TAG+;
+tag             : AT tagName;
 
-feature         : comments*
-                  FEATURE (content EOL)+
+tags            : WS* tag ((WS | EOL)+ tag)* EOL;
+
+
+comment         : WS* HASH content EOL;
+
+comments        : ( comment | WS* EOL)+;
+
+feature         : comments?
+                  tags?
+                  start WS* FEATURE_KW WS* COLON WS* (content EOL)+
                   EOL*
                   background?
                   abstractScenario*
                   EOL* EOF;
 
 background      : comments?
-                  BACKGROUND content EOL
+                  tags?
+                  start WS* BACKGROUND_KW WS* COLON WS* content EOL
                   step+
                   EOL*;
 
 abstractScenario: scenario | outline;
 
 scenario        : comments?
-                  SCENARIO content EOL
+                  tags?
+                  start WS* SCENARIO_KW WS* COLON WS* content EOL
                   step+
                   EOL*;
 
 outline         : comments?
-                  SCENARIO_OUTLINE content EOL
+                  tags?
+                  start WS* OUTLINE_KW WS* COLON WS* content EOL
                   step+
                   examples
                   EOL*;
 
 examples        : comments?
-                  EXAMPLES EOL row+;
+                  start WS* EXAMPLES_KW WS* COLON WS* EOL row+;
 
 step            : comments?
-                  STEP content EOL
-                  (table | doc)?;
+                  tags?
+                  start WS* STEP_KW WS* content EOL
+                  (table | document)?;
 
 table           : row+;
 
-row             : TABLE_START cell+ EOL;
+row             : comments?
+                  tags?
+                  start WS* PIPE (cell PIPE)+ EOL;
 
-cell            : TABLE_CELL;
+cell            : ~(PIPE|EOL)*;
 
-doc             : DOC_STRING EOL;
+document        : WS* TRIPLE_QUOTE documentContent TRIPLE_QUOTE;
 
+documentContent : ~TRIPLE_QUOTE*;
 
-fragment
-COLON           : ':';
+start           : { getCurrentToken().getCharPositionInLine() == 0}?;
 
-fragment
-WS              : [\t ]+;
+STEP_KW         : 'Given' | 'When' | 'Then' | 'And';
+
+FEATURE_KW      : 'Feature';
+
+BACKGROUND_KW   : 'Background';
+
+SCENARIO_KW     : 'Scenario';
+OUTLINE_KW      : 'Scenario Outline';
+
+EXAMPLES_KW     : 'Examples';
 
 EOL             : '\n' | '\r\n';
 
-fragment
-START           : {getCharPositionInLine() == 0}?;
-
-fragment
-STEP_KW         : 'Given' | 'When' | 'Then' | 'And';
-
-FEATURE         : START WS* 'Feature' WS* COLON WS*;
-
-STEP            : START WS* STEP_KW WS*;
-BACKGROUND      : START WS* 'Background' WS* COLON WS*;
-SCENARIO_OUTLINE: START WS* 'Scenario Outline' WS* COLON WS*;
-SCENARIO        : START WS* 'Scenario' WS* COLON WS*;
-EXAMPLES        : START WS* 'Examples' WS* COLON WS*;
-
-fragment
+WS              : [\t ];
 PIPE            : '|';
-fragment
 ESCAPED_PIPE    : '\\|';
-fragment
-CELL_CONTENT    : ~[\r\n|];
+COLON           : ':';
+AT              : '@';
+HASH            : '#';
 
-TABLE_START     : START WS* PIPE;
-TABLE_CELL      : (ESCAPED_PIPE | CELL_CONTENT)*? PIPE;
-
-TAG             : '@' ~[@\r\n\t ]+;
-COMMENT         : START WS* '#' ~[\r\n]*;
-
-fragment
 TRIPLE_QUOTE    : '"""';
 
-DOC_STRING      : START WS* TRIPLE_QUOTE .*? TRIPLE_QUOTE;
-
-CHAR            : ~[\r\n];
+CHAR            : ~[\r\n\t :@#|\\]+;

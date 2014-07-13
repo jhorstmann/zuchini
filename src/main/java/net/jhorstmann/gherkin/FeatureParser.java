@@ -40,6 +40,7 @@ public class FeatureParser {
     @VisibleForTesting
     static GherkinParser newParser(ANTLRInputStream inputStream) {
         GherkinLexer lexer = new GherkinLexer(inputStream);
-        return new GherkinParser(new BufferedTokenStream(lexer));
+        GherkinParser parser = new GherkinParser(new BufferedTokenStream(lexer));
+        return parser;
     }
 }
