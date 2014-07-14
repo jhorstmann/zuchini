@@ -3,6 +3,8 @@ package net.jhorstmann.gherkin.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Arrays.asList;
+
 public class Row implements Commented, Tagged, LocationAware {
     private final Feature feature;
     private final int lineNumber;
@@ -13,6 +15,11 @@ public class Row implements Commented, Tagged, LocationAware {
     public Row(Feature feature, int lineNumber) {
         this.feature = feature;
         this.lineNumber = lineNumber;
+    }
+
+    public Row(Feature feature, int lineNumber, String... cells) {
+        this(feature, lineNumber);
+        getCells().addAll(asList(cells));
     }
 
     @Override

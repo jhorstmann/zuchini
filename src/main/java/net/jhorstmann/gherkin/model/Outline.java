@@ -24,7 +24,7 @@ public class Outline extends StepContainer {
         while (matcher.find()) {
             String var = matcher.group(1);
             String value = exampleValues.get(var);
-            matcher.appendReplacement(sb, Pattern.quote(value));
+            matcher.appendReplacement(sb, Matcher.quoteReplacement(value));
         }
         matcher.appendTail(sb);
         return sb.toString();
@@ -33,6 +33,7 @@ public class Outline extends StepContainer {
     private Row buildRow(Pattern pattern, Row exampleStepData, Map<String, String> exampleValues) {
         Row row = new Row(getFeature(), exampleStepData.getLineNumber());
         row.getComments().addAll(exampleStepData.getComments());
+        row.getTags().addAll(exampleStepData.getTags());
         for (String cell : exampleStepData.getCells()) {
             row.getCells().add(replaceExampleValues(cell, pattern, exampleValues));
         }
@@ -45,6 +46,11 @@ public class Outline extends StepContainer {
             String stepDescription = replaceExampleValues(exampleStep.getDescription(), pattern, exampleValues);
             Step step = new Step(scenario, exampleStep.getLineNumber(), exampleStep.getKeyword(), stepDescription);
             step.getComments().addAll(exampleStep.getComments());
+            step.getComments().addAll(exampleRow.getComments());
+
+            step.getTags().addAll(exampleStep.getTags());
+            step.getTags().addAll(exampleRow.getTags());
+
             step.getDocs().addAll(exampleStep.getDocs());
 
             for (Row exampleStepData : exampleStep.getRows()) {
@@ -76,6 +82,9 @@ public class Outline extends StepContainer {
         for (Row exampleRow : examples.subList(1, examples.size())) {
             Map<String, String> exampleValues = Table.rowToMap(header, exampleRow);
             Scenario scenario = buildScenario(pattern, exampleRow, exampleValues);
+            scenario.getComments().addAll(exampleRow.getComments());
+            scenario.getTags().addAll(getTags());
+            scenario.getTags().addAll(exampleRow.getTags());
 
             result.add(scenario);
         }
