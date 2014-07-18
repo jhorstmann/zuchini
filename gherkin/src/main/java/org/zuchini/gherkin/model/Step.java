@@ -3,7 +3,7 @@ package org.zuchini.gherkin.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Step implements Commented, Tagged, LocationAware {
+public class Step implements Commented, Tagged, LocationAware, RowContainer {
     private final StepContainer stepContainer;
     private final int lineNumber;
     private final String keyword;

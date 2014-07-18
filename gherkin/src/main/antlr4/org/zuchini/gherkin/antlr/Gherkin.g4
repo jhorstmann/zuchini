@@ -6,7 +6,7 @@ tag             : AT tagName;
 
 tags            : WS* tag ((WS | EOL)+ tag)* EOL;
 
-lineContent         : ~EOL+;
+lineContent     : ~EOL+;
 
 comment         : WS* HASH lineContent EOL;
 
@@ -38,11 +38,12 @@ outline         : comments?
                   tags?
                   start WS* OUTLINE_KW WS* COLON WS* lineContent EOL
                   step+
-                  examples
+                  examples+
                   EOL*;
 
 examples        : comments?
-                  start WS* EXAMPLES_KW WS* COLON WS* EOL row+;
+                  start WS* EXAMPLES_KW WS* COLON WS* lineContent? EOL
+                  table;
 
 step            : comments?
                   tags?

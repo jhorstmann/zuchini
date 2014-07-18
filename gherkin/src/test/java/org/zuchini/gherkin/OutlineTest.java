@@ -1,7 +1,7 @@
 package org.zuchini.gherkin;
 
-import org.zuchini.gherkin.model.*;
 import org.junit.Test;
+import org.zuchini.gherkin.model.*;
 
 import java.util.List;
 
@@ -18,16 +18,20 @@ public class OutlineTest {
         given.getTags().add("TaggedStep");
         outline.getSteps().add(given);
 
-        Row header = new Row(feature, 3, "A", "B");
-        outline.getExamples().add(header);
+        Examples examples = new Examples(outline, 0, "");
 
-        Row example1 = new Row(feature, 4, "1", "2");
-        example1.getTags().add("TaggedExample");
-        outline.getExamples().add(example1);
+        Row header = new Row(feature, 3, "A", "B");
+        examples.getRows().add(header);
+
+        Row row1 = new Row(feature, 4, "1", "2");
+        row1.getTags().add("TaggedExample");
+        examples.getRows().add(row1);
 
         Row example2 = new Row(feature, 5, "3", "4");
         example2.getTags().add("TaggedExample");
-        outline.getExamples().add(example2);
+        examples.getRows().add(example2);
+
+        outline.getExamples().add(examples);
 
         List<Scenario> scenarios = outline.buildScenarios();
 

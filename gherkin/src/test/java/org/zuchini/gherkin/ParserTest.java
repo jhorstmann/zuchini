@@ -186,7 +186,7 @@ public class ParserTest {
         assertEquals("Scenario Outline", scenario.getKeyword());
         assertEquals("Scenario outline", scenario.getDescription());
 
-        List<Row> examples = ((Outline) scenario).getExamples();
+        List<Row> examples = ((Outline) scenario).getExampleRows();
         {
             Row row = examples.get(0);
             assertEquals(asList("Country"), row.getCells());
@@ -194,6 +194,39 @@ public class ParserTest {
         {
             Row row = examples.get(1);
             assertEquals(asList("DE"), row.getCells());
+        }
+    }
+
+    @Test
+    public void shouldParseMultipleOutlineExamples() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Outline\n\nScenario Outline: Scenario outline\nGiven a customer from <Country>\nExamples: Europa\n| Country |\n| DE |\nExamples: America\n| Country |\n| US |\n");
+
+        assertEquals("Feature", feature.getKeyword());
+        assertEquals("Outline", feature.getDescription());
+
+        Outline outline = (Outline) feature.getScenarios().get(0);
+        assertEquals("Scenario Outline", outline.getKeyword());
+        assertEquals("Scenario outline", outline.getDescription());
+
+
+        List<Examples> examples = outline.getExamples();
+        assertEquals(2, examples.size());
+        {
+            Examples example = examples.get(0);
+            assertEquals("Europa", example.getDescription());
+            List<Row> rows = example.getRows();
+            assertEquals(2, rows.size());
+            assertEquals(asList("Country"), rows.get(0).getCells());
+            assertEquals(asList("DE"), rows.get(1).getCells());
+        }
+        {
+            Examples example = examples.get(1);
+            assertEquals("America", example.getDescription());
+            List<Row> rows = example.getRows();
+            assertEquals(2, rows.size());
+            assertEquals(asList("Country"), rows.get(0).getCells());
+            assertEquals(asList("US"), rows.get(1).getCells());
         }
     }
 

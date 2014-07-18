@@ -8,14 +8,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Outline extends StepContainer {
-    private final List<Row> examples = new ArrayList<>();
+    private final List<Examples> examples = new ArrayList<>();
 
     public Outline(Feature feature, int lineNumber, String keyword, String description) {
         super(feature, lineNumber, keyword, description);
     }
 
-    public List<Row> getExamples() {
+    public List<Examples> getExamples() {
         return examples;
+    }
+
+    public List<Row> getExampleRows() {
+        List<Row> rows = new ArrayList<>();
+        for (Examples example : examples) {
+            rows.addAll(example.getRows());
+        }
+
+        return rows;
     }
 
     private static String replaceExampleValues(String string, Pattern matchPattern, Map<String, String> exampleValues) {
@@ -77,6 +86,15 @@ public class Outline extends StepContainer {
 
     public List<Scenario> buildScenarios() {
         List<Scenario> result = new ArrayList<>(examples.size()-1);
+        for (Examples example : examples) {
+            result.addAll(buildScenarios(example.getRows()));
+        }
+
+        return result;
+    }
+
+    private List<Scenario> buildScenarios(List<Row> examples) {
+        List<Scenario> result = new ArrayList<>();
         List<String> header = examples.get(0).getCells();
         Pattern pattern = buildPattern(header);
         for (Row exampleRow : examples.subList(1, examples.size())) {

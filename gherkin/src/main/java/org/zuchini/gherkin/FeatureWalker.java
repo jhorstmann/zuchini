@@ -1,17 +1,15 @@
 package org.zuchini.gherkin;
 
-import org.zuchini.gherkin.antlr.GherkinListener;
-import org.zuchini.gherkin.antlr.GherkinParser;
-import org.zuchini.gherkin.model.*;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.zuchini.gherkin.antlr.GherkinListener;
+import org.zuchini.gherkin.antlr.GherkinParser;
+import org.zuchini.gherkin.model.*;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 class FeatureWalker implements GherkinListener {
     private final String uri;
@@ -19,8 +17,8 @@ class FeatureWalker implements GherkinListener {
     private StepContainer stepContainer;
     private Commented commentContainer;
     private Tagged tagContainer;
+    private RowContainer rowContainer;
     private Step step;
-    private List<Row> rows;
     private Row row;
 
     public FeatureWalker(String uri) {
@@ -86,8 +84,6 @@ class FeatureWalker implements GherkinListener {
     public void exitBackground(@NotNull GherkinParser.BackgroundContext ctx) {
         feature.getBackground().add((Background) stepContainer);
         stepContainer = null;
-        commentContainer = null;
-        tagContainer = null;
     }
 
     @Override
@@ -96,13 +92,14 @@ class FeatureWalker implements GherkinListener {
         step = new Step(stepContainer, keyword.getLine(), trimKeyword(keyword), ctx.lineContent().getText());
         commentContainer = step;
         tagContainer = step;
+        rowContainer = step;
 
     }
 
     @Override
     public void exitStep(@NotNull GherkinParser.StepContext ctx) {
         stepContainer.getSteps().add(step);
-        commentContainer = step = null;
+        step = null;
     }
 
     @Override
@@ -121,6 +118,7 @@ class FeatureWalker implements GherkinListener {
 
     @Override
     public void exitComments(@NotNull GherkinParser.CommentsContext ctx) {
+        commentContainer = null;
     }
 
     @Override
@@ -138,6 +136,7 @@ class FeatureWalker implements GherkinListener {
 
     @Override
     public void exitTags(@NotNull GherkinParser.TagsContext ctx) {
+        tagContainer = null;
     }
 
     @Override
@@ -169,8 +168,6 @@ class FeatureWalker implements GherkinListener {
     public void exitScenario(@NotNull GherkinParser.ScenarioContext ctx) {
         feature.getScenarios().add(stepContainer);
         stepContainer = null;
-        commentContainer = null;
-        tagContainer = null;
     }
 
     @Override
@@ -191,13 +188,10 @@ class FeatureWalker implements GherkinListener {
 
     @Override
     public void enterTable(@NotNull GherkinParser.TableContext ctx) {
-        rows = new ArrayList<>();
     }
 
     @Override
     public void exitTable(@NotNull GherkinParser.TableContext ctx) {
-        step.getRows().addAll(rows);
-        rows = null;
     }
 
     @Override
@@ -209,7 +203,7 @@ class FeatureWalker implements GherkinListener {
 
     @Override
     public void exitRow(@NotNull GherkinParser.RowContext ctx) {
-        rows.add(row);
+        rowContainer.getRows().add(row);
         row = null;
         commentContainer = null;
         tagContainer = null;
@@ -234,13 +228,17 @@ class FeatureWalker implements GherkinListener {
 
     @Override
     public void enterExamples(@NotNull GherkinParser.ExamplesContext ctx) {
-        rows = new ArrayList<>();
+        Token keyword = ctx.EXAMPLES_KW().getSymbol();
+        Outline outline = (Outline) stepContainer;
+        GherkinParser.LineContentContext content = ctx.lineContent();
+        Examples examples = new Examples(outline, keyword.getLine(), content == null ? "" : content.getText());
+        outline.getExamples().add(examples);
+        rowContainer = examples;
     }
 
     @Override
     public void exitExamples(@NotNull GherkinParser.ExamplesContext ctx) {
-        ((Outline) stepContainer).getExamples().addAll(rows);
-        rows = null;
+        rowContainer = null;
     }
 
     @Override
