@@ -76,8 +76,11 @@ class FeatureWalker implements GherkinListener {
     @Override
     public void enterBackground(@NotNull GherkinParser.BackgroundContext ctx) {
         Token keyword = ctx.BACKGROUND_KW().getSymbol();
-        commentContainer = stepContainer = new Background(feature, keyword.getLine(), trimKeyword(keyword),
+        Background background = new Background(feature, keyword.getLine(), trimKeyword(keyword),
                 ctx.lineContent().getText());
+        commentContainer = background;
+        tagContainer = background;
+        stepContainer = background;
     }
 
     @Override

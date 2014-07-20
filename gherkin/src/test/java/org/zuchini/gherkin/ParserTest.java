@@ -269,6 +269,18 @@ public class ParserTest {
     }
 
     @Test
+    public void shouldParseTagsOnBackground() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Tagged Background\n\n@Test\nBackground: Tagged Background\nGiven a customer\n");
+
+        StepContainer background = feature.getBackground().get(0);
+        assertEquals(4, background.getLineNumber());
+        assertEquals("Background", background.getKeyword());
+        assertEquals("Tagged Background", background.getDescription());
+        assertEquals(asList("Test"), background.getTags());
+    }
+
+    @Test
     public void shouldParseDocuments() {
         Feature feature = FeatureParser.getFeature(
                 "Feature: Documents\n\nScenario: Documents\nGiven the following string:\n\"\"\"ABC\nDEF\nGHI\"\"\"\n");
