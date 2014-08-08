@@ -253,14 +253,6 @@ class FeatureWalker implements GherkinListener {
     }
 
     @Override
-    public void enterStart(@NotNull GherkinParser.StartContext ctx) {
-    }
-
-    @Override
-    public void exitStart(@NotNull GherkinParser.StartContext ctx) {
-    }
-
-    @Override
     public void enterTagName(@NotNull GherkinParser.TagNameContext ctx) {
     }
 
