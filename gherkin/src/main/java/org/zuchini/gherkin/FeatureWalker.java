@@ -66,7 +66,9 @@ class FeatureWalker implements GherkinListener {
         Token keyword = ctx.FEATURE_KW().getSymbol();
 
         String description = joinLineContent(ctx.lineContent());
-        commentContainer = feature = new Feature(uri, keyword.getLine(), trimKeyword(keyword), description);
+        feature = new Feature(uri, keyword.getLine(), trimKeyword(keyword), description);
+        commentContainer = feature;
+        tagContainer = feature;
     }
 
     @Override
@@ -102,7 +104,6 @@ class FeatureWalker implements GherkinListener {
     @Override
     public void exitStep(@NotNull GherkinParser.StepContext ctx) {
         stepContainer.getSteps().add(step);
-        step = null;
     }
 
     @Override
@@ -113,15 +114,6 @@ class FeatureWalker implements GherkinListener {
 
     @Override
     public void exitDocument(@NotNull GherkinParser.DocumentContext ctx) {
-    }
-
-    @Override
-    public void enterComments(@NotNull GherkinParser.CommentsContext ctx) {
-    }
-
-    @Override
-    public void exitComments(@NotNull GherkinParser.CommentsContext ctx) {
-        commentContainer = null;
     }
 
     @Override
@@ -139,7 +131,6 @@ class FeatureWalker implements GherkinListener {
 
     @Override
     public void exitTags(@NotNull GherkinParser.TagsContext ctx) {
-        tagContainer = null;
     }
 
     @Override
@@ -149,6 +140,14 @@ class FeatureWalker implements GherkinListener {
 
     @Override
     public void exitTag(@NotNull GherkinParser.TagContext ctx) {
+    }
+
+    @Override
+    public void enterAnnotation(@NotNull GherkinParser.AnnotationContext ctx) {
+    }
+
+    @Override
+    public void exitAnnotation(@NotNull GherkinParser.AnnotationContext ctx) {
     }
 
     @Override
@@ -184,9 +183,6 @@ class FeatureWalker implements GherkinListener {
     @Override
     public void exitOutline(@NotNull GherkinParser.OutlineContext ctx) {
         feature.getScenarios().add(stepContainer);
-        stepContainer = null;
-        commentContainer = null;
-        tagContainer = null;
     }
 
     @Override
@@ -207,9 +203,6 @@ class FeatureWalker implements GherkinListener {
     @Override
     public void exitRow(@NotNull GherkinParser.RowContext ctx) {
         rowContainer.getRows().add(row);
-        row = null;
-        commentContainer = null;
-        tagContainer = null;
     }
 
     @Override
@@ -241,7 +234,6 @@ class FeatureWalker implements GherkinListener {
 
     @Override
     public void exitExamples(@NotNull GherkinParser.ExamplesContext ctx) {
-        rowContainer = null;
     }
 
     @Override

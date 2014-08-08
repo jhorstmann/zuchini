@@ -3,12 +3,13 @@ package org.zuchini.gherkin.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Feature implements Commented, LocationAware{
+public class Feature implements Commented, Tagged, LocationAware{
     private final String uri;
     private final int lineNumber;
     private final String keyword;
     private final String description;
     private final List<String> comments = new ArrayList<>();
+    private final List<String> tags = new ArrayList<>();
     private final List<Background> background = new ArrayList<>();
     private final List<StepContainer> scenarios = new ArrayList<>();
 
@@ -37,6 +38,10 @@ public class Feature implements Commented, LocationAware{
 
     public List<String> getComments() {
         return comments;
+    }
+
+    public List<String> getTags() {
+        return tags;
     }
 
     public List<Background> getBackground() {

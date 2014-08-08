@@ -101,6 +101,19 @@ public class ParserTest {
     }
 
     @Test
+    public void shouldParseMixedTagsAndComments() {
+        Feature feature = FeatureParser.getFeature(
+                "@Tag1\n#Comment 1\n@Tag2 @Tag3\n#Comment 2\n\n#Comment 3\n@Tag4\n\n@Tag5\nFeature: Tagged and Commented Feature\n");
+
+        assertEquals(10, feature.getLineNumber());
+        assertEquals("Feature", feature.getKeyword());
+        assertEquals("Tagged and Commented Feature", feature.getDescription());
+
+        assertEquals(asList("Comment 1", "Comment 2", "Comment 3"), feature.getComments());
+        assertEquals(asList("Tag1", "Tag2", "Tag3", "Tag4", "Tag5"), feature.getTags());
+    }
+
+    @Test
     public void shouldParseStepComments() {
         Feature feature = FeatureParser.getFeature(
                 "Feature: Comments\n\nScenario: Commented steps\n# Comment 1\nGiven a commented step\n# Comment 2\nThen the comment is parsed\n");

@@ -10,17 +10,16 @@ lineContent     : ~EOL+;
 
 comment         : WS* HASH lineContent EOL;
 
-comments        : ( comment | WS* EOL)+;
+annotation      : (comment | tags | WS* EOL);
 
-feature         : comments?
-                  tags?
+feature         : annotation*
                   WS* FEATURE_KW WS* COLON WS* (lineContent EOL)+
                   EOL*
                   background?
                   abstractScenario*
                   EOL* EOF;
 
-background      : comments?
+background      : annotation*
                   tags?
                   WS* BACKGROUND_KW WS* COLON WS* lineContent EOL
                   step+
@@ -28,32 +27,29 @@ background      : comments?
 
 abstractScenario: scenario | outline;
 
-scenario        : comments?
-                  tags?
+scenario        : annotation*
                   WS* SCENARIO_KW WS* COLON WS* lineContent EOL
                   step+
                   EOL*;
 
-outline         : comments?
+outline         : annotation*
                   tags?
                   WS* OUTLINE_KW WS* COLON WS* lineContent EOL
                   step+
                   examples+
                   EOL*;
 
-examples        : comments?
+examples        : annotation*
                   WS* EXAMPLES_KW WS* COLON WS* lineContent? EOL
                   table;
 
-step            : comments?
-                  tags?
+step            : annotation*
                   WS* STEP_KW WS+ lineContent EOL
                   (table | document)?;
 
 table           : row+;
 
-row             : comments?
-                  tags?
+row             : annotation*
                   WS* PIPE (cell PIPE)+ EOL;
 
 cell            : ~(PIPE|EOL)*;
