@@ -103,7 +103,7 @@ public class ParserTest {
     @Test
     public void shouldParseMixedTagsAndComments() {
         Feature feature = FeatureParser.getFeature(
-                "@Tag1\n#Comment 1\n@Tag2 @Tag3\n#Comment 2\n\n#Comment 3\n@Tag4\n\n@Tag5\nFeature: Tagged and Commented Feature\n");
+                "@Tag1\n#Comment 1\n@Tag2   @Tag3\n#Comment 2\n\n#Comment 3\n@Tag4\n\n@Tag5\nFeature: Tagged and Commented Feature\n");
 
         assertEquals(10, feature.getLineNumber());
         assertEquals("Feature", feature.getKeyword());

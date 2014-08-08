@@ -4,16 +4,16 @@ tagName         : ~(WS | EOL)+;
 
 tag             : AT tagName;
 
-tags            : WS* tag ((WS | EOL)+ tag)* EOL;
+tags            : WS? tag (WS tag)* EOL;
 
 lineContent     : ~EOL+;
 
-comment         : WS* HASH lineContent EOL;
+comment         : WS? HASH lineContent EOL;
 
-annotation      : (comment | tags | WS* EOL);
+annotation      : (comment | tags | WS? EOL);
 
 feature         : annotation*
-                  WS* FEATURE_KW WS* COLON WS* (lineContent EOL)+
+                  WS? FEATURE_KW WS? COLON WS? (lineContent EOL)+
                   EOL*
                   background?
                   abstractScenario*
@@ -21,40 +21,40 @@ feature         : annotation*
 
 background      : annotation*
                   tags?
-                  WS* BACKGROUND_KW WS* COLON WS* lineContent EOL
+                  WS? BACKGROUND_KW WS? COLON WS? lineContent EOL
                   step+
                   EOL*;
 
 abstractScenario: scenario | outline;
 
 scenario        : annotation*
-                  WS* SCENARIO_KW WS* COLON WS* lineContent EOL
+                  WS? SCENARIO_KW WS? COLON WS? lineContent EOL
                   step+
                   EOL*;
 
 outline         : annotation*
                   tags?
-                  WS* OUTLINE_KW WS* COLON WS* lineContent EOL
+                  WS? OUTLINE_KW WS? COLON WS? lineContent EOL
                   step+
                   examples+
                   EOL*;
 
 examples        : annotation*
-                  WS* EXAMPLES_KW WS* COLON WS* lineContent? EOL
+                  WS? EXAMPLES_KW WS? COLON WS? lineContent? EOL
                   table;
 
 step            : annotation*
-                  WS* STEP_KW WS+ lineContent EOL
+                  WS? STEP_KW WS lineContent EOL
                   (table | document)?;
 
 table           : row+;
 
 row             : annotation*
-                  WS* PIPE (cell PIPE)+ EOL;
+                  WS? PIPE (cell PIPE)+ EOL;
 
 cell            : ~(PIPE|EOL)*;
 
-document        : WS* TRIPLE_QUOTE documentContent TRIPLE_QUOTE EOL;
+document        : WS? TRIPLE_QUOTE documentContent TRIPLE_QUOTE EOL;
 
 documentContent : ~TRIPLE_QUOTE*?;
 
@@ -71,7 +71,7 @@ EXAMPLES_KW     : 'Examples';
 
 EOL             : '\n' | '\r\n';
 
-WS              : [\t ];
+WS              : [\t ]+;
 PIPE            : '|';
 ESCAPED_PIPE    : '\\|';
 COLON           : ':';

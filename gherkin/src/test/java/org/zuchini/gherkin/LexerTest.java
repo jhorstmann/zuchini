@@ -63,4 +63,25 @@ public class LexerTest {
         }
     }
 
+    @Test
+    public void shouldCombineWhitespace() {
+        GherkinLexer lexer = new GherkinLexer(new ANTLRInputStream("Feature   :\t\t Whitespace\n"));
+        {
+            Token keyword = lexer.nextToken();
+            assertEquals("Feature", keyword.getText());
+        }
+        {
+            Token keyword = lexer.nextToken();
+            assertEquals("   ", keyword.getText());
+        }
+        {
+            Token keyword = lexer.nextToken();
+            assertEquals(":", keyword.getText());
+        }
+        {
+            Token keyword = lexer.nextToken();
+            assertEquals("\t\t ", keyword.getText());
+        }
+    }
+
 }
