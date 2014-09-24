@@ -1,4 +1,4 @@
-package org.zuchini.gherkin;
+package org.zuchini.gherkin.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -7,9 +7,17 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.zuchini.gherkin.antlr.GherkinListener;
 import org.zuchini.gherkin.antlr.GherkinParser;
-import org.zuchini.gherkin.model.*;
-
-import java.util.Iterator;
+import org.zuchini.gherkin.model.Background;
+import org.zuchini.gherkin.model.Commented;
+import org.zuchini.gherkin.model.Examples;
+import org.zuchini.gherkin.model.Feature;
+import org.zuchini.gherkin.model.Outline;
+import org.zuchini.gherkin.model.Row;
+import org.zuchini.gherkin.model.RowContainer;
+import org.zuchini.gherkin.model.Scenario;
+import org.zuchini.gherkin.model.Step;
+import org.zuchini.gherkin.model.StepContainer;
+import org.zuchini.gherkin.model.Tagged;
 
 class FeatureWalker implements GherkinListener {
     private final String uri;
@@ -25,38 +33,6 @@ class FeatureWalker implements GherkinListener {
         this.uri = uri;
     }
 
-    private static String trimKeyword(Token token) {
-        return token.getText().replaceAll("^[\t ]+|[\t :]+$", "");
-    }
-
-    private static String trimComment(GherkinParser.CommentContext comment) {
-        return comment.lineContent().getText().replaceFirst("^[\t #]+", "");
-    }
-
-    private static String trimCell(GherkinParser.CellContext cell) {
-        return cell.getText().replaceAll("^[\t ]+|[\t |]+$", "").replace("\\|", "|");
-    }
-
-    private static String trimTag(GherkinParser.TagContext tag) {
-        return tag.getText().replaceFirst("^@", "");
-    }
-
-    private static String trimDocument(GherkinParser.DocumentContext ctx) {
-        return ctx.documentContent().getText();
-    }
-
-    private static String joinLineContent(Iterable<GherkinParser.LineContentContext> lines) {
-        StringBuilder sb = new StringBuilder();
-        for (Iterator<GherkinParser.LineContentContext> it = lines.iterator(); it.hasNext(); ) {
-            GherkinParser.LineContentContext line = it.next();
-            sb.append(line.getText());
-            if (it.hasNext()) {
-                sb.append("\n");
-            }
-        }
-        return sb.toString();
-    }
-
     public Feature getFeature() {
         return feature;
     }
@@ -65,8 +41,7 @@ class FeatureWalker implements GherkinListener {
     public void enterFeature(@NotNull GherkinParser.FeatureContext ctx) {
         Token keyword = ctx.FEATURE_KW().getSymbol();
 
-        String description = joinLineContent(ctx.lineContent());
-        feature = new Feature(uri, keyword.getLine(), trimKeyword(keyword), description);
+        feature = new Feature(uri, keyword.getLine(), keyword.getText(), ctx.featureTitle().getText());
         commentContainer = feature;
         tagContainer = feature;
     }
@@ -76,9 +51,17 @@ class FeatureWalker implements GherkinListener {
     }
 
     @Override
+    public void enterFeatureTitle(@NotNull GherkinParser.FeatureTitleContext ctx) {
+    }
+
+    @Override
+    public void exitFeatureTitle(@NotNull GherkinParser.FeatureTitleContext ctx) {
+    }
+
+    @Override
     public void enterBackground(@NotNull GherkinParser.BackgroundContext ctx) {
         Token keyword = ctx.BACKGROUND_KW().getSymbol();
-        Background background = new Background(feature, keyword.getLine(), trimKeyword(keyword),
+        Background background = new Background(feature, keyword.getLine(), keyword.getText(),
                 ctx.lineContent().getText());
         commentContainer = background;
         tagContainer = background;
@@ -94,7 +77,7 @@ class FeatureWalker implements GherkinListener {
     @Override
     public void enterStep(@NotNull GherkinParser.StepContext ctx) {
         Token keyword = ctx.STEP_KW().getSymbol();
-        step = new Step(stepContainer, keyword.getLine(), trimKeyword(keyword), ctx.lineContent().getText());
+        step = new Step(stepContainer, keyword.getLine(), keyword.getText(), ctx.lineContent().getText());
         commentContainer = step;
         tagContainer = step;
         rowContainer = step;
@@ -108,7 +91,7 @@ class FeatureWalker implements GherkinListener {
 
     @Override
     public void enterDocument(@NotNull GherkinParser.DocumentContext ctx) {
-        String doc = trimDocument(ctx);
+        String doc = ctx.documentContent().getText();
         step.getDocs().add(doc);
     }
 
@@ -118,7 +101,7 @@ class FeatureWalker implements GherkinListener {
 
     @Override
     public void enterComment(@NotNull GherkinParser.CommentContext ctx) {
-        commentContainer.getComments().add(trimComment(ctx));
+        commentContainer.getComments().add(ctx.lineContent().getText());
     }
 
     @Override
@@ -126,16 +109,8 @@ class FeatureWalker implements GherkinListener {
     }
 
     @Override
-    public void enterTags(@NotNull GherkinParser.TagsContext ctx) {
-    }
-
-    @Override
-    public void exitTags(@NotNull GherkinParser.TagsContext ctx) {
-    }
-
-    @Override
     public void enterTag(@NotNull GherkinParser.TagContext ctx) {
-        tagContainer.getTags().add(trimTag(ctx));
+        tagContainer.getTags().add(ctx.tagName().getText());
     }
 
     @Override
@@ -161,7 +136,7 @@ class FeatureWalker implements GherkinListener {
     @Override
     public void enterScenario(@NotNull GherkinParser.ScenarioContext ctx) {
         Token keyword = ctx.SCENARIO_KW().getSymbol();
-        stepContainer = new Scenario(feature, keyword.getLine(), trimKeyword(keyword), ctx.lineContent().getText());
+        stepContainer = new Scenario(feature, keyword.getLine(), keyword.getText(), ctx.lineContent().getText());
         commentContainer = stepContainer;
         tagContainer = stepContainer;
     }
@@ -175,7 +150,7 @@ class FeatureWalker implements GherkinListener {
     @Override
     public void enterOutline(@NotNull GherkinParser.OutlineContext ctx) {
         Token keyword = ctx.OUTLINE_KW().getSymbol();
-        stepContainer = new Outline(feature, keyword.getLine(), trimKeyword(keyword), ctx.lineContent().getText());
+        stepContainer = new Outline(feature, keyword.getLine(), keyword.getText(), ctx.lineContent().getText());
         commentContainer = stepContainer;
         tagContainer = stepContainer;
     }
@@ -211,7 +186,7 @@ class FeatureWalker implements GherkinListener {
 
     @Override
     public void exitCell(@NotNull GherkinParser.CellContext ctx) {
-        row.getCells().add(trimCell(ctx));
+        row.getCells().add(ParserHelper.trimCell(ctx));
     }
 
     @Override

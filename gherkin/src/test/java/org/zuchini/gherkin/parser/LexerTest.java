@@ -1,4 +1,4 @@
-package org.zuchini.gherkin;
+package org.zuchini.gherkin.parser;
 
 import org.zuchini.gherkin.antlr.GherkinLexer;
 import org.antlr.v4.runtime.ANTLRInputStream;

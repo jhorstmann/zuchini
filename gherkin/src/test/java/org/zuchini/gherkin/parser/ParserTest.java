@@ -1,7 +1,8 @@
-package org.zuchini.gherkin;
+package org.zuchini.gherkin.parser;
 
 import org.zuchini.gherkin.model.*;
 import org.junit.Test;
+import org.zuchini.gherkin.parser.FeatureParser;
 
 import java.util.List;
 
@@ -126,14 +127,14 @@ public class ParserTest {
             assertEquals(5, step.getLineNumber());
             assertEquals("Given", step.getKeyword());
             assertEquals("a commented step", step.getDescription());
-            assertEquals(asList("Comment 1"), step.getComments());
+            assertEquals(asList(" Comment 1"), step.getComments());
         }
         {
             Step step = steps.get(1);
             assertEquals(7, step.getLineNumber());
             assertEquals("Then", step.getKeyword());
             assertEquals("the comment is parsed", step.getDescription());
-            assertEquals(asList("Comment 2"), step.getComments());
+            assertEquals(asList(" Comment 2"), step.getComments());
         }
     }
 

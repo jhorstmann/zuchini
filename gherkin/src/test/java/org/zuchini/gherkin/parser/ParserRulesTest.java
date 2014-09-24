@@ -1,8 +1,9 @@
-package org.zuchini.gherkin;
+package org.zuchini.gherkin.parser;
 
 import org.zuchini.gherkin.antlr.GherkinParser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.junit.Test;
+import org.zuchini.gherkin.parser.FeatureParser;
 
 import static org.junit.Assert.assertEquals;
 

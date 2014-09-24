@@ -1,7 +1,6 @@
-package org.zuchini.gherkin;
+package org.zuchini.gherkin.model;
 
 import org.junit.Test;
-import org.zuchini.gherkin.model.*;
 
 import java.util.List;
 

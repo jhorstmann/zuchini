@@ -4,23 +4,24 @@ tagName         : ~(WS | EOL)+;
 
 tag             : AT tagName;
 
-tags            : WS? tag (WS tag)* EOL;
-
 lineContent     : ~EOL+;
 
 comment         : WS? HASH lineContent EOL;
 
-annotation      : (comment | tags | WS? EOL);
+annotation      : comment
+                | WS? tag (WS tag)* EOL
+                | WS? EOL;
+
+featureTitle    : lineContent (EOL lineContent)*;
 
 feature         : annotation*
-                  WS? FEATURE_KW WS? COLON WS? (lineContent EOL)+
+                  WS? FEATURE_KW WS? COLON WS? featureTitle EOL
                   EOL*
                   background?
                   abstractScenario*
                   EOL* EOF;
 
 background      : annotation*
-                  tags?
                   WS? BACKGROUND_KW WS? COLON WS? lineContent EOL
                   step+
                   EOL*;
@@ -33,7 +34,6 @@ scenario        : annotation*
                   EOL*;
 
 outline         : annotation*
-                  tags?
                   WS? OUTLINE_KW WS? COLON WS? lineContent EOL
                   step+
                   examples+
@@ -45,7 +45,7 @@ examples        : annotation*
 
 step            : annotation*
                   WS? STEP_KW WS lineContent EOL
-                  (table | document)?;
+                  (table | document+)?;
 
 table           : row+;
 

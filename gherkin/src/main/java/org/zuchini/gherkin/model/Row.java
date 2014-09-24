@@ -18,8 +18,12 @@ public class Row implements Commented, Tagged, LocationAware {
     }
 
     public Row(Feature feature, int lineNumber, String... cells) {
+        this(feature, lineNumber, asList(cells));
+    }
+
+    public Row(Feature feature, int lineNumber, List<String> cells) {
         this(feature, lineNumber);
-        getCells().addAll(asList(cells));
+        getCells().addAll(cells);
     }
 
     @Override
