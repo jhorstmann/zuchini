@@ -161,14 +161,6 @@ class FeatureWalker implements GherkinListener {
     }
 
     @Override
-    public void enterTable(@NotNull GherkinParser.TableContext ctx) {
-    }
-
-    @Override
-    public void exitTable(@NotNull GherkinParser.TableContext ctx) {
-    }
-
-    @Override
     public void enterRow(@NotNull GherkinParser.RowContext ctx) {
         row = new Row(feature, ctx.getStart().getLine());
         commentContainer = row;

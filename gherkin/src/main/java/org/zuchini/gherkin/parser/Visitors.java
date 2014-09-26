@@ -140,7 +140,7 @@ public class Visitors  {
                     ctx.lineContent() == null ? "" : ctx.lineContent().getText());
             examples.getTags().addAll(visitNodesAndAggregate(ctx.annotation(), new TagsVisitor()));
             examples.getComments().addAll(visitNodesAndAggregate(ctx.annotation(), new CommentsVisitor()));
-            examples.getRows().addAll(visitNodes(ctx.table().row(), new RowVisitor(outline.getFeature())));
+            examples.getRows().addAll(visitNodes(ctx.row(), new RowVisitor(outline.getFeature())));
             return examples;
         }
     }
@@ -159,9 +159,7 @@ public class Visitors  {
             step.getTags().addAll(visitNodesAndAggregate(ctx.annotation(), new TagsVisitor()));
             step.getComments().addAll(visitNodesAndAggregate(ctx.annotation(), new CommentsVisitor()));
             step.getDocs().addAll(visitNodesAndAggregate(ctx.document(), new DocumentsVisitor()));
-            if (ctx.table() != null) {
-                step.getRows().addAll(visitNodes(ctx.table().row(), new RowVisitor(stepContainer.getFeature())));
-            }
+            step.getRows().addAll(visitNodes(ctx.row(), new RowVisitor(stepContainer.getFeature())));
 
             return step;
         }

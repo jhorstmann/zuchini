@@ -41,13 +41,11 @@ outline         : annotation*
 
 examples        : annotation*
                   WS? EXAMPLES_KW WS? COLON WS? lineContent? EOL
-                  table;
+                  row+;
 
 step            : annotation*
                   WS? STEP_KW WS lineContent EOL
-                  (table | document+)?;
-
-table           : row+;
+                  (row+ | document+)?;
 
 row             : annotation*
                   WS? PIPE (cell PIPE)+ EOL;
