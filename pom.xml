@@ -29,6 +29,6 @@
         </dependencies>
     </dependencyManagement>
     <modules>
-        <module>gherkin</module>
+        <module>zuchini-model</module>
     </modules>
 </project>
