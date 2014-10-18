@@ -19,16 +19,17 @@ public class OutlineTest {
         outline.getSteps().add(given);
 
         Examples examples = new Examples(outline, 0, "");
+        examples.getTags().add("TaggedExample");
 
         Row header = new Row(feature, 3, "A", "B", "C");
         examples.getRows().add(header);
 
         Row row1 = new Row(feature, 4, "1", "2", "3");
-        row1.getTags().add("TaggedExample");
+        row1.getTags().add("TaggedExampleRow");
         examples.getRows().add(row1);
 
         Row example2 = new Row(feature, 5, "11", "12", "13");
-        example2.getTags().add("TaggedExample");
+        example2.getTags().add("TaggedExampleRow");
         examples.getRows().add(example2);
 
         outline.getExamples().add(examples);
@@ -40,7 +41,7 @@ public class OutlineTest {
             Scenario scenario = scenarios.get(0);
             assertEquals("Outline {A=1, B=2, C=3}", scenario.getDescription());
             assertEquals(4, scenario.getLineNumber());
-            assertEquals(asList("TaggedOutline", "TaggedExample"), scenario.getTags());
+            assertEquals(asList("TaggedOutline", "TaggedExample", "TaggedExampleRow"), scenario.getTags());
 
             List<Step> steps = scenario.getSteps();
             assertEquals(1, steps.size());
@@ -48,14 +49,14 @@ public class OutlineTest {
             Step step = steps.get(0);
             assertEquals("Given", step.getKeyword());
             assertEquals("values 1 and 2", step.getDescription());
-            assertEquals(asList("TaggedStep", "TaggedExample"), step.getTags());
+            assertEquals(asList("TaggedStep"), step.getTags());
             assertEquals(asList("Document 3"), step.getDocs());
         }
         {
             Scenario scenario = scenarios.get(1);
             assertEquals("Outline {A=11, B=12, C=13}", scenario.getDescription());
             assertEquals(5, scenario.getLineNumber());
-            assertEquals(asList("TaggedOutline", "TaggedExample"), scenario.getTags());
+            assertEquals(asList("TaggedOutline", "TaggedExample", "TaggedExampleRow"), scenario.getTags());
 
             List<Step> steps = scenario.getSteps();
             assertEquals(1, steps.size());
@@ -63,7 +64,7 @@ public class OutlineTest {
             Step step = steps.get(0);
             assertEquals("Given", step.getKeyword());
             assertEquals("values 11 and 12", step.getDescription());
-            assertEquals(asList("TaggedStep", "TaggedExample"), step.getTags());
+            assertEquals(asList("TaggedStep"), step.getTags());
             assertEquals(asList("Document 13"), step.getDocs());
         }
 

@@ -55,10 +55,7 @@ public class Outline extends StepContainer {
             String stepDescription = replaceExampleValues(exampleStep.getDescription(), pattern, exampleValues);
             Step step = new Step(scenario, exampleStep.getLineNumber(), exampleStep.getKeyword(), stepDescription);
             step.getComments().addAll(exampleStep.getComments());
-            step.getComments().addAll(exampleRow.getComments());
-
             step.getTags().addAll(exampleStep.getTags());
-            step.getTags().addAll(exampleRow.getTags());
 
             for (String doc : exampleStep.getDocs()) {
                 step.getDocs().add(replaceExampleValues(doc, pattern, exampleValues));
@@ -89,21 +86,24 @@ public class Outline extends StepContainer {
     public List<Scenario> buildScenarios() {
         List<Scenario> result = new ArrayList<>(examples.size()-1);
         for (Examples example : examples) {
-            result.addAll(buildScenarios(example.getRows()));
+            result.addAll(buildScenarios(example));
         }
 
         return result;
     }
 
-    private List<Scenario> buildScenarios(List<Row> examples) {
+    private List<Scenario> buildScenarios(Examples examples) {
+        List<Row> exampleRows = examples.getRows();
+
         List<Scenario> result = new ArrayList<>();
-        List<String> header = examples.get(0).getCells();
+        List<String> header = exampleRows.get(0).getCells();
         Pattern pattern = buildPattern(header);
-        for (Row exampleRow : examples.subList(1, examples.size())) {
+        for (Row exampleRow : exampleRows.subList(1, exampleRows.size())) {
             Map<String, String> exampleValues = Table.rowToMap(header, exampleRow);
             Scenario scenario = buildScenario(pattern, exampleRow, exampleValues);
             scenario.getComments().addAll(exampleRow.getComments());
             scenario.getTags().addAll(getTags());
+            scenario.getTags().addAll(examples.getTags());
             scenario.getTags().addAll(exampleRow.getTags());
 
             result.add(scenario);
