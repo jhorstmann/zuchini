@@ -7,5 +7,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
+@StepAnnotation
 public @interface When {
+    public String value();
 }
