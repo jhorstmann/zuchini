@@ -60,7 +60,9 @@ public class Outline extends StepContainer {
             step.getTags().addAll(exampleStep.getTags());
             step.getTags().addAll(exampleRow.getTags());
 
-            step.getDocs().addAll(exampleStep.getDocs());
+            for (String doc : exampleStep.getDocs()) {
+                step.getDocs().add(replaceExampleValues(doc, pattern, exampleValues));
+            }
 
             for (Row exampleStepData : exampleStep.getRows()) {
                 step.getRows().add(buildRow(pattern, exampleStepData, exampleValues));
