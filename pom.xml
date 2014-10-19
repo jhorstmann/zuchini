@@ -32,6 +32,7 @@
         <module>zuchini-annotations</module>
         <module>zuchini-model</module>
         <module>zuchini-runner</module>
+        <module>zuchini-junit</module>
         <module>zuchini-compat-annotations</module>
     </modules>
 </project>

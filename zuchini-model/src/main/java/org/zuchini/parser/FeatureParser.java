@@ -10,6 +10,7 @@ import org.zuchini.model.Feature;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
@@ -21,10 +22,20 @@ public class FeatureParser {
     }
 
     public static Feature getFeature(File file) throws IOException {
-        ANTLRInputStream inputStream = new ANTLRInputStream(new InputStreamReader(new FileInputStream(file),
-                DEFAULT_CHARSET));
-        inputStream.name = file.toURI().toASCIIString();
-        return getFeature(inputStream);
+        FileInputStream inputStream = new FileInputStream(file);
+        return getFeature(file.toURI().toASCIIString(), inputStream);
+    }
+
+    public static Feature getFeature(String uri, InputStream inputStream) throws IOException {
+        ANTLRInputStream input = new ANTLRInputStream(new InputStreamReader(inputStream, DEFAULT_CHARSET));
+        input.name = uri;
+        return getFeature(input);
+    }
+
+    public static Feature getFeature(String uri, Reader reader) throws IOException {
+        ANTLRInputStream input = new ANTLRInputStream(reader);
+        input.name = uri;
+        return getFeature(input);
     }
 
     public static Feature getFeature(Reader reader) throws IOException {

@@ -13,6 +13,14 @@ public class SimpleScenarioStatement extends ScenarioStatement {
         this.steps = steps;
     }
 
+    public Scenario getScenario() {
+        return scenario;
+    }
+
+    public List<StepStatement> getSteps() {
+        return steps;
+    }
+
     @Override
     public boolean isOutline() {
         return false;

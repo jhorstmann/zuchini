@@ -2,6 +2,7 @@ package org.zuchini.runner;
 
 import org.zuchini.model.Feature;
 
+import java.util.Collections;
 import java.util.List;
 
 public class FeatureStatement implements Statement {
@@ -11,6 +12,14 @@ public class FeatureStatement implements Statement {
     public FeatureStatement(Feature feature, List<? extends ScenarioStatement> scenarios) {
         this.feature = feature;
         this.scenarios = scenarios;
+    }
+
+    public Feature getFeature() {
+        return feature;
+    }
+
+    public List<? extends ScenarioStatement> getScenarios() {
+        return Collections.unmodifiableList(scenarios);
     }
 
     @Override

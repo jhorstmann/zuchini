@@ -17,6 +17,10 @@ public class StepStatement implements Statement {
         this.args = args;
     }
 
+    public Step getStep() {
+        return step;
+    }
+
     @Override
     public void evaluate(ScenarioScope scope) throws Throwable {
         try {

@@ -13,6 +13,14 @@ public class OutlineStatement extends ScenarioStatement {
         this.scenarios = scenarios;
     }
 
+    public Outline getOutline() {
+        return outline;
+    }
+
+    public List<SimpleScenarioStatement> getScenarios() {
+        return scenarios;
+    }
+
     @Override
     public boolean isOutline() {
         return true;

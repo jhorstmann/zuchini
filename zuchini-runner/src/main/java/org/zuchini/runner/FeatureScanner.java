@@ -27,7 +27,7 @@ public class FeatureScanner extends ClasspathScanner {
 
         try (InputStream in = classLoader.getResourceAsStream(resourceName)) {
             try (Reader reader = new InputStreamReader(in)) {
-                Feature feature = FeatureParser.getFeature(reader);
+                Feature feature = FeatureParser.getFeature(resourceName, reader);
                 features.add(feature);
             }
         }
