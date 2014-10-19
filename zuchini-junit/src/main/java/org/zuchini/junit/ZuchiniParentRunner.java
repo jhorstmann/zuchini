@@ -7,7 +7,7 @@ import org.junit.runner.manipulation.Sorter;
 import org.junit.runners.ParentRunner;
 import org.junit.runners.model.InitializationError;
 
-public abstract class ZuchiniParentRunner<T> extends ParentRunner<T> {
+abstract class ZuchiniParentRunner<T> extends ParentRunner<T> {
 
     protected ZuchiniParentRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
