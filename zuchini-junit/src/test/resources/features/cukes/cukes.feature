@@ -9,7 +9,6 @@ Feature: cukes
     Then there are <count> cukes in my belly
   Examples:
   | count |
-  | -1    |
   | 0     |
   | 1     |
   | 2     |
