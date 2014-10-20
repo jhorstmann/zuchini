@@ -95,7 +95,7 @@ class ScenarioRunner extends Runner {
         FeatureInfo featureInfo = AnnotationHandler.create(FeatureInfo.class, featureStatement.getFeature());
         String location = getLocation();
         String name = getName();
-        Description description = Description.createTestDescription(location, name, featureInfo, scenarioInfo);
+        Description description = Description.createSuiteDescription(name + " [" + location + "]", featureInfo, scenarioInfo);
         for (DescribedStepStatement child : children) {
             description.addChild(child.getDescription());
         }
@@ -115,6 +115,7 @@ class ScenarioRunner extends Runner {
                     notifier.fireTestStarted(stepDescription);
                     try {
                         stepStatement.evaluate(scope);
+                        notifier.fireTestFinished(stepDescription);
                     } catch (AssumptionViolatedException ex) {
                         notifier.fireTestAssumptionFailed(new Failure(stepDescription, ex));
                         throw ex;
@@ -122,13 +123,11 @@ class ScenarioRunner extends Runner {
                         notifier.fireTestFailure(new Failure(stepDescription, throwable));
                         throw throwable;
                     }
-                    notifier.fireTestFinished(stepDescription);
                 }
             } catch (Throwable throwable) {
                 while (it.hasNext()) {
                     DescribedStepStatement describedStepStatement = it.next();
                     Description stepDescription = describedStepStatement.getDescription();
-                    notifier.fireTestStarted(stepDescription);
                     notifier.fireTestIgnored(stepDescription);
                 }
             }
