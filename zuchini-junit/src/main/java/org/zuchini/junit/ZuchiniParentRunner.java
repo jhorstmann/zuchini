@@ -18,7 +18,7 @@ abstract class ZuchiniParentRunner<T> extends ParentRunner<T> {
 
     @Override
     public Description getDescription() {
-        Description description =Description.createTestDescription(getLocation(), getName(), getRunnerAnnotations());
+        Description description = Description.createSuiteDescription(getName() + " [" + getLocation() + "]", getRunnerAnnotations());
         for (T child : getChildren()) {
             description.addChild(describeChild(child));
         }
