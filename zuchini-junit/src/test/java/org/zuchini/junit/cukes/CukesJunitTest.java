@@ -5,6 +5,6 @@ import org.zuchini.junit.Zuchini;
 import org.zuchini.junit.ZuchiniOptions;
 
 @RunWith(Zuchini.class)
-@ZuchiniOptions(featurePackages = {"features/cukes"}, stepDefinitionPackages = "org.zuchini.junit.cukes")
+@ZuchiniOptions(featurePackages = {"features/cukes"}, stepDefinitionPackages = "org.zuchini.junit.cukes", reportIndividualSteps = true)
 public class CukesJunitTest {
 }

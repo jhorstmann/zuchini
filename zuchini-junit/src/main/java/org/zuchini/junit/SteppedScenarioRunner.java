@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-class ScenarioRunner extends Runner {
+class SteppedScenarioRunner extends Runner {
 
     static class DescribedStepStatement {
         private final StepStatement stepStatement;
@@ -42,14 +42,12 @@ class ScenarioRunner extends Runner {
         }
     }
 
-    private final Class<?> testClass;
     private final ScenarioScope scope;
     private final FeatureStatement featureStatement;
     private final SimpleScenarioStatement scenarioStatement;
     private final List<DescribedStepStatement> children;
 
-    public ScenarioRunner(Class<?> testClass, ScenarioScope scope, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
-        this.testClass = testClass;
+    public SteppedScenarioRunner(ScenarioScope scope, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
         this.scope = scope;
         this.featureStatement = featureStatement;
         this.scenarioStatement = scenarioStatement;

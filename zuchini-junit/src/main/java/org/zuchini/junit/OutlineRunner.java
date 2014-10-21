@@ -1,6 +1,7 @@
 package org.zuchini.junit;
 
 import org.junit.runner.Description;
+import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
 import org.zuchini.junit.description.AnnotationHandler;
@@ -17,23 +18,27 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-class OutlineRunner extends ZuchiniParentRunner<ScenarioRunner> {
+class OutlineRunner extends ZuchiniParentRunner<Runner> {
     private final FeatureStatement featureStatement;
     private final OutlineStatement outlineStatement;
-    private final List<ScenarioRunner> children;
+    private final List<Runner> children;
 
-    public OutlineRunner(Class<?> testClass, ScenarioScope scope, FeatureStatement featureStatement, OutlineStatement outlineStatement) throws InitializationError {
+    public OutlineRunner(Class<?> testClass, ScenarioScope scope, FeatureStatement featureStatement, OutlineStatement outlineStatement, boolean reportIndividualSteps) throws InitializationError {
         super(testClass);
         this.outlineStatement = outlineStatement;
         this.featureStatement = featureStatement;
-        this.children = buildChildren(testClass, scope, featureStatement, outlineStatement);
+        this.children = buildChildren(scope, featureStatement, outlineStatement, reportIndividualSteps);
     }
 
-    private static List<ScenarioRunner> buildChildren(Class<?> testClass, ScenarioScope scope, FeatureStatement featureStatement, OutlineStatement outline) throws InitializationError {
+    private static List<Runner> buildChildren(ScenarioScope scope, FeatureStatement featureStatement, OutlineStatement outline, boolean reportIndividualSteps) throws InitializationError {
         List<SimpleScenarioStatement> scenarios = outline.getScenarios();
-        List<ScenarioRunner> children = new ArrayList<>(scenarios.size());
+        List<Runner> children = new ArrayList<>(scenarios.size());
         for (ScenarioStatement scenario : scenarios) {
-            children.add(new ScenarioRunner(testClass, scope, featureStatement, (SimpleScenarioStatement) scenario));
+            if (reportIndividualSteps) {
+                children.add(new SteppedScenarioRunner(scope, featureStatement, (SimpleScenarioStatement) scenario));
+            } else {
+                children.add(new SimpleScenarioRunner(scope, featureStatement, (SimpleScenarioStatement) scenario));
+            }
         }
         return children;
     }
@@ -59,17 +64,17 @@ class OutlineRunner extends ZuchiniParentRunner<ScenarioRunner> {
     }
 
     @Override
-    protected List<ScenarioRunner> getChildren() {
+    protected List<Runner> getChildren() {
         return children;
     }
 
     @Override
-    protected Description describeChild(ScenarioRunner child) {
+    protected Description describeChild(Runner child) {
         return child.getDescription();
     }
 
     @Override
-    protected void runChild(ScenarioRunner child, RunNotifier notifier) {
+    protected void runChild(Runner child, RunNotifier notifier) {
         child.run(notifier);
     }
 }

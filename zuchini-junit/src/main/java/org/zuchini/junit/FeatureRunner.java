@@ -22,20 +22,24 @@ class FeatureRunner extends ZuchiniParentRunner<Runner> {
     private final FeatureStatement featureStatement;
     private final List<Runner> children;
 
-    public FeatureRunner(Class<?> testClass, ScenarioScope scope, FeatureStatement featureStatement) throws InitializationError {
+    public FeatureRunner(Class<?> testClass, ScenarioScope scope, FeatureStatement featureStatement, boolean reportIndividualSteps) throws InitializationError {
         super(testClass);
         this.featureStatement = featureStatement;
-        this.children = buildChildren(testClass, scope, featureStatement);
+        this.children = buildChildren(testClass, scope, featureStatement, reportIndividualSteps);
     }
 
-    private static List<Runner> buildChildren(Class<?> testClass, ScenarioScope scope, FeatureStatement featureStatement) throws InitializationError {
+    private static List<Runner> buildChildren(Class<?> testClass, ScenarioScope scope, FeatureStatement featureStatement, boolean reportIndividualSteps) throws InitializationError {
         List<? extends ScenarioStatement> scenarios = featureStatement.getScenarios();
         List<Runner> children = new ArrayList<>(scenarios.size());
         for (ScenarioStatement scenario : scenarios) {
             if (scenario instanceof OutlineStatement) {
-                children.add(new OutlineRunner(testClass, scope, featureStatement, (OutlineStatement)scenario));
+                children.add(new OutlineRunner(testClass, scope, featureStatement, (OutlineStatement)scenario, reportIndividualSteps));
             } else if (scenario instanceof SimpleScenarioStatement) {
-                children.add(new ScenarioRunner(testClass, scope, featureStatement, (SimpleScenarioStatement) scenario));
+                if (reportIndividualSteps) {
+                    children.add(new SteppedScenarioRunner(scope, featureStatement, (SimpleScenarioStatement) scenario));
+                } else {
+                    children.add(new SimpleScenarioRunner(scope, featureStatement, (SimpleScenarioStatement) scenario));
+                }
             } else {
                 throw new IllegalStateException("Unknown scenario type [" + scenario.getClass().getName() + "]");
             }

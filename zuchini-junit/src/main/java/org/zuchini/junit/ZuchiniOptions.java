@@ -13,5 +13,6 @@ import java.lang.annotation.Target;
 public @interface ZuchiniOptions {
     String[] featurePackages();
     String[] stepDefinitionPackages();
+    boolean reportIndividualSteps() default false;
     Class<? extends ScenarioScope> scope() default ThreadLocalScope.class;
 }

@@ -23,8 +23,13 @@ public class Zuchini extends ParentRunner<FeatureRunner> {
         this.children = buildChildren(testClass);
     }
 
-    private List<FeatureRunner> buildChildren(Class<?> testClass) throws InstantiationException, IllegalAccessException, IOException, InitializationError {
+    private static List<FeatureRunner> buildChildren(Class<?> testClass) throws InstantiationException, IllegalAccessException,
+            IOException, InitializationError {
         ZuchiniOptions options = testClass.getAnnotation(ZuchiniOptions.class);
+        if (options == null) {
+            throw new IllegalStateException("ZuchiniOptions annotation is required on [" + testClass.getName() + "]");
+        }
+        boolean reportIndividualSteps = options.reportIndividualSteps();
         ScenarioScope scope = options.scope().newInstance();
 
         List<FeatureStatement> features = new WorldBuilder(testClass.getClassLoader())
@@ -35,7 +40,7 @@ public class Zuchini extends ParentRunner<FeatureRunner> {
 
         ArrayList<FeatureRunner> children = new ArrayList<>(features.size());
         for (FeatureStatement feature : features) {
-            children.add(new FeatureRunner(testClass, scope, feature));
+            children.add(new FeatureRunner(testClass, scope, feature, reportIndividualSteps));
         }
 
         return children;
