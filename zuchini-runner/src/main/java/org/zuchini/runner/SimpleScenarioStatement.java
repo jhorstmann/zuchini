@@ -27,7 +27,7 @@ public class SimpleScenarioStatement extends ScenarioStatement {
     }
 
     @Override
-    public void evaluate(ScenarioScope scope) throws Throwable {
+    public void evaluate(Scope scope) throws Throwable {
         scope.begin();
         try {
             for (StepStatement step : steps) {

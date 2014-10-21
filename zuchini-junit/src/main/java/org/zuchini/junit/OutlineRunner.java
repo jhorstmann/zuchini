@@ -10,7 +10,7 @@ import org.zuchini.junit.description.OutlineInfo;
 import org.zuchini.model.Outline;
 import org.zuchini.runner.FeatureStatement;
 import org.zuchini.runner.OutlineStatement;
-import org.zuchini.runner.ScenarioScope;
+import org.zuchini.runner.Scope;
 import org.zuchini.runner.ScenarioStatement;
 import org.zuchini.runner.SimpleScenarioStatement;
 
@@ -23,14 +23,14 @@ class OutlineRunner extends ZuchiniParentRunner<Runner> {
     private final OutlineStatement outlineStatement;
     private final List<Runner> children;
 
-    public OutlineRunner(Class<?> testClass, ScenarioScope scope, FeatureStatement featureStatement, OutlineStatement outlineStatement, boolean reportIndividualSteps) throws InitializationError {
+    public OutlineRunner(Class<?> testClass, Scope scope, FeatureStatement featureStatement, OutlineStatement outlineStatement, boolean reportIndividualSteps) throws InitializationError {
         super(testClass);
         this.outlineStatement = outlineStatement;
         this.featureStatement = featureStatement;
         this.children = buildChildren(scope, featureStatement, outlineStatement, reportIndividualSteps);
     }
 
-    private static List<Runner> buildChildren(ScenarioScope scope, FeatureStatement featureStatement, OutlineStatement outline, boolean reportIndividualSteps) throws InitializationError {
+    private static List<Runner> buildChildren(Scope scope, FeatureStatement featureStatement, OutlineStatement outline, boolean reportIndividualSteps) throws InitializationError {
         List<SimpleScenarioStatement> scenarios = outline.getScenarios();
         List<Runner> children = new ArrayList<>(scenarios.size());
         for (ScenarioStatement scenario : scenarios) {

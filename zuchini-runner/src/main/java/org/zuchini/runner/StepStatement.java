@@ -22,7 +22,7 @@ public class StepStatement implements Statement {
     }
 
     @Override
-    public void evaluate(ScenarioScope scope) throws Throwable {
+    public void evaluate(Scope scope) throws Throwable {
         try {
             Object target = scope.getObject(method.getDeclaringClass());
             method.invoke(target, args);

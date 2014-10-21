@@ -11,16 +11,16 @@ import org.zuchini.junit.description.FeatureInfo;
 import org.zuchini.junit.description.ScenarioInfo;
 import org.zuchini.model.Scenario;
 import org.zuchini.runner.FeatureStatement;
-import org.zuchini.runner.ScenarioScope;
+import org.zuchini.runner.Scope;
 import org.zuchini.runner.SimpleScenarioStatement;
 
 class SimpleScenarioRunner extends Runner {
 
-    private final ScenarioScope scope;
+    private final Scope scope;
     private final FeatureStatement featureStatement;
     private final SimpleScenarioStatement scenarioStatement;
 
-    public SimpleScenarioRunner(ScenarioScope scope, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
+    public SimpleScenarioRunner(Scope scope, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
         this.scope = scope;
         this.featureStatement = featureStatement;
         this.scenarioStatement = scenarioStatement;

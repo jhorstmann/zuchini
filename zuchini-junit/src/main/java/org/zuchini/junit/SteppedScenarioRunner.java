@@ -14,7 +14,7 @@ import org.zuchini.model.Feature;
 import org.zuchini.model.Scenario;
 import org.zuchini.model.Step;
 import org.zuchini.runner.FeatureStatement;
-import org.zuchini.runner.ScenarioScope;
+import org.zuchini.runner.Scope;
 import org.zuchini.runner.SimpleScenarioStatement;
 import org.zuchini.runner.StepStatement;
 
@@ -42,12 +42,12 @@ class SteppedScenarioRunner extends Runner {
         }
     }
 
-    private final ScenarioScope scope;
+    private final Scope scope;
     private final FeatureStatement featureStatement;
     private final SimpleScenarioStatement scenarioStatement;
     private final List<DescribedStepStatement> children;
 
-    public SteppedScenarioRunner(ScenarioScope scope, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
+    public SteppedScenarioRunner(Scope scope, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
         this.scope = scope;
         this.featureStatement = featureStatement;
         this.scenarioStatement = scenarioStatement;

@@ -3,7 +3,7 @@ package org.zuchini.runner;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ThreadLocalScope implements ScenarioScope {
+public class ThreadLocalScope implements Scope {
     private final ThreadLocal<Map<Class<?>, Object>> threadLocalObjects = new ThreadLocal<>();
 
     @Override
@@ -13,17 +13,7 @@ public class ThreadLocalScope implements ScenarioScope {
 
     @Override
     public <T> T getObject(Class<T> clazz) {
-        Map<Class<?>, Object> objects = threadLocalObjects.get();
-        Object obj = objects.get(clazz);
-        if (obj == null) {
-            try {
-                obj = clazz.newInstance();
-                objects.put(clazz, obj);
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new IllegalStateException("Could not create instance of [" + clazz.getName() + "]");
-            }
-        }
-        return clazz.cast(obj);
+        return Construction.construct(clazz, threadLocalObjects.get());
     }
 
     @Override

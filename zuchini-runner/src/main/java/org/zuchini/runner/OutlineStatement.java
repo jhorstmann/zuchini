@@ -27,7 +27,7 @@ public class OutlineStatement extends ScenarioStatement {
     }
 
     @Override
-    public void evaluate(ScenarioScope scope) throws Throwable {
+    public void evaluate(Scope scope) throws Throwable {
         for (SimpleScenarioStatement scenario : scenarios) {
             scenario.evaluate(scope);
         }

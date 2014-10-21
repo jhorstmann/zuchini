@@ -150,7 +150,8 @@ public class ConverterConfiguration {
         for (Annotation parameterAnnotation : parameterAnnotations) {
             if (parameterAnnotation.annotationType() == Convert.class) {
                 Class<Converter<?>> argumentConverterClass = ((Convert) parameterAnnotation).value();
-                return newArgumentConverter(parameterType, argumentConverterClass);
+                // TODO: use global scope to lookup converters
+                return cast(parameterType, Construction.construct(argumentConverterClass));
             }
         }
         Converter<?> converter = converters.get(parameterType);
@@ -158,15 +159,6 @@ public class ConverterConfiguration {
             return cast(parameterType, converter);
         } else {
             throw new IllegalStateException("Could not find argument converter for type [" + parameterType.getName() + "]");
-        }
-    }
-
-    private static <T> Converter<T> newArgumentConverter(Class<T> parameterType, Class<Converter<?>> argumentConverterClass) {
-        try {
-            Converter<?> converter = argumentConverterClass.newInstance();
-            return cast(parameterType, converter);
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new IllegalStateException(e);
         }
     }
 

@@ -1,6 +1,6 @@
 package org.zuchini.junit;
 
-import org.zuchini.runner.ScenarioScope;
+import org.zuchini.runner.Scope;
 import org.zuchini.runner.ThreadLocalScope;
 
 import java.lang.annotation.ElementType;
@@ -14,5 +14,5 @@ public @interface ZuchiniOptions {
     String[] featurePackages();
     String[] stepDefinitionPackages();
     boolean reportIndividualSteps() default false;
-    Class<? extends ScenarioScope> scope() default ThreadLocalScope.class;
+    Class<? extends Scope> scope() default ThreadLocalScope.class;
 }

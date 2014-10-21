@@ -5,7 +5,8 @@ import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.ParentRunner;
 import org.junit.runners.model.InitializationError;
 import org.zuchini.runner.FeatureStatement;
-import org.zuchini.runner.ScenarioScope;
+import org.zuchini.runner.Scope;
+import org.zuchini.runner.World;
 import org.zuchini.runner.WorldBuilder;
 
 import java.io.IOException;
@@ -17,33 +18,49 @@ import static java.util.Arrays.asList;
 public class Zuchini extends ParentRunner<FeatureRunner> {
 
     private final List<FeatureRunner> children;
+    private final ZuchiniOptions options;
+    private final World world;
 
     public Zuchini(Class<?> testClass) throws InitializationError, IOException, IllegalAccessException, InstantiationException {
         super(testClass);
-        this.children = buildChildren(testClass);
+        this.options = testClass.getAnnotation(ZuchiniOptions.class);
+        this.world = buildWorld(testClass, asList(options.featurePackages()), asList(options.stepDefinitionPackages()));
+        this.children = buildChildren(testClass, world, options);
     }
 
-    private static List<FeatureRunner> buildChildren(Class<?> testClass) throws InstantiationException, IllegalAccessException,
-            IOException, InitializationError {
-        ZuchiniOptions options = testClass.getAnnotation(ZuchiniOptions.class);
-        if (options == null) {
-            throw new IllegalStateException("ZuchiniOptions annotation is required on [" + testClass.getName() + "]");
-        }
-        boolean reportIndividualSteps = options.reportIndividualSteps();
-        ScenarioScope scope = options.scope().newInstance();
-
-        List<FeatureStatement> features = new WorldBuilder(testClass.getClassLoader())
+    private static World buildWorld(Class<?> testClass, List<String> featurePackages, List<String> stepDefinitionPackages) throws IOException {
+        return new WorldBuilder(testClass.getClassLoader())
                 .withDefaultConverterConfiguration()
-                .withFeaturePackages(asList(options.featurePackages()))
-                .withStepDefinitionPackages(asList(options.stepDefinitionPackages()))
-                .buildFeatureStatements();
+                .withFeaturePackages(featurePackages)
+                .withStepDefinitionPackages(stepDefinitionPackages)
+                .buildWorld();
+    }
 
-        ArrayList<FeatureRunner> children = new ArrayList<>(features.size());
-        for (FeatureStatement feature : features) {
-            children.add(new FeatureRunner(testClass, scope, feature, reportIndividualSteps));
+    private static List<FeatureRunner> buildChildren(Class<?> testClass, World world, ZuchiniOptions options) throws
+            InstantiationException,
+            IllegalAccessException,
+            IOException, InitializationError {
+        boolean reportIndividualSteps = options.reportIndividualSteps();
+
+        List<FeatureStatement> featureStatements = world.getFeatureStatements();
+        Scope scenarioScope = world.getScenarioScope();
+
+        ArrayList<FeatureRunner> children = new ArrayList<>(featureStatements.size());
+        for (FeatureStatement featureStatement : featureStatements) {
+            children.add(new FeatureRunner(testClass, scenarioScope, featureStatement, reportIndividualSteps));
         }
 
         return children;
+    }
+
+    @Override
+    public void run(RunNotifier notifier) {
+        world.getGlobalScope().begin();
+        try {
+            super.run(notifier);
+        } finally {
+            world.getGlobalScope().end();
+        }
     }
 
     @Override
