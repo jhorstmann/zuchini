@@ -29,7 +29,7 @@ public class EnhancedBeanInfoTest {
         PropertyDescriptor longDescription = properties.get("longDescription");
         assertNotNull(longDescription);
         assertEquals("longDescription", longDescription.getName());
-        assertEquals("Long Description", longDescription.getDisplayName());
+        assertEquals("Long Description Display Name", longDescription.getDisplayName());
 
 
     }

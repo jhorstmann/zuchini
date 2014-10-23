@@ -1,7 +1,5 @@
 package org.zuchini.runner.tables;
 
-import org.zuchini.runner.tables.DisplayName;
-
 public class ExampleBean {
     private int width;
     private int height;
@@ -23,7 +21,7 @@ public class ExampleBean {
         this.height = height;
     }
 
-    @DisplayName("Long Description")
+    @DisplayName("Long Description Display Name")
     public String getLongDescription() {
         return longDescription;
     }

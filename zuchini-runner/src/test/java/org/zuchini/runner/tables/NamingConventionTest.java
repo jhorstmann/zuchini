@@ -12,37 +12,35 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Parameterized.class)
 public class NamingConventionTest {
 
-    @Parameterized.Parameters(name = "{0}: {1}.{2}")
-    public static Collection<Object[]> parameters() {
-        return asList(new Object[][] {
-                {NamingConventions.DefaultNamingConventions.TITLECASE, ExampleBean.class, "width", "Width"},
-                {NamingConventions.DefaultNamingConventions.TITLECASE, ExampleBean.class, "longDescription", "Long Description"},
-                {NamingConventions.DefaultNamingConventions.DISPLAY_NAME, ExampleBean.class, "width", "width"},
-                {NamingConventions.DefaultNamingConventions.DISPLAY_NAME, ExampleBean.class, "longDescription", "Long Description"}
-        });
-    }
-
     private final NamingConvention namingConvention;
-    private final Class<?> beanClass;
     private final String property;
     private final String displayName;
 
-    public NamingConventionTest(NamingConvention namingConvention, Class<?> beanClass, String property, String displayName) {
+    public NamingConventionTest(NamingConvention namingConvention, String property, String displayName) {
         this.namingConvention = namingConvention;
-        this.beanClass = beanClass;
         this.property = property;
         this.displayName = displayName;
     }
 
+    @Parameterized.Parameters(name = "{0}: {1} <-> {2}")
+    public static Collection<Object[]> parameters() {
+        return asList(new Object[][]{
+                {NamingConventions.DefaultNamingConventions.TITLECASE, "width", "Width"},
+                {NamingConventions.DefaultNamingConventions.TITLECASE, "longDescription", "Long Description"},
+                {new BeanInfoNamingConvention(ExampleBean.class), "width", "width"},
+                {new BeanInfoNamingConvention(ExampleBean.class), "longDescription", "Long Description Display Name"}
+        });
+    }
+
     @Test
     public void test() {
-        assertEquals(displayName, namingConvention.toDisplayName(beanClass, property));
-        assertEquals(property, namingConvention.toProperty(beanClass, displayName));
+        assertEquals(displayName, namingConvention.toDisplayName(property));
+        assertEquals(property, namingConvention.toProperty(displayName));
     }
 
     @Test
     public void roundtrip() {
-        assertEquals(displayName, namingConvention.toDisplayName(beanClass, namingConvention.toProperty(beanClass, displayName)));
-        assertEquals(property, namingConvention.toProperty(beanClass, namingConvention.toDisplayName(beanClass, property)));
+        assertEquals(displayName, namingConvention.toDisplayName(namingConvention.toProperty(displayName)));
+        assertEquals(property, namingConvention.toProperty(namingConvention.toDisplayName(property)));
     }
 }
