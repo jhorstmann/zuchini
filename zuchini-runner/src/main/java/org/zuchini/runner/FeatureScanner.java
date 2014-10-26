@@ -12,7 +12,7 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
-public class FeatureScanner extends ClasspathScanner {
+class FeatureScanner extends ClasspathScanner {
     private List<Feature> features;
     private final String encoding;
 

@@ -12,7 +12,7 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
-public class StepDefinitionScanner extends ClasspathScanner {
+class StepDefinitionScanner extends ClasspathScanner {
 
     @SuppressWarnings("unchecked")
     private static Class<? extends Annotation> getCompatStepDefAnnotation() {
