@@ -3,6 +3,7 @@ package org.zuchini.junit;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
+import org.junit.runners.ParentRunner;
 import org.junit.runners.model.InitializationError;
 import org.zuchini.junit.description.AnnotationHandler;
 import org.zuchini.junit.description.FeatureInfo;
@@ -10,15 +11,15 @@ import org.zuchini.junit.description.OutlineInfo;
 import org.zuchini.model.Outline;
 import org.zuchini.runner.FeatureStatement;
 import org.zuchini.runner.OutlineStatement;
-import org.zuchini.runner.Scope;
 import org.zuchini.runner.ScenarioStatement;
+import org.zuchini.runner.Scope;
 import org.zuchini.runner.SimpleScenarioStatement;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-class OutlineRunner extends ZuchiniParentRunner<Runner> {
+class OutlineRunner extends ParentRunner<Runner> {
     private final FeatureStatement featureStatement;
     private final OutlineStatement outlineStatement;
     private final List<Runner> children;
@@ -44,23 +45,18 @@ class OutlineRunner extends ZuchiniParentRunner<Runner> {
     }
 
     @Override
-    protected String getName() {
-        Outline outline = outlineStatement.getOutline();
-        return outline.getKeyword() + " " + outline.getDescription();
-    }
-
-    @Override
-    public String getLocation() {
-        Outline outline = outlineStatement.getOutline();
-        return outline.getUri() + ":" + outline.getLineNumber();
-    }
-
-    @Override
     protected Annotation[] getRunnerAnnotations() {
         return new Annotation[]{
                 AnnotationHandler.create(FeatureInfo.class, featureStatement.getFeature()),
                 AnnotationHandler.create(OutlineInfo.class, outlineStatement.getOutline()),
         };
+    }
+
+    @Override
+    public Description getDescription() {
+        Outline outline = outlineStatement.getOutline();
+        return DescriptionHelper.createDescription(outline.getUri(), outline.getLineNumber(), outline.getKeyword(),
+                outline.getDescription(), children, getRunnerAnnotations());
     }
 
     @Override

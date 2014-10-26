@@ -26,24 +26,13 @@ class SimpleScenarioRunner extends Runner {
         this.scenarioStatement = scenarioStatement;
     }
 
-    public String getName() {
-        Scenario scenario = this.scenarioStatement.getScenario();
-        return scenario.getKeyword() + " " + scenario.getDescription();
-    }
-
-    public String getLocation() {
-        Scenario scenario = this.scenarioStatement.getScenario();
-        return scenario.getUri() + ":" + scenario.getLineNumber();
-    }
-
     @Override
     public Description getDescription() {
         Scenario scenario = this.scenarioStatement.getScenario();
         ScenarioInfo scenarioInfo = AnnotationHandler.create(ScenarioInfo.class, scenario);
         FeatureInfo featureInfo = AnnotationHandler.create(FeatureInfo.class, featureStatement.getFeature());
-        String location = getLocation();
-        String name = getName();
-        return Description.createTestDescription(location, name, featureInfo, scenarioInfo);
+        return DescriptionHelper.createDescription(scenario.getUri(), scenario.getLineNumber(), scenario.getKeyword(),
+                scenario.getDescription(), featureInfo, scenarioInfo);
     }
 
     @Override

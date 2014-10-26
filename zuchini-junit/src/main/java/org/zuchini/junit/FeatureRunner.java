@@ -3,21 +3,22 @@ package org.zuchini.junit;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
+import org.junit.runners.ParentRunner;
 import org.junit.runners.model.InitializationError;
 import org.zuchini.junit.description.AnnotationHandler;
 import org.zuchini.junit.description.FeatureInfo;
 import org.zuchini.model.Feature;
 import org.zuchini.runner.FeatureStatement;
 import org.zuchini.runner.OutlineStatement;
-import org.zuchini.runner.Scope;
 import org.zuchini.runner.ScenarioStatement;
+import org.zuchini.runner.Scope;
 import org.zuchini.runner.SimpleScenarioStatement;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FeatureRunner extends ZuchiniParentRunner<Runner> {
+public class FeatureRunner extends ParentRunner<Runner> {
 
     private final FeatureStatement featureStatement;
     private final List<Runner> children;
@@ -48,22 +49,17 @@ public class FeatureRunner extends ZuchiniParentRunner<Runner> {
     }
 
     @Override
-    protected String getName() {
-        Feature feature = featureStatement.getFeature();
-        return feature.getKeyword() + " " + feature.getDescription();
-    }
-
-    @Override
-    protected String getLocation() {
-        Feature feature = featureStatement.getFeature();
-        return feature.getUri() + ":" + feature.getLineNumber();
-    }
-
-    @Override
     protected Annotation[] getRunnerAnnotations() {
         return new Annotation[]{
                 AnnotationHandler.create(FeatureInfo.class, featureStatement.getFeature()),
         };
+    }
+
+    @Override
+    public Description getDescription() {
+        Feature feature = featureStatement.getFeature();
+        return DescriptionHelper.createDescription(feature.getUri(), feature.getLineNumber(), feature.getKeyword(),
+                feature.getDescription(), children, getRunnerAnnotations());
     }
 
     @Override

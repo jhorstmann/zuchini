@@ -1,6 +1,7 @@
 package org.zuchini.junit;
 
 import org.junit.internal.AssumptionViolatedException;
+import org.junit.runner.Describable;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
@@ -24,7 +25,7 @@ import java.util.List;
 
 class SteppedScenarioRunner extends Runner {
 
-    static class DescribedStepStatement {
+    static class DescribedStepStatement implements Describable {
         private final StepStatement stepStatement;
         private final Description description;
 
@@ -37,7 +38,7 @@ class SteppedScenarioRunner extends Runner {
             return stepStatement;
         }
 
-        Description getDescription() {
+        public Description getDescription() {
             return description;
         }
     }
@@ -67,23 +68,11 @@ class SteppedScenarioRunner extends Runner {
         Feature feature = featureStatement.getFeature();
         Scenario scenario = scenarioStatement.getScenario();
         Step step = stepStatement.getStep();
-        String location = step.getUri() + ":" + step.getLineNumber();
-        String name = step.getKeyword() + " " + step.getDescription();
         ScenarioInfo scenarioInfo = AnnotationHandler.create(ScenarioInfo.class, scenario);
         FeatureInfo featureInfo = AnnotationHandler.create(FeatureInfo.class, feature);
         StepInfo stepInfo = AnnotationHandler.create(StepInfo.class, step);
-        Description description = Description.createTestDescription(location, name, featureInfo, scenarioInfo, stepInfo);
-        return description;
-    }
-
-    public String getName() {
-        Scenario scenario = this.scenarioStatement.getScenario();
-        return scenario.getKeyword() + " " + scenario.getDescription();
-    }
-
-    public String getLocation() {
-        Scenario scenario = this.scenarioStatement.getScenario();
-        return scenario.getUri() + ":" + scenario.getLineNumber();
+        return DescriptionHelper.createDescription(step.getUri(), step.getLineNumber(), step.getKeyword(),
+                step.getDescription(), featureInfo, scenarioInfo, stepInfo);
     }
 
     @Override
@@ -91,13 +80,8 @@ class SteppedScenarioRunner extends Runner {
         Scenario scenario = this.scenarioStatement.getScenario();
         ScenarioInfo scenarioInfo = AnnotationHandler.create(ScenarioInfo.class, scenario);
         FeatureInfo featureInfo = AnnotationHandler.create(FeatureInfo.class, featureStatement.getFeature());
-        String location = getLocation();
-        String name = getName();
-        Description description = Description.createSuiteDescription(name + " [" + location + "]", featureInfo, scenarioInfo);
-        for (DescribedStepStatement child : children) {
-            description.addChild(child.getDescription());
-        }
-        return description;
+        return DescriptionHelper.createDescription(scenario.getUri(), scenario.getLineNumber(), scenario.getKeyword(),
+                scenario.getDescription(), children, featureInfo, scenarioInfo);
     }
 
     @Override
