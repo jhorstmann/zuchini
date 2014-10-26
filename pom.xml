@@ -12,6 +12,8 @@
 
         <version.antlr>4.3</version.antlr>
         <version.junit>4.11</version.junit>
+        <version.spring>3.2.11.RELEASE</version.spring>
+
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -24,7 +26,26 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${version.junit}</version>
-                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>3.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${version.spring}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${version.spring}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${version.spring}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -33,6 +54,7 @@
         <module>zuchini-model</module>
         <module>zuchini-runner</module>
         <module>zuchini-junit</module>
+        <module>zuchini-spring</module>
         <module>zuchini-compat-annotations</module>
     </modules>
 </project>

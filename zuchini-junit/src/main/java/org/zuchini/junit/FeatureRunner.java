@@ -17,7 +17,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-class FeatureRunner extends ZuchiniParentRunner<Runner> {
+public class FeatureRunner extends ZuchiniParentRunner<Runner> {
 
     private final FeatureStatement featureStatement;
     private final List<Runner> children;

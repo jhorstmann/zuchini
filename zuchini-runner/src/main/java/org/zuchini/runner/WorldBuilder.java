@@ -49,12 +49,9 @@ public class WorldBuilder {
     public World buildWorld() throws IOException {
         List<Feature> features = FeatureScanner.scan(classLoader, featurePackages);
         List<StepDefinition> stepDefinitions = StepDefinitionScanner.scan(classLoader, stepDefinitionPackages);
-        ScopeFactory scopeFactory = ScopeFactoryLoader.load(classLoader);
-        Scope globalScope = scopeFactory.createGlobalScope();
-        Scope scenarioScope = scopeFactory.createScenarioScope();
         StatementBuilder statementBuilder = new StatementBuilder(converterConfiguration, stepDefinitions);
         List<FeatureStatement> featureStatements = statementBuilder.buildFeatureStatements(features);
-        return new World(converterConfiguration, featureStatements, globalScope, scenarioScope);
+        return new World(converterConfiguration, featureStatements);
     }
 
 }
