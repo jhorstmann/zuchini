@@ -9,7 +9,6 @@ import java.util.Collections;
 @Configuration
 public class SpringZuchiniConfiguration {
 
-
     @Bean
     public static SpringThreadLocalScope getSpringThreadLocalScope() {
         return new SpringThreadLocalScope();

@@ -1,10 +1,9 @@
 package org.zuchini.spring;
 
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.zuchini.runner.Scope;
 
-class BeanFactoryScope implements Scope, BeanFactoryAware {
+class BeanFactoryScope implements Scope {
     private boolean clearThreadLocalScope;
     private BeanFactory beanFactory;
 
@@ -12,7 +11,7 @@ class BeanFactoryScope implements Scope, BeanFactoryAware {
         this.clearThreadLocalScope = clearThreadLocalScope;
     }
 
-    public void setBeanFactory(BeanFactory beanFactory) {
+    void setBeanFactory(BeanFactory beanFactory) {
         if (this.beanFactory != null) {
             throw new IllegalStateException("BeanFactory can only be set once");
         }
