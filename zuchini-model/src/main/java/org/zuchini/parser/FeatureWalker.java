@@ -194,7 +194,7 @@ class FeatureWalker implements GherkinListener {
         Token keyword = ctx.EXAMPLES_KW().getSymbol();
         Outline outline = (Outline) stepContainer;
         GherkinParser.LineContentContext content = ctx.lineContent();
-        Examples examples = new Examples(outline, keyword.getLine(), content == null ? "" : content.getText());
+        Examples examples = new Examples(outline, keyword.getLine(), keyword.getText(), content == null ? "" : content.getText());
         outline.getExamples().add(examples);
         rowContainer = examples;
     }

@@ -18,7 +18,7 @@ public class OutlineTest {
         given.getDocs().add("Document <C>");
         outline.getSteps().add(given);
 
-        Examples examples = new Examples(outline, 0, "");
+        Examples examples = new Examples(outline, 0, "Examples", "");
         examples.getTags().add("TaggedExample");
 
         Row header = new Row(feature, 3, "A", "B", "C");

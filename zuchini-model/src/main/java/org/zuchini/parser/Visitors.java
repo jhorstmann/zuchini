@@ -136,7 +136,7 @@ public class Visitors  {
         @Override
         public Examples visitExamples(@NotNull GherkinParser.ExamplesContext ctx) {
             Token keyword = ctx.EXAMPLES_KW().getSymbol();
-            Examples examples = new Examples(outline, keyword.getLine(),
+            Examples examples = new Examples(outline, keyword.getLine(), keyword.getText(),
                     ctx.lineContent() == null ? "" : ctx.lineContent().getText());
             examples.getTags().addAll(visitNodesAndAggregate(ctx.annotation(), new TagsVisitor()));
             examples.getComments().addAll(visitNodesAndAggregate(ctx.annotation(), new CommentsVisitor()));

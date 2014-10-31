@@ -6,14 +6,16 @@ import java.util.List;
 public class Examples implements Tagged, Commented, LocationAware, RowContainer {
     private final Outline outline;
     private final int lineNumber;
+    private final String keyword;
     private final String description;
     private final List<String> comments = new ArrayList<>();
     private final List<String> tags = new ArrayList<>();
     private final List<Row> rows = new ArrayList<>();
 
-    public Examples(Outline outline, int lineNumber, String description) {
+    public Examples(Outline outline, int lineNumber, String keyword, String description) {
         this.outline = outline;
         this.lineNumber = lineNumber;
+        this.keyword = keyword;
         this.description = description;
     }
 
@@ -24,6 +26,10 @@ public class Examples implements Tagged, Commented, LocationAware, RowContainer 
 
     public int getLineNumber() {
         return lineNumber;
+    }
+
+    public String getKeyword() {
+        return keyword;
     }
 
     public String getDescription() {
