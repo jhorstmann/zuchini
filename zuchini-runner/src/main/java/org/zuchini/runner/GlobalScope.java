@@ -12,6 +12,10 @@ public class GlobalScope implements Scope {
         }
     }
 
+    public boolean contains(Class<?> clazz) {
+        return objects.containsKey(clazz);
+    }
+
     @Override
     public <T> T getObject(Class<T> clazz) {
         return Construction.construct(clazz, objects);
