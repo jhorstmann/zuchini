@@ -12,6 +12,8 @@ annotation      : comment
                 | WS? tag (WS tag)* EOL
                 | WS? EOL;
 
+trailingComment : comment;
+
 featureTitle    : lineContent (EOL lineContent)*;
 
 feature         : annotation*
@@ -19,7 +21,8 @@ feature         : annotation*
                   EOL*
                   background?
                   abstractScenario*
-                  EOL* EOF;
+                  (EOL | trailingComment)*
+                  EOF;
 
 background      : annotation*
                   WS? BACKGROUND_KW WS? COLON WS? lineContent EOL

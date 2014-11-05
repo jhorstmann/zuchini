@@ -310,4 +310,19 @@ public class ParserTest {
         assertEquals(asList("ABC\nDEF\nGHI"), step.getDocs());
     }
 
+    @Test
+    public void shouldIgnoreTrailingComments() {
+        Feature feature = FeatureParser.getFeature(
+                "#header comment\nFeature: Trailing comments\n\nScenario: Scenario\nGiven a step\n\n#trailing comment\n");
+
+        assertEquals("Feature", feature.getKeyword());
+        assertEquals(asList("header comment"), feature.getComments());
+
+        StepContainer scenario = feature.getScenarios().get(0);
+        assertEquals(asList(), scenario.getComments());
+
+        Step step = scenario.getSteps().get(0);
+        assertEquals(asList(), step.getComments());
+    }
+
 }

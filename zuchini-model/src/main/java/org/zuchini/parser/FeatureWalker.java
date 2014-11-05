@@ -200,6 +200,14 @@ class FeatureWalker implements GherkinListener {
     }
 
     @Override
+    public void enterTrailingComment(@NotNull GherkinParser.TrailingCommentContext ctx) {
+    }
+
+    @Override
+    public void exitTrailingComment(@NotNull GherkinParser.TrailingCommentContext ctx) {
+    }
+
+    @Override
     public void exitExamples(@NotNull GherkinParser.ExamplesContext ctx) {
     }
 
