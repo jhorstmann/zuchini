@@ -30,11 +30,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.zuchini</groupId>
-            <artifactId>zuchini-test-steps</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>3.0.0</version>
