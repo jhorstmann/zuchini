@@ -7,7 +7,6 @@ import org.junit.runners.ParentRunner;
 import org.junit.runners.model.InitializationError;
 import org.zuchini.junit.description.AnnotationHandler;
 import org.zuchini.junit.description.FeatureInfo;
-import org.zuchini.model.Feature;
 import org.zuchini.runner.FeatureStatement;
 import org.zuchini.runner.OutlineStatement;
 import org.zuchini.runner.ScenarioStatement;
@@ -18,15 +17,18 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FeatureRunner extends ParentRunner<Runner> {
+class FeatureRunner extends ParentRunner<Runner> {
 
     private final FeatureStatement featureStatement;
     private final List<Runner> children;
+    private final Description description;
 
     public FeatureRunner(Class<?> testClass, Scope scope, FeatureStatement featureStatement, boolean reportIndividualSteps) throws InitializationError {
         super(testClass);
         this.featureStatement = featureStatement;
         this.children = buildChildren(testClass, scope, featureStatement, reportIndividualSteps);
+        this.description = DescriptionHelper.createFeatureDescription(featureStatement.getFeature(), children,
+                getRunnerAnnotations());
     }
 
     private static List<Runner> buildChildren(Class<?> testClass, Scope scope, FeatureStatement featureStatement, boolean reportIndividualSteps) throws InitializationError {
@@ -57,9 +59,7 @@ public class FeatureRunner extends ParentRunner<Runner> {
 
     @Override
     public Description getDescription() {
-        Feature feature = featureStatement.getFeature();
-        return DescriptionHelper.createDescription(feature.getUri(), feature.getLineNumber(), feature.getKeyword(),
-                feature.getDescription(), children, getRunnerAnnotations());
+        return description;
     }
 
     @Override

@@ -9,45 +9,50 @@ import org.junit.runners.model.InitializationError;
 import org.zuchini.junit.description.AnnotationHandler;
 import org.zuchini.junit.description.FeatureInfo;
 import org.zuchini.junit.description.ScenarioInfo;
-import org.zuchini.model.Scenario;
 import org.zuchini.runner.FeatureStatement;
 import org.zuchini.runner.Scope;
 import org.zuchini.runner.SimpleScenarioStatement;
+
+import java.lang.annotation.Annotation;
 
 class SimpleScenarioRunner extends Runner {
 
     private final Scope scope;
     private final FeatureStatement featureStatement;
     private final SimpleScenarioStatement scenarioStatement;
+    private final Description description;
 
     public SimpleScenarioRunner(Scope scope, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
         this.scope = scope;
         this.featureStatement = featureStatement;
         this.scenarioStatement = scenarioStatement;
+        this.description = DescriptionHelper.createScenarioDescription(scenarioStatement.getScenario(), getRunnerAnnotations());
+    }
+
+    private Annotation[] getRunnerAnnotations() {
+        return new Annotation[] {
+                AnnotationHandler.create(FeatureInfo.class, featureStatement.getFeature()),
+                AnnotationHandler.create(ScenarioInfo.class, scenarioStatement.getScenario())
+        };
     }
 
     @Override
     public Description getDescription() {
-        Scenario scenario = this.scenarioStatement.getScenario();
-        ScenarioInfo scenarioInfo = AnnotationHandler.create(ScenarioInfo.class, scenario);
-        FeatureInfo featureInfo = AnnotationHandler.create(FeatureInfo.class, featureStatement.getFeature());
-        return DescriptionHelper.createDescription(scenario.getUri(), scenario.getLineNumber(), scenario.getKeyword(),
-                scenario.getDescription(), featureInfo, scenarioInfo);
+        return description;
     }
 
     @Override
     public void run(RunNotifier notifier) {
-        Description description = getDescription();
         scope.begin();
         try {
             notifier.fireTestStarted(description);
             scenarioStatement.evaluate(scope);
-            notifier.fireTestFinished(description);
         } catch (AssumptionViolatedException ex) {
             notifier.fireTestAssumptionFailed(new Failure(description, ex));
         } catch (Throwable throwable) {
             notifier.fireTestFailure(new Failure(description, throwable));
         } finally {
+            notifier.fireTestFinished(description);
             scope.end();
         }
     }

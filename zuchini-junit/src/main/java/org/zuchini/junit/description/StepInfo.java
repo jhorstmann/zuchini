@@ -1,6 +1,7 @@
 package org.zuchini.junit.description;
 
 public @interface StepInfo {
+    String uri();
     int lineNumber();
     String keyword();
     String description();

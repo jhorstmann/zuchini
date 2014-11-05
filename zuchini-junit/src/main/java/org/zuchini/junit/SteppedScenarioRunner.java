@@ -11,19 +11,24 @@ import org.zuchini.junit.description.AnnotationHandler;
 import org.zuchini.junit.description.FeatureInfo;
 import org.zuchini.junit.description.ScenarioInfo;
 import org.zuchini.junit.description.StepInfo;
-import org.zuchini.model.Feature;
-import org.zuchini.model.Scenario;
 import org.zuchini.model.Step;
 import org.zuchini.runner.FeatureStatement;
 import org.zuchini.runner.Scope;
 import org.zuchini.runner.SimpleScenarioStatement;
 import org.zuchini.runner.StepStatement;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 class SteppedScenarioRunner extends Runner {
+
+    static class IgnoreRemainingStepsException extends Exception {
+        static final IgnoreRemainingStepsException INSTANCE = new IgnoreRemainingStepsException();
+        private IgnoreRemainingStepsException() {
+        }
+    }
 
     static class DescribedStepStatement implements Describable {
         private final StepStatement stepStatement;
@@ -47,41 +52,46 @@ class SteppedScenarioRunner extends Runner {
     private final FeatureStatement featureStatement;
     private final SimpleScenarioStatement scenarioStatement;
     private final List<DescribedStepStatement> children;
+    private final Description description;
 
     public SteppedScenarioRunner(Scope scope, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
         this.scope = scope;
         this.featureStatement = featureStatement;
         this.scenarioStatement = scenarioStatement;
-        this.children = buildChildren(featureStatement, scenarioStatement);
+        this.children = buildChildren();
+        this.description = DescriptionHelper.createScenarioDescription(scenarioStatement.getScenario(), children,
+                getRunnerAnnotations());
     }
 
-    private static List<DescribedStepStatement> buildChildren(FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) {
+    private List<DescribedStepStatement> buildChildren() {
         List<StepStatement> steps = scenarioStatement.getSteps();
         List<DescribedStepStatement> result = new ArrayList<>(steps.size());
-        for (StepStatement step : steps) {
-            result.add(new DescribedStepStatement(step, buildStepDescription(featureStatement, scenarioStatement, step)));
+        for (StepStatement stepStatement : steps) {
+            Step step = stepStatement.getStep();
+            result.add(new DescribedStepStatement(stepStatement,
+                    DescriptionHelper.createStepDescription(step, getStepAnnotations(step))));
         }
         return result;
     }
 
-    private static Description buildStepDescription(FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement, StepStatement stepStatement) {
-        Feature feature = featureStatement.getFeature();
-        Scenario scenario = scenarioStatement.getScenario();
-        Step step = stepStatement.getStep();
-        ScenarioInfo scenarioInfo = AnnotationHandler.create(ScenarioInfo.class, scenario);
-        FeatureInfo featureInfo = AnnotationHandler.create(FeatureInfo.class, feature);
-        StepInfo stepInfo = AnnotationHandler.create(StepInfo.class, step);
-        return DescriptionHelper.createDescription(step.getUri(), step.getLineNumber(), step.getKeyword(),
-                step.getDescription(), featureInfo, scenarioInfo, stepInfo);
+    private Annotation[] getStepAnnotations(Step step) {
+        return new Annotation[]{
+                AnnotationHandler.create(FeatureInfo.class, featureStatement.getFeature()),
+                AnnotationHandler.create(ScenarioInfo.class, scenarioStatement.getScenario()),
+                AnnotationHandler.create(StepInfo.class, step)
+        };
+    }
+
+    private Annotation[] getRunnerAnnotations() {
+        return new Annotation[]{
+                AnnotationHandler.create(FeatureInfo.class, featureStatement.getFeature()),
+                AnnotationHandler.create(ScenarioInfo.class, scenarioStatement.getScenario())
+        };
     }
 
     @Override
     public Description getDescription() {
-        Scenario scenario = this.scenarioStatement.getScenario();
-        ScenarioInfo scenarioInfo = AnnotationHandler.create(ScenarioInfo.class, scenario);
-        FeatureInfo featureInfo = AnnotationHandler.create(FeatureInfo.class, featureStatement.getFeature());
-        return DescriptionHelper.createDescription(scenario.getUri(), scenario.getLineNumber(), scenario.getKeyword(),
-                scenario.getDescription(), children, featureInfo, scenarioInfo);
+        return description;
     }
 
     @Override
@@ -97,16 +107,17 @@ class SteppedScenarioRunner extends Runner {
                     notifier.fireTestStarted(stepDescription);
                     try {
                         stepStatement.evaluate(scope);
-                        notifier.fireTestFinished(stepDescription);
                     } catch (AssumptionViolatedException ex) {
                         notifier.fireTestAssumptionFailed(new Failure(stepDescription, ex));
                         throw ex;
                     } catch (Throwable throwable) {
                         notifier.fireTestFailure(new Failure(stepDescription, throwable));
-                        throw throwable;
+                        throw IgnoreRemainingStepsException.INSTANCE;
+                    } finally {
+                        notifier.fireTestFinished(stepDescription);
                     }
                 }
-            } catch (Throwable throwable) {
+            } catch (IgnoreRemainingStepsException e) {
                 while (it.hasNext()) {
                     DescribedStepStatement describedStepStatement = it.next();
                     Description stepDescription = describedStepStatement.getDescription();

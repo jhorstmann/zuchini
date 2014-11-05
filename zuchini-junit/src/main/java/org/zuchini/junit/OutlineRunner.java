@@ -8,7 +8,6 @@ import org.junit.runners.model.InitializationError;
 import org.zuchini.junit.description.AnnotationHandler;
 import org.zuchini.junit.description.FeatureInfo;
 import org.zuchini.junit.description.OutlineInfo;
-import org.zuchini.model.Outline;
 import org.zuchini.runner.FeatureStatement;
 import org.zuchini.runner.OutlineStatement;
 import org.zuchini.runner.ScenarioStatement;
@@ -23,12 +22,15 @@ class OutlineRunner extends ParentRunner<Runner> {
     private final FeatureStatement featureStatement;
     private final OutlineStatement outlineStatement;
     private final List<Runner> children;
+    private final Description description;
 
     public OutlineRunner(Class<?> testClass, Scope scope, FeatureStatement featureStatement, OutlineStatement outlineStatement, boolean reportIndividualSteps) throws InitializationError {
         super(testClass);
         this.outlineStatement = outlineStatement;
         this.featureStatement = featureStatement;
         this.children = buildChildren(scope, featureStatement, outlineStatement, reportIndividualSteps);
+        this.description = DescriptionHelper.createOutlineDescription(outlineStatement.getOutline(), children,
+                getRunnerAnnotations());
     }
 
     private static List<Runner> buildChildren(Scope scope, FeatureStatement featureStatement, OutlineStatement outline, boolean reportIndividualSteps) throws InitializationError {
@@ -54,9 +56,7 @@ class OutlineRunner extends ParentRunner<Runner> {
 
     @Override
     public Description getDescription() {
-        Outline outline = outlineStatement.getOutline();
-        return DescriptionHelper.createDescription(outline.getUri(), outline.getLineNumber(), outline.getKeyword(),
-                outline.getDescription(), children, getRunnerAnnotations());
+        return description;
     }
 
     @Override

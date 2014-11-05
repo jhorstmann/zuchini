@@ -4,14 +4,16 @@ import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.ParentRunner;
 import org.junit.runners.model.InitializationError;
+import org.junit.runners.model.Statement;
 import org.zuchini.runner.GlobalScope;
 import org.zuchini.runner.Scope;
 import org.zuchini.runner.ThreadLocalScope;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
-public class Zuchini extends ParentRunner<FeatureRunner> {
+public class Zuchini extends ParentRunner<ZuchiniRunnerDelegate> {
 
     private final ZuchiniRunnerDelegate delegate;
     private final Scope globalScope;
@@ -21,33 +23,47 @@ public class Zuchini extends ParentRunner<FeatureRunner> {
         super(testClass);
         this.globalScope = new GlobalScope();
         this.scenarioScope = new ThreadLocalScope();
-        ZuchiniOptions options = testClass.getAnnotation(ZuchiniOptions.class);
-        this.delegate = new ZuchiniRunnerDelegate(testClass, options, scenarioScope);
+        this.delegate = new ZuchiniRunnerDelegate(testClass, globalScope, scenarioScope);
     }
 
     @Override
-    public void run(RunNotifier notifier) {
-        globalScope.begin();
-        try {
-            super.run(notifier);
-        } finally {
-            globalScope.end();
-        }
+    protected Statement withBeforeClasses(final Statement statement) {
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                globalScope.begin();
+                statement.evaluate();
+            }
+        };
     }
 
     @Override
-    protected List<FeatureRunner> getChildren() {
-        return delegate.getChildren();
+    protected Statement withAfterClasses(final Statement statement) {
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                try {
+                    statement.evaluate();
+                } finally {
+                    globalScope.end();
+                }
+            }
+        };
     }
 
     @Override
-    protected Description describeChild(FeatureRunner child) {
-        return delegate.describeChild(child);
+    protected List<ZuchiniRunnerDelegate> getChildren() {
+        return Collections.singletonList(delegate);
     }
 
     @Override
-    protected void runChild(FeatureRunner child, RunNotifier notifier) {
-        delegate.runChild(child, notifier);
+    protected Description describeChild(ZuchiniRunnerDelegate child) {
+        return child.getDescription();
+    }
+
+    @Override
+    protected void runChild(ZuchiniRunnerDelegate child, RunNotifier notifier) {
+        child.run(notifier);
     }
 
 }

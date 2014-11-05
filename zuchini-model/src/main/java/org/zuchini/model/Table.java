@@ -2,11 +2,19 @@ package org.zuchini.model;
 
 import java.util.*;
 
-public class Table {
-    private List<Row> rows = new ArrayList<>();
+class Table {
+    private Table() {
 
-    public List<Row> getRows() {
-        return rows;
+    }
+
+    static String[][] getData(List<Row> rows) {
+        int size = rows.size();
+        String[][] data = new String[size][];
+        for (int i = 0; i < size; i++) {
+            List<String> cells = rows.get(i).getCells();
+            data[i] = cells.toArray(new String[cells.size()]);
+        }
+        return data;
     }
 
     static List<Map<String, String>> tableToMap(List<Row> table) {

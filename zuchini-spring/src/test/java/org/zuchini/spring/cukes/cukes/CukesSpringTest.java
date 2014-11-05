@@ -8,7 +8,7 @@ import org.zuchini.spring.SpringZuchiniConfiguration;
 
 @RunWith(SpringZuchini.class)
 @ZuchiniOptions(featurePackages = {"features/cukes"}, stepDefinitionPackages = "org.zuchini.spring.cukes",
-        reportIndividualSteps = true)
+        reportIndividualSteps = true, listeners = {SpringAutowiredRunListener.class})
 @ContextConfiguration(classes = {SpringZuchiniConfiguration.class, CukesConfiguration.class})
 public class CukesSpringTest {
 }
