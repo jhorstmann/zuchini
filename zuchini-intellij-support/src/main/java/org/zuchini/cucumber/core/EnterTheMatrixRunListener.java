@@ -58,9 +58,6 @@ class EnterTheMatrixRunListener extends RunListener {
 
     private void printf(String format, Object... args) {
         try {
-            System.out.println();
-            System.out.println("BEFORE: " + String.format(Locale.ROOT, format, args));
-            System.out.println();
             out.append('\n');
             out.append(String.format(Locale.ROOT, format, args));
             out.append('\n');
@@ -141,7 +138,6 @@ class EnterTheMatrixRunListener extends RunListener {
         String timestamp = getCurrentTime();
         failure.getException().printStackTrace();
         printf(TEMPLATE_TEST_PENDING, step.description(), timestamp);
-        //printf(TEMPLATE_SCENARIO_FAILED, timestamp);
     }
 
     @Override
