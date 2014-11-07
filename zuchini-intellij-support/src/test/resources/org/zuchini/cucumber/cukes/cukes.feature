@@ -4,11 +4,6 @@ Feature: cukes
     Given I have 48 cukes in my belly
     Then there are 48 cukes in my belly
 
-
-  Scenario: Failure
-    Given I have -1 cukes in my belly
-    Then there are -1 cukes in my belly
-
   Scenario: Cukes are scenario scoped
     Then there are 0 cukes in my belly
 
