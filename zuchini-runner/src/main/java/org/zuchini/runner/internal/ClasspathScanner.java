@@ -1,4 +1,4 @@
-package org.zuchini.runner;
+package org.zuchini.runner.internal;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-abstract class ClasspathScanner {
+public abstract class ClasspathScanner {
     protected final ClassLoader classLoader;
     private final List<String> packageNames;
     private final String extension;
@@ -20,7 +20,7 @@ abstract class ClasspathScanner {
         this.extension = extension.startsWith(".") ? extension : "." + extension;
     }
 
-    protected final void scan() throws IOException {
+    public final void scan() throws IOException {
         for (String packageName : packageNames) {
             String path = packageName.replace('.', '/');
             Enumeration<URL> resources = classLoader.getResources(path);

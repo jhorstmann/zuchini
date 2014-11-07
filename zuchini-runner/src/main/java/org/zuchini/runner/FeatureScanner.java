@@ -2,6 +2,7 @@ package org.zuchini.runner;
 
 import org.zuchini.model.Feature;
 import org.zuchini.parser.FeatureParser;
+import org.zuchini.runner.internal.ClasspathScanner;
 
 import java.io.IOException;
 import java.io.InputStream;

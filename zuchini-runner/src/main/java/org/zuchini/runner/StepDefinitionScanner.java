@@ -1,6 +1,7 @@
 package org.zuchini.runner;
 
 import org.zuchini.annotations.StepAnnotation;
+import org.zuchini.runner.internal.ClasspathScanner;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
