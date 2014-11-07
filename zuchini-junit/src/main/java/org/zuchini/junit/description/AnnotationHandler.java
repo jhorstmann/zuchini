@@ -5,6 +5,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
@@ -45,9 +46,9 @@ public final class AnnotationHandler implements InvocationHandler {
 
         String methodName = method.getName();
         if (args.length == 0 && methodName.equals("hashCode")) {
-            return hashCode();
+            return annotationHashCode(proxy);
         } else if (args.length == 0 && methodName.equals("toString")) {
-            return toString();
+            return annotationToString(proxy);
         } else if (args.length == 1 && methodName.equals("equals") && method.getParameterTypes()[0] == Object.class) {
             Object arg = args[0];
             if (arg == null) {
@@ -55,7 +56,7 @@ public final class AnnotationHandler implements InvocationHandler {
             } else if (proxy == arg) {
                 return true;
             } else {
-                return getClass() == proxy.getClass() && this == Proxy.getInvocationHandler(arg);
+                return annotationEquals(proxy, arg);
             }
         } else if (args.length == 0 && methodName.equals("annotationType")) {
             return annotationType;
@@ -102,7 +103,8 @@ public final class AnnotationHandler implements InvocationHandler {
                         throw new IllegalStateException("Unsupported component type [" + componentType.getName() + "]");
                     }
                 } else {
-                    throw new IllegalStateException("Unsupported mapping from [" + beanReturnType.getName() + "] to [" + annotationReturnType.getName() + "]");
+                    throw new IllegalStateException(
+                            "Unsupported mapping from [" + beanReturnType.getName() + "] to [" + annotationReturnType.getName() + "]");
                 }
             } else if (ATOMIC_TYPES.contains(annotationReturnType)) {
                 return beanMethod.invoke(bean);
@@ -113,7 +115,131 @@ public final class AnnotationHandler implements InvocationHandler {
                 throw new IllegalStateException("Unsupported return type [" + annotationReturnType.getName() + "]");
             }
         } else {
-            throw new IllegalStateException("Unsupported method [" + methodName + "] called on annotation [" + bean.getClass().getName() + "]");
+            throw new IllegalStateException(
+                    "Unsupported method [" + methodName + "] called on annotation [" + bean.getClass().getName() + "]");
         }
+    }
+
+    public boolean annotationEquals(Object proxy, Object other) {
+        if (!(other instanceof Annotation)) {
+            return false;
+        }
+        Annotation that = (Annotation) other;
+        if (!this.annotationType.equals(that.annotationType())) {
+            return false;
+        }
+        for (Method method : annotationType.getDeclaredMethods()) {
+            final Object thisValue, thatValue;
+            try {
+                thisValue = invoke(proxy, method, EMPTY_ARGS);
+                thatValue = method.invoke(other);
+            } catch (RuntimeException ex1) {
+                throw ex1;
+            } catch (Throwable throwable1) {
+                throw new RuntimeException(throwable1);
+            }
+            if (thisValue instanceof byte[] && thatValue instanceof byte[]) {
+                if (!Arrays.equals((byte[]) thisValue, (byte[]) thatValue)) return false;
+            } else if (thisValue instanceof short[] && thatValue instanceof short[]) {
+                if (!Arrays.equals((short[]) thisValue, (short[]) thatValue)) return false;
+            } else if (thisValue instanceof int[] && thatValue instanceof int[]) {
+                if (!Arrays.equals((int[]) thisValue, (int[]) thatValue)) return false;
+            } else if (thisValue instanceof long[] && thatValue instanceof long[]) {
+                if (!Arrays.equals((long[]) thisValue, (long[]) thatValue)) return false;
+            } else if (thisValue instanceof float[] && thatValue instanceof float[]) {
+                if (!Arrays.equals((float[]) thisValue, (float[]) thatValue)) return false;
+            } else if (thisValue instanceof double[] && thatValue instanceof double[]) {
+                if (!Arrays.equals((double[]) thisValue, (double[]) thatValue)) return false;
+            } else if (thisValue instanceof char[] && thatValue instanceof char[]) {
+                if (!Arrays.equals((char[]) thisValue, (char[]) thatValue)) return false;
+            } else if (thisValue instanceof boolean[] && thatValue instanceof boolean[]) {
+                if (!Arrays.equals((boolean[]) thisValue, (boolean[]) thatValue)) return false;
+            } else if (thisValue instanceof Object[] && thatValue instanceof Object[]) {
+                if (!Arrays.equals((Object[]) thisValue, (Object[]) thatValue)) return false;
+            } else {
+                if (!thisValue.equals(thatValue)) return false;
+            }
+        }
+        return true;
+    }
+
+    public int annotationHashCode(Object proxy) {
+        int hashCode = 0;
+        for (Method method : annotationType.getDeclaredMethods()) {
+            final Object value;
+            try {
+                value = invoke(proxy, method, EMPTY_ARGS);
+            } catch (RuntimeException ex) {
+                throw ex;
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+            final int memberValueHashCode;
+            if (value instanceof boolean[]) {
+                memberValueHashCode = Arrays.hashCode((boolean[]) value);
+            } else if (value instanceof short[]) {
+                memberValueHashCode = Arrays.hashCode((short[]) value);
+            } else if (value instanceof int[]) {
+                memberValueHashCode = Arrays.hashCode((int[]) value);
+            } else if (value instanceof long[]) {
+                memberValueHashCode = Arrays.hashCode((long[]) value);
+            } else if (value instanceof float[]) {
+                memberValueHashCode = Arrays.hashCode((float[]) value);
+            } else if (value instanceof double[]) {
+                memberValueHashCode = Arrays.hashCode((double[]) value);
+            } else if (value instanceof byte[]) {
+                memberValueHashCode = Arrays.hashCode((byte[]) value);
+            } else if (value instanceof char[]) {
+                memberValueHashCode = Arrays.hashCode((char[]) value);
+            } else if (value instanceof Object[]) {
+                memberValueHashCode = Arrays.hashCode((Object[]) value);
+            } else {
+                memberValueHashCode = value.hashCode();
+            }
+            hashCode = 31 * hashCode + memberValueHashCode;
+        }
+        return hashCode;
+    }
+
+    public String annotationToString(Object proxy) {
+        StringBuilder string = new StringBuilder();
+        string.append('@').append(annotationType.getName()).append('[');
+        Method[] methods = annotationType.getDeclaredMethods();
+        for (int i = 0; i < methods.length; i++) {
+            string.append(methods[i].getName()).append('=');
+            final Object value;
+            try {
+                value = invoke(proxy, methods[i], EMPTY_ARGS);
+            } catch (RuntimeException ex) {
+                throw ex;
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+            if (value instanceof boolean[]) {
+                string.append(Arrays.toString((boolean[]) value));
+            } else if (value instanceof byte[]) {
+                string.append(Arrays.toString((byte[]) value));
+            } else if (value instanceof short[]) {
+                string.append(Arrays.toString((short[]) value));
+            } else if (value instanceof int[]) {
+                string.append(Arrays.toString((int[]) value));
+            } else if (value instanceof long[]) {
+                string.append(Arrays.toString((long[]) value));
+            } else if (value instanceof float[]) {
+                string.append(Arrays.toString((float[]) value));
+            } else if (value instanceof double[]) {
+                string.append(Arrays.toString((double[]) value));
+            } else if (value instanceof char[]) {
+                string.append(Arrays.toString((char[]) value));
+            } else if (value instanceof Object[]) {
+                string.append(Arrays.toString((Object[]) value));
+            } else {
+                string.append(value);
+            }
+            if (i < methods.length - 1) {
+                string.append(", ");
+            }
+        }
+        return string.append(']').toString();
     }
 }

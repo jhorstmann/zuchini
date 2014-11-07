@@ -31,5 +31,7 @@ public class Main {
         System.out.println(scenarioInfo.lineNumber());
         System.out.println(scenarioInfo.keyword());
         System.out.println(scenarioInfo.description());
+
+        System.out.println(info);
     }
 }
