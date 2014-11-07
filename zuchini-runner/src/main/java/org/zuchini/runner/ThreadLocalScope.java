@@ -13,7 +13,11 @@ public class ThreadLocalScope implements Scope {
 
     @Override
     public <T> T getObject(Class<T> clazz) {
-        return Construction.construct(clazz, threadLocalObjects.get());
+        Map<Class<?>, Object> objects = threadLocalObjects.get();
+        if (objects == null) {
+            throw new IllegalStateException("Scope is not initialized");
+        }
+        return Construction.construct(clazz, objects);
     }
 
     @Override
