@@ -109,7 +109,7 @@ class SteppedScenarioRunner extends Runner {
                         stepStatement.evaluate(scope);
                     } catch (AssumptionViolatedException ex) {
                         notifier.fireTestAssumptionFailed(new Failure(stepDescription, ex));
-                        throw ex;
+                        throw IgnoreRemainingStepsException.INSTANCE;
                     } catch (Throwable throwable) {
                         notifier.fireTestFailure(new Failure(stepDescription, throwable));
                         throw IgnoreRemainingStepsException.INSTANCE;
