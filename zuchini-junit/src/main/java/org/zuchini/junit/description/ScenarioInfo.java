@@ -7,5 +7,6 @@ public @interface ScenarioInfo {
     String description();
     String[] tags();
     String[] comments();
+    StepInfo[] steps();
 
 }
