@@ -13,12 +13,12 @@ public class Scenario extends StepContainer {
     }
 
     public Scenario(Feature feature, int lineNumber, String keyword, String description, Map<String, String> parameters) {
-        super(feature, lineNumber, keyword, description);
+        super(feature, lineNumber, keyword, description + (parameters.isEmpty() ? "" : " " + parameters));
         this.parameters = parameters;
     }
 
     @Override
     public String toString() {
-        return "Feature@" + getUri() + ":" + getLineNumber() + "[" + getDescription() + "]";
+        return "Scenario@" + getUri() + ":" + getLineNumber() + "[" + getDescription() + "]";
     }
 }
