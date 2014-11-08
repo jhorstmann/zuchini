@@ -1,4 +1,4 @@
-package org.zuchini.cucumber.cukes;
+package org.zuchini.intellij;
 
 import org.junit.runner.Description;
 import org.junit.runner.Result;
@@ -14,7 +14,8 @@ public class DebugListener extends RunListener {
 
     @Override
     public void testRunFinished(Result result) throws Exception {
-        System.out.println("testRunFinished [" + (result.getRunCount()-result.getFailureCount()) + "/" + result.getRunCount() + "]");
+        System.out.println(
+                "testRunFinished [" + (result.getRunCount() - result.getFailureCount()) + "/" + result.getRunCount() + "]");
     }
 
     @Override
@@ -34,7 +35,8 @@ public class DebugListener extends RunListener {
 
     @Override
     public void testAssumptionFailure(Failure failure) {
-        System.out.println("testAssumptionFailure [" + failure.getMessage() + "] [" + failure.getDescription().getDisplayName() +"]") ;
+        System.out.println(
+                "testAssumptionFailure [" + failure.getMessage() + "] [" + failure.getDescription().getDisplayName() + "]") ;
     }
 
     @Override

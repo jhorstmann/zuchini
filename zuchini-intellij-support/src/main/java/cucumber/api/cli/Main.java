@@ -1,6 +1,6 @@
 package cucumber.api.cli;
 
-import org.zuchini.cucumber.core.ZuchiniMain;
+import org.zuchini.intellij.ZuchiniMain;
 
 public class Main {
     public static void main(String[] args) throws Throwable {

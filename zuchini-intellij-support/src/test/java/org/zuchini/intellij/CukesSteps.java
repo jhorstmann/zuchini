@@ -1,4 +1,4 @@
-package org.zuchini.cucumber.cukes;
+package org.zuchini.intellij;
 
 import org.junit.Assert;
 import org.junit.internal.AssumptionViolatedException;

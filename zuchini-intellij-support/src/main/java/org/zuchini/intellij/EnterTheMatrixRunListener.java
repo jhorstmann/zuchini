@@ -1,4 +1,4 @@
-package org.zuchini.cucumber.core;
+package org.zuchini.intellij;
 
 import org.junit.runner.Description;
 import org.junit.runner.Result;
