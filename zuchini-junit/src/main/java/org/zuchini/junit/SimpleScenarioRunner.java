@@ -9,6 +9,7 @@ import org.junit.runners.model.InitializationError;
 import org.zuchini.junit.description.AnnotationHandler;
 import org.zuchini.junit.description.FeatureInfo;
 import org.zuchini.junit.description.ScenarioInfo;
+import org.zuchini.runner.Context;
 import org.zuchini.runner.FeatureStatement;
 import org.zuchini.runner.Scope;
 import org.zuchini.runner.SimpleScenarioStatement;
@@ -17,13 +18,13 @@ import java.lang.annotation.Annotation;
 
 class SimpleScenarioRunner extends Runner {
 
-    private final Scope scope;
+    private final Context context;
     private final FeatureStatement featureStatement;
     private final SimpleScenarioStatement scenarioStatement;
     private final Description description;
 
-    public SimpleScenarioRunner(Scope scope, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
-        this.scope = scope;
+    public SimpleScenarioRunner(Context context, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
+        this.context = context;
         this.featureStatement = featureStatement;
         this.scenarioStatement = scenarioStatement;
         this.description = DescriptionHelper.createScenarioDescription(scenarioStatement.getScenario(), getRunnerAnnotations());
@@ -43,17 +44,18 @@ class SimpleScenarioRunner extends Runner {
 
     @Override
     public void run(RunNotifier notifier) {
-        scope.begin();
+        Scope scenarioScope = context.getScenarioScope();
+        scenarioScope.begin();
         try {
             notifier.fireTestStarted(description);
-            scenarioStatement.evaluate(scope);
+            scenarioStatement.evaluate(context);
         } catch (AssumptionViolatedException ex) {
             notifier.fireTestAssumptionFailed(new Failure(description, ex));
         } catch (Throwable throwable) {
             notifier.fireTestFailure(new Failure(description, throwable));
         } finally {
             notifier.fireTestFinished(description);
-            scope.end();
+            scenarioScope.end();
         }
     }
 

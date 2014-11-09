@@ -42,7 +42,7 @@ public class ZuchiniRunnerDelegate extends ParentRunner<FeatureRunner> {
         boolean reportIndividualSteps = options.reportIndividualSteps();
         ArrayList<FeatureRunner> children = new ArrayList<>(featureStatements.size());
         for (FeatureStatement featureStatement : featureStatements) {
-            children.add(new FeatureRunner(testClass, scenarioScope, featureStatement, reportIndividualSteps));
+            children.add(new FeatureRunner(testClass, world, featureStatement, reportIndividualSteps));
         }
 
         return children;

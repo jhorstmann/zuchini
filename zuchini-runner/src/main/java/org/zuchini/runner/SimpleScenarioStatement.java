@@ -27,11 +27,12 @@ public class SimpleScenarioStatement extends ScenarioStatement {
     }
 
     @Override
-    public void evaluate(Scope scope) throws Throwable {
+    public void evaluate(Context context) throws Throwable {
+        Scope scope = context.getScenarioScope();
         scope.begin();
         try {
             for (StepStatement step : steps) {
-                step.evaluate(scope);
+                step.evaluate(context);
             }
         } finally {
             scope.end();

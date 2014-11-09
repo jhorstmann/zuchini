@@ -23,9 +23,9 @@ public class FeatureStatement implements Statement {
     }
 
     @Override
-    public void evaluate(Scope scope) throws Throwable {
+    public void evaluate(Context context) throws Throwable {
         for (ScenarioStatement scenario : scenarios) {
-            scenario.evaluate(scope);
+            scenario.evaluate(context);
         }
     }
 

@@ -1,11 +1,9 @@
 package org.zuchini.runner.cukes;
 
 import org.junit.Test;
-import org.zuchini.runner.ConverterConfiguration;
+import org.zuchini.runner.DefaultConverterConfiguration;
 import org.zuchini.runner.FeatureStatement;
-import org.zuchini.runner.GlobalScope;
 import org.zuchini.runner.Scope;
-import org.zuchini.runner.ThreadLocalScope;
 import org.zuchini.runner.World;
 import org.zuchini.runner.WorldBuilder;
 
@@ -15,18 +13,16 @@ public class CukesTest {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
         World world = new WorldBuilder(cl)
-                .withConverterConfiguration(ConverterConfiguration.defaultConfiguration())
+                .withConverterConfiguration(DefaultConverterConfiguration.defaultConfiguration())
                 .addFeaturePackage("features/cukes")
                 .addStepDefinitionPackage("org.zuchini.runner.cukes")
                 .buildWorld();
 
-        Scope globalScope = new GlobalScope();
-        Scope scenarioScope = new ThreadLocalScope();
-
+        Scope globalScope = world.getGlobalScope();
         globalScope.begin();
         try {
             for (FeatureStatement statement : world.getFeatureStatements()) {
-                statement.evaluate(scenarioScope);
+                statement.evaluate(world);
             }
         } finally {
             globalScope.end();

@@ -12,6 +12,7 @@ import org.zuchini.junit.description.FeatureInfo;
 import org.zuchini.junit.description.ScenarioInfo;
 import org.zuchini.junit.description.StepInfo;
 import org.zuchini.model.Step;
+import org.zuchini.runner.Context;
 import org.zuchini.runner.FeatureStatement;
 import org.zuchini.runner.Scope;
 import org.zuchini.runner.SimpleScenarioStatement;
@@ -48,14 +49,14 @@ class SteppedScenarioRunner extends Runner {
         }
     }
 
-    private final Scope scope;
+    private final Context context;
     private final FeatureStatement featureStatement;
     private final SimpleScenarioStatement scenarioStatement;
     private final List<DescribedStepStatement> children;
     private final Description description;
 
-    public SteppedScenarioRunner(Scope scope, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
-        this.scope = scope;
+    public SteppedScenarioRunner(Context context, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
+        this.context = context;
         this.featureStatement = featureStatement;
         this.scenarioStatement = scenarioStatement;
         this.children = buildChildren();
@@ -96,7 +97,8 @@ class SteppedScenarioRunner extends Runner {
 
     @Override
     public void run(RunNotifier notifier) {
-        scope.begin();
+        Scope scenarioScope = context.getScenarioScope();
+        scenarioScope.begin();
         try {
             Iterator<DescribedStepStatement> it = children.iterator();
             try {
@@ -106,7 +108,7 @@ class SteppedScenarioRunner extends Runner {
                     StepStatement stepStatement = describedStepStatement.getStepStatement();
                     notifier.fireTestStarted(stepDescription);
                     try {
-                        stepStatement.evaluate(scope);
+                        stepStatement.evaluate(context);
                     } catch (AssumptionViolatedException ex) {
                         notifier.fireTestAssumptionFailed(new Failure(stepDescription, ex));
                         throw IgnoreRemainingStepsException.INSTANCE;
@@ -125,7 +127,7 @@ class SteppedScenarioRunner extends Runner {
                 }
             }
         } finally {
-            scope.end();
+            scenarioScope.end();
         }
     }
 

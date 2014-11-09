@@ -13,19 +13,31 @@ public class WorldBuilder {
     private final List<String> featurePackages = new ArrayList<>();
     private final List<File> featureFiles = new ArrayList<>();
     private final List<String> stepDefinitionPackages  = new ArrayList<>();
-    private ConverterConfiguration converterConfiguration = ConverterConfiguration.defaultConfiguration();
+    private Scope globalScope;
+    private Scope scenarioScope;
+    private ConverterConfiguration converterConfiguration;
 
     public WorldBuilder(ClassLoader classLoader) {
         this.classLoader = classLoader;
     }
 
     public WorldBuilder withDefaultConverterConfiguration() {
-        this.converterConfiguration = ConverterConfiguration.defaultConfiguration();
+        this.converterConfiguration = DefaultConverterConfiguration.defaultConfiguration();
         return this;
     }
 
     public WorldBuilder withConverterConfiguration(ConverterConfiguration converterConfiguration) {
         this.converterConfiguration = converterConfiguration;
+        return this;
+    }
+
+    public WorldBuilder withGlobalScope(Scope globalScope) {
+        this.globalScope = globalScope;
+        return this;
+    }
+
+    public WorldBuilder withScenarioScope(Scope scenarioScope) {
+        this.scenarioScope = scenarioScope;
         return this;
     }
 
@@ -70,10 +82,21 @@ public class WorldBuilder {
             }
         }
 
+        if (converterConfiguration == null) {
+            converterConfiguration = DefaultConverterConfiguration.defaultConfiguration();
+        }
+        if (globalScope == null) {
+            globalScope = new GlobalScope();
+        }
+        if (scenarioScope == null) {
+            scenarioScope = new ThreadLocalScope();
+        }
+
         List<StepDefinition> stepDefinitions = StepDefinitionScanner.scan(classLoader, stepDefinitionPackages);
-        StatementBuilder statementBuilder = new StatementBuilder(converterConfiguration, stepDefinitions);
+        StatementBuilder statementBuilder = new StatementBuilder(stepDefinitions);
         List<FeatureStatement> featureStatements = statementBuilder.buildFeatureStatements(features);
-        return new World(converterConfiguration, featureStatements);
+
+        return new World(globalScope, scenarioScope, converterConfiguration, featureStatements);
     }
 
 }

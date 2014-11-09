@@ -8,10 +8,10 @@ import org.junit.runners.model.InitializationError;
 import org.zuchini.junit.description.AnnotationHandler;
 import org.zuchini.junit.description.FeatureInfo;
 import org.zuchini.junit.description.OutlineInfo;
+import org.zuchini.runner.Context;
 import org.zuchini.runner.FeatureStatement;
 import org.zuchini.runner.OutlineStatement;
 import org.zuchini.runner.ScenarioStatement;
-import org.zuchini.runner.Scope;
 import org.zuchini.runner.SimpleScenarioStatement;
 
 import java.lang.annotation.Annotation;
@@ -24,23 +24,23 @@ class OutlineRunner extends ParentRunner<Runner> {
     private final List<Runner> children;
     private final Description description;
 
-    public OutlineRunner(Class<?> testClass, Scope scope, FeatureStatement featureStatement, OutlineStatement outlineStatement, boolean reportIndividualSteps) throws InitializationError {
+    public OutlineRunner(Class<?> testClass, Context context, FeatureStatement featureStatement, OutlineStatement outlineStatement, boolean reportIndividualSteps) throws InitializationError {
         super(testClass);
         this.outlineStatement = outlineStatement;
         this.featureStatement = featureStatement;
-        this.children = buildChildren(scope, featureStatement, outlineStatement, reportIndividualSteps);
+        this.children = buildChildren(context, featureStatement, outlineStatement, reportIndividualSteps);
         this.description = DescriptionHelper.createOutlineDescription(outlineStatement.getOutline(), children,
                 getRunnerAnnotations());
     }
 
-    private static List<Runner> buildChildren(Scope scope, FeatureStatement featureStatement, OutlineStatement outline, boolean reportIndividualSteps) throws InitializationError {
+    private static List<Runner> buildChildren(Context context, FeatureStatement featureStatement, OutlineStatement outline, boolean reportIndividualSteps) throws InitializationError {
         List<SimpleScenarioStatement> scenarios = outline.getScenarios();
         List<Runner> children = new ArrayList<>(scenarios.size());
         for (ScenarioStatement scenario : scenarios) {
             if (reportIndividualSteps) {
-                children.add(new SteppedScenarioRunner(scope, featureStatement, (SimpleScenarioStatement) scenario));
+                children.add(new SteppedScenarioRunner(context, featureStatement, (SimpleScenarioStatement) scenario));
             } else {
-                children.add(new SimpleScenarioRunner(scope, featureStatement, (SimpleScenarioStatement) scenario));
+                children.add(new SimpleScenarioRunner(context, featureStatement, (SimpleScenarioStatement) scenario));
             }
         }
         return children;

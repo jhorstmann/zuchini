@@ -7,10 +7,10 @@ import org.junit.runners.ParentRunner;
 import org.junit.runners.model.InitializationError;
 import org.zuchini.junit.description.AnnotationHandler;
 import org.zuchini.junit.description.FeatureInfo;
+import org.zuchini.runner.Context;
 import org.zuchini.runner.FeatureStatement;
 import org.zuchini.runner.OutlineStatement;
 import org.zuchini.runner.ScenarioStatement;
-import org.zuchini.runner.Scope;
 import org.zuchini.runner.SimpleScenarioStatement;
 
 import java.lang.annotation.Annotation;
@@ -23,25 +23,25 @@ class FeatureRunner extends ParentRunner<Runner> {
     private final List<Runner> children;
     private final Description description;
 
-    public FeatureRunner(Class<?> testClass, Scope scope, FeatureStatement featureStatement, boolean reportIndividualSteps) throws InitializationError {
+    public FeatureRunner(Class<?> testClass, Context context, FeatureStatement featureStatement, boolean reportIndividualSteps) throws InitializationError {
         super(testClass);
         this.featureStatement = featureStatement;
-        this.children = buildChildren(testClass, scope, featureStatement, reportIndividualSteps);
+        this.children = buildChildren(testClass, context, featureStatement, reportIndividualSteps);
         this.description = DescriptionHelper.createFeatureDescription(featureStatement.getFeature(), children,
                 getRunnerAnnotations());
     }
 
-    private static List<Runner> buildChildren(Class<?> testClass, Scope scope, FeatureStatement featureStatement, boolean reportIndividualSteps) throws InitializationError {
+    private static List<Runner> buildChildren(Class<?> testClass, Context context, FeatureStatement featureStatement, boolean reportIndividualSteps) throws InitializationError {
         List<? extends ScenarioStatement> scenarios = featureStatement.getScenarios();
         List<Runner> children = new ArrayList<>(scenarios.size());
         for (ScenarioStatement scenario : scenarios) {
             if (scenario instanceof OutlineStatement) {
-                children.add(new OutlineRunner(testClass, scope, featureStatement, (OutlineStatement)scenario, reportIndividualSteps));
+                children.add(new OutlineRunner(testClass, context, featureStatement, (OutlineStatement)scenario, reportIndividualSteps));
             } else if (scenario instanceof SimpleScenarioStatement) {
                 if (reportIndividualSteps) {
-                    children.add(new SteppedScenarioRunner(scope, featureStatement, (SimpleScenarioStatement) scenario));
+                    children.add(new SteppedScenarioRunner(context, featureStatement, (SimpleScenarioStatement) scenario));
                 } else {
-                    children.add(new SimpleScenarioRunner(scope, featureStatement, (SimpleScenarioStatement) scenario));
+                    children.add(new SimpleScenarioRunner(context, featureStatement, (SimpleScenarioStatement) scenario));
                 }
             } else {
                 throw new IllegalStateException("Unknown scenario type [" + scenario.getClass().getName() + "]");
