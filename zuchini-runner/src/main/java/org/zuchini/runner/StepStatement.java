@@ -52,7 +52,7 @@ public class StepStatement implements Statement {
             List<String> docs = step.getDocs();
             if (!rows.isEmpty() && stringArguments.length + 1 == parameterCount && parameterTypes[stringArguments.length] == Datatable.class) {
                 Object[] typedArguments = convertArguments(context, parameterTypes, parameterAnnotations);
-                typedArguments[stringArguments.length] = new Datatable(rows);
+                typedArguments[stringArguments.length] = Datatable.fromRows(rows);
                 return typedArguments;
             } else if(docs.size() == 1 && stringArguments.length + 1 == parameterCount && parameterTypes[stringArguments.length] == String.class) {
                 Object[] typedArguments = convertArguments(context, parameterTypes, parameterAnnotations);

@@ -10,14 +10,23 @@ import java.util.Map;
 public class Datatable {
     private final List<List<String>> rows;
 
-    public Datatable(List<Row> rows) {
-        this.rows = new ArrayList<>(rows.size());
-        for (Row row : rows) {
-            this.rows.add(row.getCells());
-        }
+    private Datatable(List<List<String>> rows) {
+        this.rows = rows;
     }
 
-    public Datatable(List<Map<String, String>> objects, List<String> header, NamingConvention namingConvention) {
+    public static Datatable fromRows(List<Row> rows) {
+        List<List<String>> list = new ArrayList<>(rows.size());
+        for (Row row : rows) {
+            list.add(row.getCells());
+        }
+        return new Datatable(list);
+    }
+
+    public static Datatable fromLists(List<List<String>> lists) {
+        return new Datatable(lists);
+    }
+
+    public static Datatable fromMaps(List<Map<String, String>> objects, List<String> header, NamingConvention namingConvention) {
         List<List<String>> rows = new ArrayList<>(objects.size() + 1);
 
         rows.add(header);
@@ -29,7 +38,8 @@ public class Datatable {
             }
             rows.add(row);
         }
-        this.rows = rows;
+
+        return new Datatable(rows);
     }
 
     public List<List<String>> getRows() {
@@ -48,12 +58,13 @@ public class Datatable {
         List<String> headerCells = getHeader();
         String[] headerProperties = new String[headerCells.size()];
         for (int i = 0, len = headerCells.size(); i < len; i++) {
-            headerProperties[i] = headerCells.get(i);
+            headerProperties[i] = namingConvention.toProperty(headerCells.get(i));
         }
         List<List<String>> rows = getData();
         List<Map<String, String>> objects = new ArrayList<>(rows.size());
         for (List<String> row : rows) {
-            Map<String, String> map = new LinkedHashMap<>(headerCells.size());
+            assert(row.size() == headerProperties.length);
+            Map<String, String> map = new LinkedHashMap<>(headerProperties.length);
 
             for (int i = 0, len = row.size(); i < len; i++) {
                 map.put(headerProperties[i], row.get(i));

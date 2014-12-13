@@ -24,7 +24,7 @@ public class DatatableTest {
         List<String> header = asList("Width", "Height", "Long Description");
         Map<String, String> row1 = example(640, 480, "Example 1");
         Map<String, String> row2 = example(800, 600, "Example 2");
-        Datatable datatable = new Datatable(asList(row1, row2),
+        Datatable datatable = Datatable.fromMaps(asList(row1, row2),
                 header, NamingConventions.DefaultNamingConventions.TITLECASE);
 
         assertEquals(header, datatable.getHeader());
