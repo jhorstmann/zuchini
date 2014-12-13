@@ -1,5 +1,6 @@
 package org.zuchini.runner;
 
+import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -97,10 +98,28 @@ public class Converters {
             public Object convert(String argument) {
                 return new BigDecimal(argument);
             }
-        };
+        }
     }
 
-    static final Map<Class<?>, Converter<?>> DEFAULT_CONVERTERS;
+    static class EnumConverter<E extends Enum<E>> implements Converter<E> {
+        private final Class<E> enumClass;
+
+        EnumConverter(Class<E> enumClass) {
+            this.enumClass = enumClass;
+        }
+
+        @Override
+        public E convert(@Nullable String argument) {
+            if (argument == null || argument.length() == 0) {
+                return null;
+            } else {
+                return Enum.valueOf(enumClass, argument);
+            }
+        }
+    }
+
+    private static final Annotation[] EMPTY_ANNOTATIONS = new Annotation[0];
+    private static final Map<Class<?>, Converter<?>> DEFAULT_CONVERTERS;
 
     static {
         Map<Class<?>, Converter<?>> map = new HashMap<>(32);
@@ -130,6 +149,10 @@ public class Converters {
 
     private Converters() {
 
+    }
+
+    public static <T> Converter<T> getConverter(Scope scope, Class<T> parameterType) {
+        return getConverter(scope, parameterType, EMPTY_ANNOTATIONS);
     }
 
     public static <T> Converter<T> getConverter(Scope scope, Class<T> parameterType, Annotation[] parameterAnnotations) {
