@@ -52,7 +52,6 @@ public class ZuchiniRunnerDelegate extends ParentRunner<FeatureRunner> {
         List<String> featurePackages = asList(options.featurePackages());
         List<String> stepDefinitionPackages = asList(options.stepDefinitionPackages());
         return new WorldBuilder(testClass.getClassLoader())
-                .withDefaultConverterConfiguration()
                 .withFeaturePackages(featurePackages)
                 .withStepDefinitionPackages(stepDefinitionPackages)
                 .buildWorld();

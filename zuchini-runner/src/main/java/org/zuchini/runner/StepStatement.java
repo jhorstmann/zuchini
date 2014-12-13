@@ -30,10 +30,9 @@ public class StepStatement implements Statement {
         assert (parameterTypes.length == parameterAnnotations.length);
         assert (stringArguments.length <= parameterTypes.length);
         Scope globalScope = context.getGlobalScope();
-        ConverterConfiguration converterConfiguration = context.getConverterConfiguration();
         Object[] typedArguments = new Object[stringArguments.length];
         for (int i = 0; i < stringArguments.length; i++) {
-            Converter<?> converter = converterConfiguration.getConverter(globalScope, parameterTypes[i], parameterAnnotations[i]);
+            Converter<?> converter = DefaultConverterConfiguration.INSTANCE.getConverter(globalScope, parameterTypes[i], parameterAnnotations[i]);
             Object argument = converter.convert(stringArguments[i]);
             typedArguments[i] = argument;
         }

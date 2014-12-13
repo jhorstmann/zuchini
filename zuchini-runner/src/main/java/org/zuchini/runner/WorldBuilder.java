@@ -15,20 +15,9 @@ public class WorldBuilder {
     private final List<String> stepDefinitionPackages  = new ArrayList<>();
     private Scope globalScope;
     private Scope scenarioScope;
-    private ConverterConfiguration converterConfiguration;
 
     public WorldBuilder(ClassLoader classLoader) {
         this.classLoader = classLoader;
-    }
-
-    public WorldBuilder withDefaultConverterConfiguration() {
-        this.converterConfiguration = DefaultConverterConfiguration.defaultConfiguration();
-        return this;
-    }
-
-    public WorldBuilder withConverterConfiguration(ConverterConfiguration converterConfiguration) {
-        this.converterConfiguration = converterConfiguration;
-        return this;
     }
 
     public WorldBuilder withGlobalScope(Scope globalScope) {
@@ -82,9 +71,6 @@ public class WorldBuilder {
             }
         }
 
-        if (converterConfiguration == null) {
-            converterConfiguration = DefaultConverterConfiguration.defaultConfiguration();
-        }
         if (globalScope == null) {
             globalScope = new GlobalScope();
         }
@@ -96,7 +82,7 @@ public class WorldBuilder {
         StatementBuilder statementBuilder = new StatementBuilder(stepDefinitions);
         List<FeatureStatement> featureStatements = statementBuilder.buildFeatureStatements(features);
 
-        return new World(globalScope, scenarioScope, converterConfiguration, featureStatements);
+        return new World(globalScope, scenarioScope, featureStatements);
     }
 
 }
