@@ -35,7 +35,7 @@ public class EnumConverterTest {
 
     @Test
     public void shouldConvertEnum() {
-        Converter<Status> enumConverter = DefaultConverterConfiguration.newEnumConverter(Status.class);
+        Converter<Status> enumConverter = Converters.newEnumConverter(Status.class);
         assertEquals(statusEnum, enumConverter.convert(statusString));
     }
 }
