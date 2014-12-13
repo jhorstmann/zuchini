@@ -15,11 +15,12 @@ enum DefaultConverterConfiguration {
     public <T> Converter<T> getConverter(Scope scope, Class<T> parameterType, Annotation[] parameterAnnotations) {
         for (Annotation parameterAnnotation : parameterAnnotations) {
             if (parameterAnnotation.annotationType() == Convert.class) {
-                Class<Converter<?>> argumentConverterClass = ((Convert) parameterAnnotation).value();
-                return cast(parameterType, scope.getObject(argumentConverterClass));
+                final Class<Converter<?>> argumentConverterClass = ((Convert) parameterAnnotation).value();
+                final Converter<?> converter = scope.getObject(argumentConverterClass);
+                return cast(parameterType, converter);
             }
         }
-        Converter<?> converter = converters.get(parameterType);
+        final Converter<?> converter = converters.get(parameterType);
         if (converter != null) {
             return cast(parameterType, converter);
         } else if (parameterType.isEnum()) {
@@ -31,7 +32,7 @@ enum DefaultConverterConfiguration {
 
     @SuppressWarnings("unchecked")
     static <T> Converter<T> newEnumConverter(Class<?> parameterType) {
-        Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>) parameterType;
+        final Class<? extends Enum<?>> enumType = (Class<? extends Enum<?>>) parameterType;
         return (Converter<T>) new EnumConverter(enumType);
     }
 
