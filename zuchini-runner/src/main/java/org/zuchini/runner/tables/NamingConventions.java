@@ -16,15 +16,31 @@ public class NamingConventions {
                 return displayName;
             }
         },
-        UPPERCASE_FIRST() {
+        WORDS() {
             @Override
             public String toDisplayName(String property) {
-                return property.substring(0, 1).toUpperCase() + property.substring(1);
+                Pattern pattern = Pattern.compile("^[a-z]|(?<=[^A-Z])[A-Z]");
+                Matcher matcher = pattern.matcher(property);
+                StringBuffer sb = new StringBuffer();
+                while (matcher.find()) {
+                    String letter = matcher.group();
+                    matcher.appendReplacement(sb, matcher.start() == 0 ? letter : " " + letter.toLowerCase());
+                }
+                matcher.appendTail(sb);
+                return sb.toString();
             }
 
             @Override
             public String toProperty(String displayName) {
-                return displayName.substring(0, 1).toLowerCase() + displayName.substring(1);
+                Pattern pattern = Pattern.compile("(?:^|\\s+)([a-z])");
+                Matcher matcher = pattern.matcher(displayName);
+                StringBuffer sb = new StringBuffer();
+                while (matcher.find()) {
+                    String letter = matcher.group(1);
+                    matcher.appendReplacement(sb, matcher.start() == 0 ? letter : letter.toUpperCase());
+                }
+                matcher.appendTail(sb);
+                return sb.toString();
             }
         },
         TITLECASE() {

@@ -27,15 +27,25 @@ public class NamingConventionTest {
         return asList(new Object[][]{
                 {NamingConventions.DefaultNamingConventions.TITLECASE, "width", "Width"},
                 {NamingConventions.DefaultNamingConventions.TITLECASE, "longDescription", "Long Description"},
+                {NamingConventions.DefaultNamingConventions.WORDS, "width", "width"},
+                {NamingConventions.DefaultNamingConventions.WORDS, "longDescription", "long description"},
+                {NamingConventions.DefaultNamingConventions.IDENTITY, "width", "width"},
+                {NamingConventions.DefaultNamingConventions.IDENTITY, "longDescription", "longDescription"},
                 {new BeanInfoNamingConvention(ExampleBean.class), "width", "width"},
-                {new BeanInfoNamingConvention(ExampleBean.class), "longDescription", "Long Description Display Name"}
+                {new BeanInfoNamingConvention(ExampleBean.class), "longDescription", "Long Description Display Name"},
+                {new PropertiesNamingConvention(NamingConventions.DefaultNamingConventions.TITLECASE, ExampleBean.class), "width", "Width"},
+                {new PropertiesNamingConvention(NamingConventions.DefaultNamingConventions.TITLECASE, ExampleBean.class), "longDescription", "Long Description From Properties"},
         });
     }
 
     @Test
-    public void test() {
-        assertEquals(displayName, namingConvention.toDisplayName(property));
+    public void toProperty() {
         assertEquals(property, namingConvention.toProperty(displayName));
+    }
+
+    @Test
+    public void toDisplayName() {
+        assertEquals(displayName, namingConvention.toDisplayName(property));
     }
 
     @Test
