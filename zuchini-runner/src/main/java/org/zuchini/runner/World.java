@@ -28,4 +28,14 @@ public class World implements Context {
     }
 
 
+    public void run() throws Throwable {
+        globalScope.begin();
+        try {
+            for (FeatureStatement statement : getFeatureStatements()) {
+                statement.evaluate(this);
+            }
+        } finally {
+            globalScope.end();
+        }
+    }
 }
