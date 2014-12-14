@@ -75,5 +75,6 @@
         <module>zuchini-spring</module>
         <module>zuchini-compat-annotations</module>
         <module>zuchini-intellij-support</module>
+        <module>zuchini-examples</module>
     </modules>
 </project>
