@@ -49,18 +49,20 @@ class SteppedScenarioRunner extends Runner {
         }
     }
 
+    private final Class<?> testClass;
     private final Context context;
     private final FeatureStatement featureStatement;
     private final SimpleScenarioStatement scenarioStatement;
     private final List<DescribedStepStatement> children;
     private final Description description;
 
-    public SteppedScenarioRunner(Context context, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
+    public SteppedScenarioRunner(Class<?> testClass, Context context, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
+        this.testClass = testClass;
         this.context = context;
         this.featureStatement = featureStatement;
         this.scenarioStatement = scenarioStatement;
         this.children = buildChildren();
-        this.description = DescriptionHelper.createScenarioDescription(scenarioStatement.getScenario(), children,
+        this.description = DescriptionHelper.createScenarioDescription(testClass, scenarioStatement.getScenario(), children,
                 getRunnerAnnotations());
     }
 
@@ -70,7 +72,7 @@ class SteppedScenarioRunner extends Runner {
         for (StepStatement stepStatement : steps) {
             Step step = stepStatement.getStep();
             result.add(new DescribedStepStatement(stepStatement,
-                    DescriptionHelper.createStepDescription(step, getStepAnnotations(step))));
+                    DescriptionHelper.createStepDescription(testClass, step, getStepAnnotations(step))));
         }
         return result;
     }

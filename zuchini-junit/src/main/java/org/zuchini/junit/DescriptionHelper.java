@@ -10,56 +10,60 @@ import org.zuchini.model.Step;
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 class DescriptionHelper {
 
-    private static final AtomicInteger COUNTER = new AtomicInteger();
     private DescriptionHelper() {
 
     }
 
-    static Description createUniqueDescription(String displayName, List<? extends Describable> children,
-                                               Annotation... annotations) {
-        // HACK: JUnit by default uses the display name to track already executed or ignored tests,
-        // HACK: Work around that by generating really unique ids
-        int uniqueId = COUNTER.incrementAndGet();
+    private static Description createUniqueDescription(Class<?> runner, String displayName, List<? extends Describable> children,
+                                                       Annotation... annotations) {
+        final Description description;
 
-        Description suiteDescription = Description.createSuiteDescription(displayName, uniqueId, annotations);
-        for (Describable child : children) {
-            suiteDescription.addChild(child.getDescription());
+        if (children.isEmpty()) {
+            description = Description.createTestDescription(runner, displayName, annotations);
+        } else {
+            description = Description.createSuiteDescription(displayName, annotations);
         }
-        return suiteDescription;
+        for (Describable child : children) {
+            description.addChild(child.getDescription());
+        }
+        return description;
     }
 
-    static Description createUniqueDescription(String uri, int lineNumber, String keyword, String description,
+    private static Description createUniqueDescription(Class<?> runner, String uri, int lineNumber, String keyword, String description,
                                                        List<? extends Describable> children, Annotation... annotations) {
         String displayName = String.format("%s %s [%s:%d]", keyword, description, uri, lineNumber);
 
-        return createUniqueDescription(displayName, children, annotations);
+        return createUniqueDescription(runner, displayName, children, annotations);
     }
 
-    static Description createFeatureDescription(Feature feature, List<? extends Describable> children, Annotation... annotations) {
-        return createUniqueDescription(feature.getUri(), feature.getLineNumber(), feature.getKeyword(),
+    static Description createRunnerDescription(Class<?> runner, String displayName, List<? extends Describable> children, Annotation... annotations) {
+        return createUniqueDescription(runner, displayName, children, annotations);
+    }
+
+    static Description createFeatureDescription(Class<?> runner, Feature feature, List<? extends Describable> children, Annotation... annotations) {
+        return createUniqueDescription(runner, feature.getUri(), feature.getLineNumber(), feature.getKeyword(),
                 feature.getDescription(), children, annotations);
     }
 
-    static Description createOutlineDescription(Outline outline, List<? extends Describable> children, Annotation... annotations) {
-        return createUniqueDescription(outline.getUri(), outline.getLineNumber(), outline.getKeyword(),
+    static Description createOutlineDescription(Class<?> runner, Outline outline, List<? extends Describable> children, Annotation... annotations) {
+        return createUniqueDescription(runner, outline.getUri(), outline.getLineNumber(), outline.getKeyword(),
                 outline.getDescription(), children, annotations);
     }
 
-    static Description createScenarioDescription(Scenario scenario, List<? extends Describable> children, Annotation... annotations) {
-        return createUniqueDescription(scenario.getUri(), scenario.getLineNumber(), scenario.getKeyword(),
+    static Description createScenarioDescription(Class<?> runner, Scenario scenario, List<? extends Describable> children, Annotation... annotations) {
+        return createUniqueDescription(runner, scenario.getUri(), scenario.getLineNumber(), scenario.getKeyword(),
                 scenario.getDescription(), children, annotations);
     }
 
-    static Description createScenarioDescription(Scenario scenario, Annotation... annotations) {
-        return createScenarioDescription(scenario, Collections.<Describable>emptyList(), annotations);
+    static Description createScenarioDescription(Class<?> runner, Scenario scenario, Annotation... annotations) {
+        return createScenarioDescription(runner, scenario, Collections.<Describable>emptyList(), annotations);
     }
 
-    static Description createStepDescription(Step step, Annotation... annotations) {
-        return createUniqueDescription(step.getUri(), step.getLineNumber(), step.getKeyword(),
+    static Description createStepDescription(Class<?> runner, Step step, Annotation... annotations) {
+        return createUniqueDescription(runner, step.getUri(), step.getLineNumber(), step.getKeyword(),
                 step.getDescription(), Collections.<Describable>emptyList(), annotations);
     }
 

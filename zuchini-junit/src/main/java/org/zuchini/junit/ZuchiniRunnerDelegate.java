@@ -34,7 +34,7 @@ public class ZuchiniRunnerDelegate extends ParentRunner<FeatureRunner> {
         this.scenarioScope = scenarioScope;
         this.world = buildWorld(testClass);
         this.children = buildChildren(testClass, world.getFeatureStatements());
-        this.description = DescriptionHelper.createUniqueDescription(getName(), children, getRunnerAnnotations());
+        this.description = DescriptionHelper.createRunnerDescription(testClass, getName(), children, getRunnerAnnotations());
     }
 
     private List<FeatureRunner> buildChildren(Class<?> testClass, List<FeatureStatement> featureStatements) throws InitializationError {

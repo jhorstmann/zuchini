@@ -18,16 +18,18 @@ import java.lang.annotation.Annotation;
 
 class SimpleScenarioRunner extends Runner {
 
+    private final Class<?> testClass;
     private final Context context;
     private final FeatureStatement featureStatement;
     private final SimpleScenarioStatement scenarioStatement;
     private final Description description;
 
-    public SimpleScenarioRunner(Context context, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
+    public SimpleScenarioRunner(Class<?> testClass, Context context, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
+        this.testClass = testClass;
         this.context = context;
         this.featureStatement = featureStatement;
         this.scenarioStatement = scenarioStatement;
-        this.description = DescriptionHelper.createScenarioDescription(scenarioStatement.getScenario(), getRunnerAnnotations());
+        this.description = DescriptionHelper.createScenarioDescription(testClass, scenarioStatement.getScenario(), getRunnerAnnotations());
     }
 
     private Annotation[] getRunnerAnnotations() {
