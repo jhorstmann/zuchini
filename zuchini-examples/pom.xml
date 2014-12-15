@@ -15,5 +15,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>zuchini-examples-flaky</module>
+        <module>zuchini-examples-parallel</module>
     </modules>
 </project>
