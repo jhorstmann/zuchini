@@ -69,6 +69,14 @@ public class ZuchiniRunnerDelegate extends ParentRunner<FeatureRunner> {
         }
     }
 
+    public Scope getGlobalScope() {
+        return globalScope;
+    }
+
+    public Scope getScenarioScope() {
+        return scenarioScope;
+    }
+
     @Override
     protected String getName() {
         return "Zuchini " + Arrays.toString(options.featurePackages());
