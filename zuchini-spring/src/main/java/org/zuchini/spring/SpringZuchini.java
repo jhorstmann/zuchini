@@ -1,8 +1,7 @@
 package org.zuchini.spring;
 
-import org.junit.runner.Description;
-import org.junit.runner.notification.RunNotifier;
-import org.junit.runners.ParentRunner;
+import org.junit.runner.Runner;
+import org.junit.runners.Suite;
 import org.junit.runners.model.Statement;
 import org.springframework.test.context.TestContextManager;
 import org.springframework.test.context.junit4.statements.RunAfterTestClassCallbacks;
@@ -10,19 +9,20 @@ import org.springframework.test.context.junit4.statements.RunBeforeTestClassCall
 import org.zuchini.junit.ZuchiniRunnerDelegate;
 
 import java.util.Collections;
-import java.util.List;
 
-public class SpringZuchini extends ParentRunner<ZuchiniRunnerDelegate> {
+public class SpringZuchini extends Suite {
     private final TestContextManager testContextManager;
-    private final ZuchiniRunnerDelegate delegate;
 
     public SpringZuchini(Class<?> testClass) throws Exception {
-        super(testClass);
-        BeanFactoryScope globalScope = new BeanFactoryScope(false);
-        BeanFactoryScope scenarioScope = new BeanFactoryScope(true);
+        super(testClass, Collections.<Runner>singletonList(new ZuchiniRunnerDelegate(testClass, new BeanFactoryScope(false), new BeanFactoryScope(true))));
+        
+        // Hack because java does not allow any code before the super constructor call
+        ZuchiniRunnerDelegate delegate = (ZuchiniRunnerDelegate) getChildren().get(0);
+        BeanFactoryScope globalScope = (BeanFactoryScope) delegate.getGlobalScope();
+        BeanFactoryScope scenarioScope = (BeanFactoryScope) delegate.getScenarioScope();
+
         this.testContextManager = new TestContextManager(testClass);
-        testContextManager.registerTestExecutionListeners(new ScopeExecutionListener(globalScope, scenarioScope));
-        this.delegate = new ZuchiniRunnerDelegate(testClass, globalScope, scenarioScope);
+        this.testContextManager.registerTestExecutionListeners(new ScopeExecutionListener(globalScope, scenarioScope));
     }
 
     @Override
@@ -37,19 +37,5 @@ public class SpringZuchini extends ParentRunner<ZuchiniRunnerDelegate> {
         return new RunAfterTestClassCallbacks(junitAfterClasses, testContextManager);
     }
 
-    @Override
-    protected List<ZuchiniRunnerDelegate> getChildren() {
-        return Collections.singletonList(delegate);
-    }
-
-    @Override
-    protected Description describeChild(ZuchiniRunnerDelegate child) {
-        return child.getDescription();
-    }
-
-    @Override
-    protected void runChild(ZuchiniRunnerDelegate child, RunNotifier notifier) {
-        child.run(notifier);
-    }
 
 }
