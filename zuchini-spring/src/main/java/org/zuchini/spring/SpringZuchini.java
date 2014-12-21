@@ -15,7 +15,7 @@ public class SpringZuchini extends Suite {
 
     public SpringZuchini(Class<?> testClass) throws Exception {
         super(testClass, Collections.<Runner>singletonList(new ZuchiniRunnerDelegate(testClass, new BeanFactoryScope(false), new BeanFactoryScope(true))));
-        
+
         // Hack because java does not allow any code before the super constructor call
         ZuchiniRunnerDelegate delegate = (ZuchiniRunnerDelegate) getChildren().get(0);
         BeanFactoryScope globalScope = (BeanFactoryScope) delegate.getGlobalScope();

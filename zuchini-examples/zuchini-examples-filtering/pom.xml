@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.zuchini.examples</groupId>
+        <artifactId>zuchini-examples</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>zuchini-examples-filtering</artifactId>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>apache-snapshots</id>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <url>https://repository.apache.org/content/repositories/snapshots/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19-SNAPSHOT</version>
+                <configuration>
+                    <test>NoTestsInDefaultExecution</test>
+                    <failIfNoTests>false</failIfNoTests>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>run-single-scenario</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <test>FilteringTest#Scenario Successful scenario [features/filtering.feature:?]</test>
+                            <reportNameSuffix>single-scenario</reportNameSuffix>
+                            <failIfNoTests>true</failIfNoTests>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>run-multiple-scenarios</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <test>FilteringTest#Scenario Successful scenario [features/filtering.feature:?],FilteringTest#Scenario Another successful scenario [features/filtering.feature:?]</test>
+                            <reportNameSuffix>multiple-scenarios</reportNameSuffix>
+                            <failIfNoTests>true</failIfNoTests>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>exclude-scenario</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <test>!FilteringTest#Scenario Failing scenario [features/filtering.feature:?]</test>
+                            <reportNameSuffix>exclude-scenario</reportNameSuffix>
+                            <failIfNoTests>true</failIfNoTests>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit47</artifactId>
+                        <version>2.19-SNAPSHOT</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.zuchini</groupId>
+            <artifactId>zuchini-junit</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+    </dependencies>
+
+</project>

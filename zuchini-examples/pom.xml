@@ -16,5 +16,6 @@
     <modules>
         <module>zuchini-examples-flaky</module>
         <module>zuchini-examples-parallel</module>
+        <module>zuchini-examples-filtering</module>
     </modules>
 </project>
