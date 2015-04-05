@@ -2,8 +2,6 @@ package org.zuchini.examples.filtering;
 
 import org.zuchini.annotations.Given;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class FilteringSteps {
 
     @Given("^a successful step$")
