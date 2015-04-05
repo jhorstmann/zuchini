@@ -18,13 +18,15 @@ public class NamingConventions {
             }
         },
         WORDS() {
+            private final Pattern PROPERTY_PATTERN = Pattern.compile("^[a-z]|(?<=[^A-Z])[A-Z]");
+            private final Pattern NAME_PATTERN = Pattern.compile("(?:^|\\s+)([a-z])");
+
             @Override
             public String toDisplayName(String property) {
-                Pattern pattern = Pattern.compile("^[a-z]|(?<=[^A-Z])[A-Z]");
-                Matcher matcher = pattern.matcher(property);
-                StringBuffer sb = new StringBuffer();
+                final Matcher matcher = PROPERTY_PATTERN.matcher(property);
+                final StringBuffer sb = new StringBuffer();
                 while (matcher.find()) {
-                    String letter = matcher.group();
+                    final String letter = matcher.group();
                     matcher.appendReplacement(sb, matcher.start() == 0 ? letter : " " + letter.toLowerCase(Locale.ROOT));
                 }
                 matcher.appendTail(sb);
@@ -33,9 +35,8 @@ public class NamingConventions {
 
             @Override
             public String toProperty(String displayName) {
-                Pattern pattern = Pattern.compile("(?:^|\\s+)([a-z])");
-                Matcher matcher = pattern.matcher(displayName);
-                StringBuffer sb = new StringBuffer();
+                final Matcher matcher = NAME_PATTERN.matcher(displayName);
+                final StringBuffer sb = new StringBuffer();
                 while (matcher.find()) {
                     String letter = matcher.group(1);
                     matcher.appendReplacement(sb, matcher.start() == 0 ? letter : letter.toUpperCase(Locale.ROOT));
@@ -45,13 +46,15 @@ public class NamingConventions {
             }
         },
         TITLECASE() {
+            private final Pattern PROPERTY_PATTERN = Pattern.compile("^[a-z]|(?<=[^A-Z])[A-Z]");
+            private final Pattern NAME_PATTERN = Pattern.compile("(?:^|\\s+)([A-Z])");
+
             @Override
             public String toDisplayName(String property) {
-                Pattern pattern = Pattern.compile("^[a-z]|(?<=[^A-Z])[A-Z]");
-                Matcher matcher = pattern.matcher(property);
-                StringBuffer sb = new StringBuffer();
+                final Matcher matcher = PROPERTY_PATTERN.matcher(property);
+                final StringBuffer sb = new StringBuffer();
                 while (matcher.find()) {
-                    String letter = matcher.group().toUpperCase(Locale.ROOT);
+                    final String letter = matcher.group().toUpperCase(Locale.ROOT);
                     matcher.appendReplacement(sb, matcher.start() == 0 ? letter : " " + letter);
                 }
                 matcher.appendTail(sb);
@@ -60,11 +63,10 @@ public class NamingConventions {
 
             @Override
             public String toProperty(String displayName) {
-                Pattern pattern = Pattern.compile("(?:^|\\s+)([A-Z])");
-                Matcher matcher = pattern.matcher(displayName);
-                StringBuffer sb = new StringBuffer();
+                final Matcher matcher = NAME_PATTERN.matcher(displayName);
+                final StringBuffer sb = new StringBuffer();
                 while (matcher.find()) {
-                    String letter = matcher.group(1);
+                    final String letter = matcher.group(1);
                     matcher.appendReplacement(sb, matcher.start() == 0 ? letter.toLowerCase(Locale.ROOT) : letter);
                 }
                 matcher.appendTail(sb);
