@@ -1,5 +1,6 @@
 package org.zuchini.runner.tables;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,7 +25,7 @@ public class NamingConventions {
                 StringBuffer sb = new StringBuffer();
                 while (matcher.find()) {
                     String letter = matcher.group();
-                    matcher.appendReplacement(sb, matcher.start() == 0 ? letter : " " + letter.toLowerCase());
+                    matcher.appendReplacement(sb, matcher.start() == 0 ? letter : " " + letter.toLowerCase(Locale.ROOT));
                 }
                 matcher.appendTail(sb);
                 return sb.toString();
@@ -37,7 +38,7 @@ public class NamingConventions {
                 StringBuffer sb = new StringBuffer();
                 while (matcher.find()) {
                     String letter = matcher.group(1);
-                    matcher.appendReplacement(sb, matcher.start() == 0 ? letter : letter.toUpperCase());
+                    matcher.appendReplacement(sb, matcher.start() == 0 ? letter : letter.toUpperCase(Locale.ROOT));
                 }
                 matcher.appendTail(sb);
                 return sb.toString();
@@ -50,7 +51,7 @@ public class NamingConventions {
                 Matcher matcher = pattern.matcher(property);
                 StringBuffer sb = new StringBuffer();
                 while (matcher.find()) {
-                    String letter = matcher.group().toUpperCase();
+                    String letter = matcher.group().toUpperCase(Locale.ROOT);
                     matcher.appendReplacement(sb, matcher.start() == 0 ? letter : " " + letter);
                 }
                 matcher.appendTail(sb);
@@ -64,7 +65,7 @@ public class NamingConventions {
                 StringBuffer sb = new StringBuffer();
                 while (matcher.find()) {
                     String letter = matcher.group(1);
-                    matcher.appendReplacement(sb, matcher.start() == 0 ? letter.toLowerCase() : letter);
+                    matcher.appendReplacement(sb, matcher.start() == 0 ? letter.toLowerCase(Locale.ROOT) : letter);
                 }
                 matcher.appendTail(sb);
                 return sb.toString();
