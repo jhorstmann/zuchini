@@ -30,7 +30,7 @@ public class StepStatement implements Statement {
         assert (parameterTypes.length == parameterAnnotations.length);
         assert (stringArguments.length <= parameterTypes.length);
         Scope globalScope = context.getGlobalScope();
-        Object[] typedArguments = new Object[stringArguments.length];
+        Object[] typedArguments = new Object[parameterTypes.length];
         for (int i = 0; i < stringArguments.length; i++) {
             Converter<?> converter = Converters.getConverter(globalScope, parameterTypes[i], parameterAnnotations[i]);
             Object argument = converter.convert(stringArguments[i]);
@@ -53,7 +53,7 @@ public class StepStatement implements Statement {
                 Object[] typedArguments = convertArguments(context, parameterTypes, parameterAnnotations);
                 typedArguments[stringArguments.length] = Datatable.fromRows(rows);
                 return typedArguments;
-            } else if(docs.size() == 1 && stringArguments.length + 1 == parameterCount && parameterTypes[stringArguments.length] == String.class) {
+            } else if (docs.size() == 1 && stringArguments.length + 1 == parameterCount && parameterTypes[stringArguments.length] == String.class) {
                 Object[] typedArguments = convertArguments(context, parameterTypes, parameterAnnotations);
                 typedArguments[stringArguments.length] = docs.get(0);
                 return typedArguments;
