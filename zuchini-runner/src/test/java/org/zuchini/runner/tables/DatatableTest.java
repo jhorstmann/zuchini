@@ -25,7 +25,7 @@ public class DatatableTest {
         Map<String, String> row1 = example(640, 480, "Example 1");
         Map<String, String> row2 = example(800, 600, "Example 2");
         Datatable datatable = Datatable.fromMaps(asList(row1, row2),
-                header, NamingConventions.DefaultNamingConventions.TITLECASE);
+                header, NamingConventions.DefaultNamingConventions.UPPERCASE_WORDS);
 
         assertEquals(header, datatable.getHeader());
         assertEquals(3, datatable.getRows().size());
@@ -45,7 +45,7 @@ public class DatatableTest {
         List<String> row2 = asList("800", "600", "Example 2");
         Datatable datatable = Datatable.fromLists(asList(header, row1, row2));
 
-        List<Map<String, String>> maps = datatable.toMap(NamingConventions.DefaultNamingConventions.TITLECASE);
+        List<Map<String, String>> maps = datatable.toMap(NamingConventions.DefaultNamingConventions.UPPERCASE_WORDS);
         assertEquals(2, maps.size());
         assertEquals(example(640, 480, "Example 1"), maps.get(0));
         assertEquals(example(800, 600, "Example 2"), maps.get(1));

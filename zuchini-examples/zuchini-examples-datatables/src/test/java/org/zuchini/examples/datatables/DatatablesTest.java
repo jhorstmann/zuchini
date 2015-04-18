@@ -1,4 +1,4 @@
-package org.zuchini.examples.parallel;
+package org.zuchini.examples.datatables;
 
 import org.junit.runner.RunWith;
 import org.zuchini.junit.Zuchini;

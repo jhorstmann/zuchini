@@ -17,7 +17,7 @@ public class NamingConventions {
                 return displayName;
             }
         },
-        WORDS() {
+        LOWERCASE_WORDS() {
             private final Pattern PROPERTY_PATTERN = Pattern.compile("^[a-z]|(?<=[^A-Z])[A-Z]");
             private final Pattern NAME_PATTERN = Pattern.compile("(?:^|\\s+)([a-z])");
 
@@ -45,7 +45,7 @@ public class NamingConventions {
                 return sb.toString();
             }
         },
-        TITLECASE() {
+        UPPERCASE_WORDS() {
             private final Pattern PROPERTY_PATTERN = Pattern.compile("^[a-z]|(?<=[^A-Z])[A-Z]");
             private final Pattern NAME_PATTERN = Pattern.compile("(?:^|\\s+)([A-Z])");
 
