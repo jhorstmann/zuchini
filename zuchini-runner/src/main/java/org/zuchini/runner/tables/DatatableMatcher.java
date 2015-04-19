@@ -1,8 +1,7 @@
-package org.zuchini.examples.datatables;
+package org.zuchini.runner.tables;
 
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
-import org.zuchini.runner.tables.Datatable;
 
 import java.util.Arrays;
 import java.util.List;

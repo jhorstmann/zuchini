@@ -1,11 +1,9 @@
 package org.zuchini.examples.datatables;
 
-import org.junit.Assert;
 import org.zuchini.annotations.Given;
 import org.zuchini.annotations.Then;
 import org.zuchini.runner.tables.Datatable;
 import org.zuchini.runner.tables.NamingConvention;
-import org.zuchini.runner.tables.NamingConventions;
 import org.zuchini.runner.tables.NamingConventions.DefaultNamingConventions;
 
 import java.util.List;
@@ -14,7 +12,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.zuchini.examples.datatables.DatatableMatcher.matchesTable;
+import static org.zuchini.runner.tables.DatatableMatcher.matchesTable;
 
 public class DatatableSteps {
     private NamingConvention namingConvention;

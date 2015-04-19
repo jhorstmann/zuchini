@@ -1,4 +1,4 @@
-package org.zuchini.examples.datatables;
+package org.zuchini.runner.tables;
 
 import java.util.ArrayList;
 import java.util.Collection;
