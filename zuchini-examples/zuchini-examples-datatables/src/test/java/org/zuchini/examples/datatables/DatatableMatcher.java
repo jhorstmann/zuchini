@@ -4,7 +4,6 @@ import org.hamcrest.Description;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.zuchini.runner.tables.Datatable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,12 +29,9 @@ public class DatatableMatcher extends TypeSafeDiagnosingMatcher<Datatable> {
         return array;
     }
 
-    private String[] formatDatatable(Datatable table) {
-        String[][] array = toArray(table);
+    private void updateWidths(int[] widths, String[][] array) {
         int rows = array.length;
         int cols = array[0].length;
-        String[] lines = new String[rows];
-        int[] widths = new int[cols];
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 int len = array[row][col].length();
@@ -44,7 +40,15 @@ public class DatatableMatcher extends TypeSafeDiagnosingMatcher<Datatable> {
                 }
             }
         }
+    }
+
+    private String[] formatDatatable(String[][] array, int[] widths) {
+        int rows = array.length;
+        int cols = array[0].length;
+        String[] lines = new String[rows];
         for (int row = 0; row < rows; row++) {
+            assert(array[row].length == widths.length);
+
             StringBuilder sb = new StringBuilder(128);
             sb.append(" | ");
             for (int col = 0; col < cols; col++) {
@@ -63,16 +67,34 @@ public class DatatableMatcher extends TypeSafeDiagnosingMatcher<Datatable> {
         return lines;
     }
 
+    private String[] formatDatatable(Datatable table) {
+        String[][] array = toArray(table);
+        int[] widths = new int[array[0].length];
+        updateWidths(widths, array);
+        return formatDatatable(array,widths);
+    }
+
+    private String[] formatDiff(String[] lines1, String[] lines2) {
+        return Diff.formatDiff(lines1, lines2);
+    }
+
     @Override
     protected boolean matchesSafely(Datatable item, Description mismatchDescription) {
-        String[] expected = formatDatatable(this.expected);
-        String[] actual = formatDatatable(item);
+        String[][] expectedArray = toArray(this.expected);
+        String[][] actualArray = toArray(item);
 
-        if (Arrays.equals(expected, actual)) {
+        int[] widths = new int[expectedArray[0].length];
+        updateWidths(widths, expectedArray);
+        updateWidths(widths, actualArray);
+
+        String[] expectedLines = formatDatatable(expectedArray, widths);
+        String[] actualLines = formatDatatable(actualArray, widths);
+
+        if (Arrays.equals(expectedLines, actualLines)) {
             return true;
         } else {
-            mismatchDescription.appendText("datatable was\n\n");
-            for (String line : actual) {
+            mismatchDescription.appendText("did not match\n\n");
+            for (String line : formatDiff(expectedLines, actualLines)) {
                 mismatchDescription.appendText(line).appendText("\n");
             }
 
@@ -83,8 +105,8 @@ public class DatatableMatcher extends TypeSafeDiagnosingMatcher<Datatable> {
     @Override
     public void describeTo(Description description) {
         description.appendText("datatable matching\n\n");
-        for (String line : formatDatatable(expected)) {
-            description.appendText(line).appendText("\n");
+        for (String line : formatDatatable(this.expected)) {
+            description.appendText(" ").appendText(line).appendText("\n");
         }
     }
 }

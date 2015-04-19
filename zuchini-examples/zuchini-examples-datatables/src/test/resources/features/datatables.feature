@@ -29,3 +29,22 @@ Feature: Scenarios can be filtered by surefire plugin
     And the datatable matches
       | Product Name | Product Description    |
       | Test         | This is a test         |
+
+
+    Scenario: Complex diff
+    Given a datatable with "identity" naming convention
+      | A |
+      | 1 |
+      | 2 |
+      | 3 |
+      | 4 |
+      | 5 |
+      | 6 |
+    Then the datatable matches
+      | A |
+      | 1 |
+      | 2 |
+      | 3 |
+      | 4 |
+      | 5 |
+      | 6 |

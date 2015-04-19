@@ -34,7 +34,8 @@ public class Datatable {
         for (Map<String, String> object : objects) {
             List<String> row = new ArrayList<>(header.size());
             for (String title : header) {
-                row.add(object.get(namingConvention.toProperty(title)));
+                String value = object.get(namingConvention.toProperty(title));
+                row.add(value == null ? "" : value);
             }
             rows.add(row);
         }
