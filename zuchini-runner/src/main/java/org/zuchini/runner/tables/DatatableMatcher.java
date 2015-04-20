@@ -6,19 +6,15 @@ import org.hamcrest.TypeSafeDiagnosingMatcher;
 import java.util.Arrays;
 import java.util.List;
 
-public class DatatableMatcher extends TypeSafeDiagnosingMatcher<Datatable> {
+class DatatableMatcher extends TypeSafeDiagnosingMatcher<Datatable> {
     private final Datatable expected;
 
-    public DatatableMatcher(Datatable expected) {
+    DatatableMatcher(Datatable expected) {
         super(Datatable.class);
         this.expected = expected;
     }
 
-    public static DatatableMatcher matchesTable(Datatable expected) {
-        return new DatatableMatcher(expected);
-    }
-
-    private String[][] toArray(Datatable table) {
+    private static String[][] toArray(Datatable table) {
         List<List<String>> rows = table.getRows();
         String[][] array = new String[rows.size()][];
         for (int i = 0; i < rows.size(); i++) {
@@ -28,7 +24,7 @@ public class DatatableMatcher extends TypeSafeDiagnosingMatcher<Datatable> {
         return array;
     }
 
-    private void updateWidths(int[] widths, String[][] array) {
+    private static void updateWidths(int[] widths, String[][] array) {
         int rows = array.length;
         int cols = array[0].length;
         for (int row = 0; row < rows; row++) {
@@ -41,7 +37,7 @@ public class DatatableMatcher extends TypeSafeDiagnosingMatcher<Datatable> {
         }
     }
 
-    private String[] formatDatatable(String[][] array, int[] widths) {
+    private static String[] formatDatatable(String[][] array, int[] widths) {
         int rows = array.length;
         int cols = array[0].length;
         String[] lines = new String[rows];
@@ -66,14 +62,14 @@ public class DatatableMatcher extends TypeSafeDiagnosingMatcher<Datatable> {
         return lines;
     }
 
-    private String[] formatDatatable(Datatable table) {
+    private static String[] formatDatatable(Datatable table) {
         String[][] array = toArray(table);
         int[] widths = new int[array[0].length];
         updateWidths(widths, array);
         return formatDatatable(array,widths);
     }
 
-    private String[] formatDiff(String[] lines1, String[] lines2) {
+    private static String[] formatDiff(String[] lines1, String[] lines2) {
         return Diff.formatDiff(lines1, lines2);
     }
 
