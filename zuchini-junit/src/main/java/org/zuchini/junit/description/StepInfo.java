@@ -8,4 +8,5 @@ public @interface StepInfo {
     String[] tags();
     String[] comments();
     RowInfo[] rows();
+    String[] docs();
 }

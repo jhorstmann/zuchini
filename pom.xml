@@ -82,5 +82,6 @@
         <module>zuchini-compat-annotations</module>
         <module>zuchini-intellij-support</module>
         <module>zuchini-examples</module>
+        <module>zuchini-reporter</module>
     </modules>
 </project>

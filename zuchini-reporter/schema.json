@@ -1,0 +1,222 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "definitions": {
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "comments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "stringmap": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-9-]+$": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "atomicmap": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z0-9-]+$": {
+          "type": [
+            "null",
+            "number",
+            "boolean",
+            "string"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "feature": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "uri": {
+          "type": "string"
+        },
+        "line": {
+          "type": "number"
+        },
+        "keyword": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "tags": {
+          "$ref": "#/definitions/tags"
+        },
+        "comments": {
+          "$ref": "#/definitions/comments"
+        },
+        "scenarios": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/scenario"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "keyword",
+        "title",
+        "scenarios"
+      ]
+    },
+    "scenario": {
+      "type": "object",
+      "properties": {
+        "keyword": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "line": {
+          "type": "number"
+        },
+        "tags": {
+          "$ref": "#/definitions/tags"
+        },
+        "comments": {
+          "$ref": "#/definitions/comments"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/step"
+          }
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/result"
+          }
+        }
+      },
+      "required": [
+        "keyword",
+        "title",
+        "steps",
+        "results"
+      ]
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "step": {
+          "$ref": "#/definitions/step"
+        },
+        "success": {"type": "boolean"},
+        "ignored": {"type": "boolean"},
+        "assumptionFailed": {"type": "boolean"},
+        "error": {"type": "string"},
+        "stacktrace": {"type": "string"},
+        "parameters": {
+          "$ref": "#/definitions/atomicmap"
+        },
+        "metadata": {
+          "$ref": "#/definitions/atomicmap"
+        }
+      },
+      "required": ["success"]
+    },
+    "step": {
+      "type": "object",
+      "properties": {
+        "keyword": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "line": {
+          "type": "number"
+        },
+        "tags": {
+          "$ref": "#/definitions/tags"
+        },
+        "comments": {
+          "$ref": "#/definitions/comments"
+        },
+        "documents": {
+          "$ref": "#/definitions/comments"
+        },
+        "datatable": {
+          "$ref": "#/definitions/datatable"
+        }
+      },
+      "required": [
+        "keyword",
+        "title"
+      ]
+    },
+    "datatable": {
+      "type": "object",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/row"
+          }
+        }
+      },
+      "required": ["rows"]
+    },
+    "row": {
+      "type": "object",
+      "properties": {
+        "tags": {
+          "$ref": "#/definitions/tags"
+        },
+        "comments": {
+          "$ref": "#/definitions/comments"
+        },
+        "cells": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      },
+      "required": ["cells"]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "creation-host": {
+      "type": "string",
+      "format": "hostname"
+    },
+    "creation-time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "properties": {
+      "$ref": "#/definitions/stringmap"
+    },
+    "environment": {
+      "$ref": "#/definitions/stringmap"
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/feature"
+      }
+    }
+  }
+}
