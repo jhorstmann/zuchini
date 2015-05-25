@@ -23,8 +23,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
-import java.nio.file.Files;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -98,13 +102,18 @@ public class JsonReporter extends RunListener {
     public void testRunFinished(Result result) throws Exception {
         final ImmutableListMultimap<FeatureInfo, ScenarioResult> features = index(results, byFeature());
 
-        final File output = new File("zuchini-report.json").getAbsoluteFile();
+        String outputPath = System.getProperty("zuchini.reporter.output");
+        if (outputPath == null) {
+            outputPath = "./zuchini-report.json";
+        }
 
-        output.getParentFile().mkdirs();
+        final File outputFile = new File(outputPath).getAbsoluteFile();
+
+        outputFile.getParentFile().mkdirs();
 
         final JsonFactory jsonFactory = new JsonFactory();
 
-        try (JsonGenerator json = jsonFactory.createGenerator(output, JsonEncoding.UTF8)) {
+        try (JsonGenerator json = jsonFactory.createGenerator(outputFile, JsonEncoding.UTF8)) {
             json.useDefaultPrettyPrinter();
 
             json.writeStartObject();

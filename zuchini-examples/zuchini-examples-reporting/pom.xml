@@ -13,6 +13,20 @@
 
     <artifactId>zuchini-examples-reporting</artifactId>
 
+    <build>
+        <plugins>
+            <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.18</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <zuchini.reporter.output>${project.build.directory}/report.json</zuchini.reporter.output>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>org.zuchini</groupId>
