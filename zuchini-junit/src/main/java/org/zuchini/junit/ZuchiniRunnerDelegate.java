@@ -6,6 +6,7 @@ import org.junit.runner.notification.RunListener;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.ParentRunner;
 import org.junit.runners.model.InitializationError;
+import org.zuchini.runner.Context;
 import org.zuchini.runner.FeatureStatement;
 import org.zuchini.runner.Scope;
 import org.zuchini.runner.World;
@@ -19,28 +20,24 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
-public class ZuchiniRunnerDelegate extends ParentRunner<FeatureRunner> {
+public class ZuchiniRunnerDelegate extends ParentRunner<FeatureRunner> implements Context {
     private final ZuchiniOptions options;
     private final World world;
-    private final Scope globalScope;
-    private final Scope scenarioScope;
     private final List<FeatureRunner> children;
     private final Description description;
 
     public ZuchiniRunnerDelegate(Class<?> testClass, Scope globalScope, Scope scenarioScope) throws InitializationError, IOException {
         super(testClass);
         this.options = testClass.getAnnotation(ZuchiniOptions.class);
-        this.globalScope = globalScope;
-        this.scenarioScope = scenarioScope;
-        this.world = buildWorld(testClass);
+        this.world = buildWorld(testClass, globalScope, scenarioScope);
         this.children = buildChildren(testClass, world.getFeatureStatements());
         this.description = DescriptionHelper.createRunnerDescription(testClass, getName(), children, getRunnerAnnotations());
     }
 
     private List<FeatureRunner> buildChildren(Class<?> testClass, List<FeatureStatement> featureStatements) throws InitializationError {
+        final boolean reportIndividualSteps = options.reportIndividualSteps();
+        final List<FeatureRunner> children = new ArrayList<>(featureStatements.size());
 
-        boolean reportIndividualSteps = options.reportIndividualSteps();
-        ArrayList<FeatureRunner> children = new ArrayList<>(featureStatements.size());
         for (FeatureStatement featureStatement : featureStatements) {
             children.add(new FeatureRunner(testClass, world, featureStatement, reportIndividualSteps));
         }
@@ -48,12 +45,15 @@ public class ZuchiniRunnerDelegate extends ParentRunner<FeatureRunner> {
         return children;
     }
 
-    private World buildWorld(Class<?> testClass) throws IOException {
-        List<String> featurePackages = asList(options.featurePackages());
-        List<String> stepDefinitionPackages = asList(options.stepDefinitionPackages());
+    private World buildWorld(Class<?> testClass, Scope globalScope, Scope scenarioScope) throws IOException {
+        final List<String> featurePackages = asList(options.featurePackages());
+        final List<String> stepDefinitionPackages = asList(options.stepDefinitionPackages());
+
         return new WorldBuilder(testClass.getClassLoader())
                 .withFeaturePackages(featurePackages)
                 .withStepDefinitionPackages(stepDefinitionPackages)
+                .withGlobalScope(globalScope)
+                .withScenarioScope(scenarioScope)
                 .buildWorld();
     }
 
@@ -61,20 +61,23 @@ public class ZuchiniRunnerDelegate extends ParentRunner<FeatureRunner> {
         if (options.listeners() == null || options.listeners().length == 0) {
             return Collections.emptyList();
         } else {
-            List<RunListener> listeners = new ArrayList<>(options.listeners().length);
+            final List<RunListener> listeners = new ArrayList<>(options.listeners().length);
             for (Class<? extends RunListener> listenerClass : options.listeners()) {
-                listeners.add(globalScope.getObject(listenerClass));
+                final RunListener listener = getGlobalScope().getObject(listenerClass);
+                listeners.add(listener);
             }
             return listeners;
         }
     }
 
+    @Override
     public Scope getGlobalScope() {
-        return globalScope;
+        return world.getGlobalScope();
     }
 
+    @Override
     public Scope getScenarioScope() {
-        return scenarioScope;
+        return world.getScenarioScope();
     }
 
     @Override
@@ -89,8 +92,8 @@ public class ZuchiniRunnerDelegate extends ParentRunner<FeatureRunner> {
 
     @Override
     public void run(RunNotifier notifier) {
-        Description description = getDescription();
-        List<RunListener> listeners = buildListeners();
+        final Description description = getDescription();
+        final List<RunListener> listeners = buildListeners();
         for (RunListener listener : listeners) {
             try {
                 listener.testRunStarted(description);
@@ -103,14 +106,17 @@ public class ZuchiniRunnerDelegate extends ParentRunner<FeatureRunner> {
         super.run(notifier);
     }
 
+    @Override
     public List<FeatureRunner> getChildren() {
         return children;
     }
 
+    @Override
     public Description describeChild(FeatureRunner child) {
         return child.getDescription();
     }
 
+    @Override
     public void runChild(FeatureRunner child, RunNotifier notifier) {
         child.run(notifier);
     }
