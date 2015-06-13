@@ -1,32 +1,34 @@
 package org.zuchini.reporter;
 
-import com.google.common.base.Optional;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 
+import javax.annotation.Nullable;
+
 class ScenarioResult {
     private final Description description;
-    private final Optional<Throwable> exception;
+    @Nullable
+    private final Throwable exception;
     private final boolean assumptionFailed;
     private final boolean ignored;
 
     public static ScenarioResult failure(Failure failure) {
-        return new ScenarioResult(failure.getDescription(), Optional.of(failure.getException()), false, false);
+        return new ScenarioResult(failure.getDescription(), failure.getException(), false, false);
     }
 
     public static ScenarioResult assumptionFailed(Failure failure) {
-        return new ScenarioResult(failure.getDescription(), Optional.of(failure.getException()), true, false);
+        return new ScenarioResult(failure.getDescription(), failure.getException(), true, false);
     }
 
     public static ScenarioResult ignored(Description description) {
-        return new ScenarioResult(description, Optional.<Throwable>absent(), false, true);
+        return new ScenarioResult(description, null, false, true);
     }
 
     public static ScenarioResult success(Description description) {
-        return new ScenarioResult(description, Optional.<Throwable>absent(), false, false);
+        return new ScenarioResult(description, null, false, false);
     }
 
-    private ScenarioResult(Description description, Optional<Throwable> exception, boolean assumptionFailed, boolean ignored) {
+    private ScenarioResult(Description description, @Nullable Throwable exception, boolean assumptionFailed, boolean ignored) {
         this.description = description;
         this.exception = exception;
         this.assumptionFailed = assumptionFailed;
@@ -34,14 +36,15 @@ class ScenarioResult {
     }
 
     public boolean isSuccess() {
-        return !(exception.isPresent() || assumptionFailed || ignored);
+        return !(exception != null || assumptionFailed || ignored);
     }
 
     public Description getDescription() {
         return description;
     }
 
-    public Optional<Throwable> getException() {
+    @Nullable
+    public Throwable getException() {
         return exception;
     }
 

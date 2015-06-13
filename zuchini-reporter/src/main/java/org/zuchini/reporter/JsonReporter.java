@@ -3,10 +3,6 @@ package org.zuchini.reporter;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.util.concurrent.AtomicLongMap;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -22,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.annotation.Annotation;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,41 +32,44 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Multimaps.index;
-
 public class JsonReporter extends RunListener {
 
-    enum IndexByFeature implements Function<ScenarioResult, FeatureInfo> {
-        INSTANCE;
-
-        @Override
-        public FeatureInfo apply(final ScenarioResult input) {
-            final Description description = input.getDescription();
-            return checkNotNull(description.getAnnotation(FeatureInfo.class));
+    private static <K, V> void update(Map<K, List<V>> map, K key, V val) {
+        List<V> list = map.get(key);
+        if (list == null) {
+            list = new ArrayList<>();
+            map.put(key, list);
         }
+        list.add(val);
     }
 
-    enum IndexByScenario implements Function<ScenarioResult, ScenarioInfo> {
-        INSTANCE;
+    private static <T extends Annotation> Map<T, List<ScenarioResult>> index(Iterable<ScenarioResult> results, Class<T> clazz) {
+        final Map<T, List<ScenarioResult>> index = new HashMap<>();
 
-        @Override
-        public ScenarioInfo apply(final ScenarioResult input) {
-            final Description description = input.getDescription();
-            return checkNotNull(description.getAnnotation(ScenarioInfo.class));
+        for (ScenarioResult result : results) {
+            final Description description = result.getDescription();
+            final T scenario = description.getAnnotation(clazz);
+
+            if (scenario == null) {
+                throw new IllegalStateException("Description [" + description.getDisplayName() + "] has no annotation of type [" + clazz.getName() + "]");
+            }
+
+            update(index, scenario, result);
         }
 
+        return index;
     }
 
-    private static IndexByFeature byFeature() {
-        return IndexByFeature.INSTANCE;
+    private static Map<FeatureInfo, List<ScenarioResult>> byFeature(Iterable<ScenarioResult> results) {
+        return index(results, FeatureInfo.class);
     }
 
-    private static IndexByScenario byScenario() {
-        return IndexByScenario.INSTANCE;
+    private static Map<ScenarioInfo, List<ScenarioResult>> byScenario(Iterable<ScenarioResult> results) {
+        return index(results, ScenarioInfo.class);
     }
 
-    private final AtomicLongMap<String> generatedIds = AtomicLongMap.create();
+
+    private final Map<String, Integer> generatedIds = new HashMap<>();
     private final List<ScenarioResult> results = new ArrayList<>();
     private final Set<Description> failed = Collections.newSetFromMap(new IdentityHashMap<Description, Boolean>());
     private final Object lock = new Object();
@@ -124,7 +124,7 @@ public class JsonReporter extends RunListener {
 
     @Override
     public void testRunFinished(Result result) throws Exception {
-        final ImmutableListMultimap<FeatureInfo, ScenarioResult> features = index(copyResults(), byFeature());
+        Map<FeatureInfo, List<ScenarioResult>> features = byFeature(copyResults());
 
         String outputPath = System.getProperty("zuchini.reporter.output");
         if (outputPath == null) {
@@ -148,7 +148,7 @@ public class JsonReporter extends RunListener {
 
             json.writeArrayFieldStart("features");
 
-            for (Map.Entry<FeatureInfo, Collection<ScenarioResult>> featureEntry : features.asMap().entrySet()) {
+            for (Map.Entry<FeatureInfo, List<ScenarioResult>> featureEntry : features.entrySet()) {
                 final FeatureInfo feature = featureEntry.getKey();
                 final Collection<ScenarioResult> value = featureEntry.getValue();
                 // TODO: distinguish feature title and user story
@@ -181,7 +181,13 @@ public class JsonReporter extends RunListener {
 
     private String generateId(final String title) {
         final String id = title.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", "-").replaceAll("(^-|-$)", "");
-        final long count = generatedIds.addAndGet(id, 1L);
+        Integer count = generatedIds.get(id);
+        if (count == null) {
+            count = 1;
+        } else {
+            count++;
+        }
+        generatedIds.put(id, count);
         return count == 1 ? id : (id + "-" + count);
     }
 
@@ -222,12 +228,12 @@ public class JsonReporter extends RunListener {
     }
 
     private void writeScenarios(final JsonGenerator json, final Collection<ScenarioResult> value,
-                                final AtomicLongMap<String> generatedIds) throws IOException {
-        final ImmutableListMultimap<ScenarioInfo, ScenarioResult> scenarios = index(value, byScenario());
+                                final Map<String, Integer> generatedIds) throws IOException {
+        Map<ScenarioInfo, List<ScenarioResult>> scenarios = byScenario(results);
 
         json.writeArrayFieldStart("scenarios");
-        for (Map.Entry<ScenarioInfo, Collection<ScenarioResult>> scenarioEntry
-                : scenarios.asMap().entrySet()) {
+        for (Map.Entry<ScenarioInfo, List<ScenarioResult>> scenarioEntry
+                : scenarios.entrySet()) {
             final ScenarioInfo scenario = scenarioEntry.getKey();
             final String description = scenario.description();
 
@@ -329,10 +335,8 @@ public class JsonReporter extends RunListener {
             json.writeBooleanField("ignored", result.isIgnored());
             json.writeBooleanField("assumptionFailed", result.isAssumptionFailed());
 
-            final Optional<Throwable> optionalException = result.getException();
-            if (optionalException.isPresent()) {
-                final Throwable exception = optionalException.get();
-
+            Throwable exception = result.getException();
+            if (exception != null) {
                 json.writeStringField("error", exception.getMessage());
                 json.writeStringField("stacktrace", getStackTrace(exception));
             }
