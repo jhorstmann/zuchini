@@ -23,20 +23,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Multimaps.index;
 
 public class JsonReporter extends RunListener {
-
-    private AtomicLongMap<String> generatedIds = AtomicLongMap.create();
 
     enum IndexByFeature implements Function<ScenarioResult, FeatureInfo> {
         INSTANCE;
@@ -67,7 +60,10 @@ public class JsonReporter extends RunListener {
         return IndexByScenario.INSTANCE;
     }
 
-    private final List<ScenarioResult> results = new CopyOnWriteArrayList<>();
+    private final AtomicLongMap<String> generatedIds = AtomicLongMap.create();
+    private final List<ScenarioResult> results = new ArrayList<>();
+    private final Set<Description> failed = Collections.newSetFromMap(new IdentityHashMap<Description, Boolean>());
+    private final Object lock = new Object();
 
     @Override
     public void testStarted(Description description) throws Exception {
@@ -76,31 +72,50 @@ public class JsonReporter extends RunListener {
 
     @Override
     public void testFinished(Description description) throws Exception {
-        results.add(ScenarioResult.success(description));
+        synchronized (lock) {
+            if (!failed.contains(description)) {
+                results.add(ScenarioResult.success(description));
+            }
+        }
     }
 
     @Override
     public void testFailure(Failure failure) throws Exception {
-        results.add(ScenarioResult.failure(failure));
+        synchronized (lock) {
+            failed.add(failure.getDescription());
+            results.add(ScenarioResult.failure(failure));
+        }
     }
 
     @Override
     public void testAssumptionFailure(Failure failure) {
-        results.add(ScenarioResult.assumptionFailed(failure));
+        synchronized (lock) {
+            failed.add(failure.getDescription());
+            results.add(ScenarioResult.assumptionFailed(failure));
+        }
     }
 
     @Override
     public void testIgnored(Description description) throws Exception {
-        results.add(ScenarioResult.ignored(description));
+        synchronized (lock) {
+            failed.add(description);
+            results.add(ScenarioResult.ignored(description));
+        }
     }
 
     @Override
     public void testRunStarted(Description description) throws Exception {
     }
 
+    private List<ScenarioResult> copyResults() {
+        synchronized (lock) {
+            return new ArrayList<>(results);
+        }
+    }
+
     @Override
     public void testRunFinished(Result result) throws Exception {
-        final ImmutableListMultimap<FeatureInfo, ScenarioResult> features = index(results, byFeature());
+        final ImmutableListMultimap<FeatureInfo, ScenarioResult> features = index(copyResults(), byFeature());
 
         String outputPath = System.getProperty("zuchini.reporter.output");
         if (outputPath == null) {
