@@ -12,7 +12,6 @@ import org.zuchini.junit.description.RowInfo;
 import org.zuchini.junit.description.ScenarioInfo;
 import org.zuchini.junit.description.StepInfo;
 
-import javax.xml.bind.DatatypeConverter;
 import java.beans.Introspector;
 import java.io.File;
 import java.io.IOException;
@@ -20,10 +19,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.net.InetAddress;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.GregorianCalendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -142,7 +142,7 @@ public class JsonReporter extends RunListener {
 
             json.writeStartObject();
             json.writeStringField("creation-host", InetAddress.getLocalHost().getHostName());
-            json.writeStringField("creation-time", DatatypeConverter.printDateTime(new GregorianCalendar()));
+            json.writeStringField("creation-time", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new Date()));
 
             writeEnvironment(json);
 
