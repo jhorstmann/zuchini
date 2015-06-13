@@ -12,3 +12,6 @@ Feature: Json report of features and scenarios
      | DEF  | 456   |
     When the scenario is executed
     Then a report is generated
+
+  Scenario: Scenario with failing assumption
+    Given a failing assumption
