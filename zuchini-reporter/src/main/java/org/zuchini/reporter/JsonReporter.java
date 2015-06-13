@@ -7,7 +7,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.util.concurrent.AtomicLongMap;
-import org.joda.time.DateTime;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -17,14 +16,24 @@ import org.zuchini.junit.description.RowInfo;
 import org.zuchini.junit.description.ScenarioInfo;
 import org.zuchini.junit.description.StepInfo;
 
+import javax.xml.bind.DatatypeConverter;
 import java.beans.Introspector;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Multimaps.index;
@@ -133,7 +142,7 @@ public class JsonReporter extends RunListener {
 
             json.writeStartObject();
             json.writeStringField("creation-host", InetAddress.getLocalHost().getHostName());
-            json.writeStringField("creation-time", DateTime.now().toString());
+            json.writeStringField("creation-time", DatatypeConverter.printDateTime(new GregorianCalendar()));
 
             writeEnvironment(json);
 
