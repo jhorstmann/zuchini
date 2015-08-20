@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,10 +34,12 @@ class StatementBuilder {
         }
     }
     private final List<StepDefinition> stepDefinitions;
+    private final List<HookDefinition> hookDefinitions;
     private final Map<String, Closure> methodCache;
 
-    StatementBuilder(List<StepDefinition> stepDefinitions) {
+    StatementBuilder(List<StepDefinition> stepDefinitions, List<HookDefinition> hookDefinitions) {
         this.stepDefinitions = stepDefinitions;
+        this.hookDefinitions = hookDefinitions;
         this.methodCache = new HashMap<>();
     }
 
@@ -73,12 +76,30 @@ class StatementBuilder {
     }
 
     private SimpleScenarioStatement buildScenarioStatement(Scenario scenario) {
-        List<Step> steps = scenario.getStepsIncludingBackground();
-        List<StepStatement> statements = new ArrayList<>(steps.size());
+        final List<Step> steps = scenario.getStepsIncludingBackground();
+        final List<StepStatement> statements = new ArrayList<>(steps.size());
         for (Step step : steps) {
             statements.add(buildStepStatement(step));
         }
-        return new SimpleScenarioStatement(scenario, statements);
+
+        final List<HookStatement> beforeHooks = new ArrayList<>();
+        final List<HookStatement> afterHooks = new ArrayList<>();
+
+        outer:
+        for (HookDefinition hookDefinition : hookDefinitions) {
+            final List<HookStatement> list = hookDefinition.getEvent() == HookDefinition.Event.BEFORE ? beforeHooks : afterHooks;
+
+            final Set<String> tags = hookDefinition.getTags();
+            for (String tag : tags) {
+                if (!scenario.getTags().contains(tag)) {
+                    continue outer;
+                }
+            }
+
+            list.add(new HookStatement(hookDefinition.getMethod()));
+        }
+
+        return new SimpleScenarioStatement(scenario, statements, beforeHooks, afterHooks);
     }
 
     private StepStatement buildStepStatement(Step step) {

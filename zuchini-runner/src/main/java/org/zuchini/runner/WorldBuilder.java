@@ -61,10 +61,12 @@ public class WorldBuilder {
     }
 
     public World buildWorld() throws IOException {
-        List<Feature> features = new ArrayList<>();
+        final List<Feature> features = new ArrayList<>();
+
         if (!featurePackages.isEmpty()) {
             features.addAll(FeatureScanner.scan(classLoader, featurePackages));
         }
+
         if (!featureFiles.isEmpty()) {
             for (File file : featureFiles) {
                 features.add(FeatureParser.getFeature(file));
@@ -74,13 +76,19 @@ public class WorldBuilder {
         if (globalScope == null) {
             globalScope = new GlobalScope();
         }
+
         if (scenarioScope == null) {
             scenarioScope = new ThreadLocalScope();
         }
 
-        List<StepDefinition> stepDefinitions = StepDefinitionScanner.scan(classLoader, stepDefinitionPackages);
-        StatementBuilder statementBuilder = new StatementBuilder(stepDefinitions);
-        List<FeatureStatement> featureStatements = statementBuilder.buildFeatureStatements(features);
+        final StepDefinitionScanner scanner = new StepDefinitionScanner(classLoader, stepDefinitionPackages);
+        scanner.scan();
+
+        final List<StepDefinition> stepDefinitions = scanner.getStepDefinitions();
+        final List<HookDefinition> hookDefinitions = scanner.getHookDefinitions();
+
+        final StatementBuilder statementBuilder = new StatementBuilder(stepDefinitions, hookDefinitions);
+        final List<FeatureStatement> featureStatements = statementBuilder.buildFeatureStatements(features);
 
         return new World(globalScope, scenarioScope, featureStatements);
     }

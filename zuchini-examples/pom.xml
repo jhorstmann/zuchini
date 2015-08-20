@@ -18,6 +18,7 @@
         <module>zuchini-examples-parallel</module>
         <module>zuchini-examples-filtering</module>
         <module>zuchini-examples-datatables</module>
+        <module>zuchini-examples-hooks</module>
         <module>zuchini-examples-reporting</module>
     </modules>
 </project>
