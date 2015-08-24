@@ -14,8 +14,10 @@ import org.zuchini.junit.description.StepInfo;
 import org.zuchini.model.Step;
 import org.zuchini.runner.Context;
 import org.zuchini.runner.FeatureStatement;
+import org.zuchini.runner.HookStatement;
 import org.zuchini.runner.Scope;
 import org.zuchini.runner.SimpleScenarioStatement;
+import org.zuchini.runner.Statement;
 import org.zuchini.runner.StepStatement;
 
 import java.lang.annotation.Annotation;
@@ -67,10 +69,10 @@ class SteppedScenarioRunner extends Runner {
     }
 
     private List<DescribedStepStatement> buildChildren() {
-        List<StepStatement> steps = scenarioStatement.getSteps();
-        List<DescribedStepStatement> result = new ArrayList<>(steps.size());
+        final List<StepStatement> steps = scenarioStatement.getSteps();
+        final List<DescribedStepStatement> result = new ArrayList<>(steps.size());
         for (StepStatement stepStatement : steps) {
-            Step step = stepStatement.getStep();
+            final Step step = stepStatement.getStep();
             result.add(new DescribedStepStatement(stepStatement,
                     DescriptionHelper.createStepDescription(testClass, step, getStepAnnotations(step))));
         }
@@ -99,37 +101,61 @@ class SteppedScenarioRunner extends Runner {
 
     @Override
     public void run(RunNotifier notifier) {
-        Scope scenarioScope = context.getScenarioScope();
+        final Scope scenarioScope = context.getScenarioScope();
         scenarioScope.begin();
         try {
-            Iterator<DescribedStepStatement> it = children.iterator();
+            final Iterator<DescribedStepStatement> it = children.iterator();
+            boolean first = true;
+
             try {
                 while (it.hasNext()) {
-                    DescribedStepStatement describedStepStatement = it.next();
-                    Description stepDescription = describedStepStatement.getDescription();
-                    StepStatement stepStatement = describedStepStatement.getStepStatement();
-                    notifier.fireTestStarted(stepDescription);
+                    final DescribedStepStatement describedStepStatement = it.next();
+                    final Description stepDescription = describedStepStatement.getDescription();
+                    final Statement stepStatement = describedStepStatement.getStepStatement();
+
                     try {
-                        stepStatement.evaluate(context);
-                    } catch (AssumptionViolatedException ex) {
-                        notifier.fireTestAssumptionFailed(new Failure(stepDescription, ex));
-                        throw IgnoreRemainingStepsException.INSTANCE;
-                    } catch (Throwable throwable) {
-                        notifier.fireTestFailure(new Failure(stepDescription, throwable));
-                        throw IgnoreRemainingStepsException.INSTANCE;
+                        notifier.fireTestStarted(stepDescription);
+
+                        if (first) {
+                            for (HookStatement hook : scenarioStatement.getBeforeHooks()) {
+                                evaluate(notifier, hook, stepDescription);
+                            }
+                            first = false;
+                        }
+
+                        evaluate(notifier, stepStatement, stepDescription);
+
+                        final boolean last = !it.hasNext();
+                        if (last) {
+                            for (HookStatement hook : scenarioStatement.getAfterHooks()) {
+                                evaluate(notifier, hook, stepDescription);
+                            }
+                        }
                     } finally {
                         notifier.fireTestFinished(stepDescription);
                     }
                 }
             } catch (IgnoreRemainingStepsException e) {
                 while (it.hasNext()) {
-                    DescribedStepStatement describedStepStatement = it.next();
-                    Description stepDescription = describedStepStatement.getDescription();
+                    final DescribedStepStatement describedStepStatement = it.next();
+                    final Description stepDescription = describedStepStatement.getDescription();
                     notifier.fireTestIgnored(stepDescription);
                 }
             }
         } finally {
             scenarioScope.end();
+        }
+    }
+
+    private void evaluate(final RunNotifier notifier, final Statement statement, final Description description) throws IgnoreRemainingStepsException {
+        try {
+            statement.evaluate(context);
+        } catch (AssumptionViolatedException ex) {
+            notifier.fireTestAssumptionFailed(new Failure(description, ex));
+            throw IgnoreRemainingStepsException.INSTANCE;
+        } catch (Throwable throwable) {
+            notifier.fireTestFailure(new Failure(description, throwable));
+            throw IgnoreRemainingStepsException.INSTANCE;
         }
     }
 

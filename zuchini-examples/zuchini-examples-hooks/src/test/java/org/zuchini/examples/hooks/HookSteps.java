@@ -40,7 +40,6 @@ public class HookSteps {
 
     @Given("^a step$")
     public void a_step() {
-
     }
 
     @Then("^the executed hooks are:")

@@ -27,6 +27,14 @@ public class SimpleScenarioStatement extends ScenarioStatement {
         return steps;
     }
 
+    public List<HookStatement> getBeforeHooks() {
+        return beforeHooks;
+    }
+
+    public List<HookStatement> getAfterHooks() {
+        return afterHooks;
+    }
+
     @Override
     public boolean isOutline() {
         return false;
