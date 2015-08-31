@@ -3,7 +3,7 @@ package org.zuchini.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Examples implements Tagged, Commented, LocationAware, RowContainer {
+public class Examples implements Named, Tagged, Commented, LocationAware, RowContainer {
     private final Outline outline;
     private final int lineNumber;
     private final String keyword;

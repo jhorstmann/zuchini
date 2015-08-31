@@ -3,7 +3,7 @@ package org.zuchini.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Feature implements Commented, Tagged, LocationAware{
+public class Feature implements Named, Commented, Tagged, LocationAware{
     private final String uri;
     private final int lineNumber;
     private final String keyword;

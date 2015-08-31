@@ -2,18 +2,20 @@ package org.zuchini.runner;
 
 import org.zuchini.model.Scenario;
 
-import java.lang.reflect.Method;
-import java.util.Collections;
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class SimpleScenarioStatement extends ScenarioStatement {
     private final Scenario scenario;
+    @Nullable
+    private final BackgroundStatement background;
     private final List<StepStatement> steps;
     private final List<HookStatement> beforeHooks;
     private final List<HookStatement> afterHooks;
 
-    public SimpleScenarioStatement(Scenario scenario, List<StepStatement> steps, List<HookStatement> beforeHooks, List<HookStatement> afterHooks) {
+    public SimpleScenarioStatement(Scenario scenario, BackgroundStatement background, List<StepStatement> steps, List<HookStatement> beforeHooks, List<HookStatement> afterHooks) {
         this.scenario = scenario;
+        this.background = background;
         this.steps = steps;
         this.beforeHooks = beforeHooks;
         this.afterHooks = afterHooks;
@@ -47,6 +49,10 @@ public class SimpleScenarioStatement extends ScenarioStatement {
         try {
             for (HookStatement beforeHook : beforeHooks) {
                 beforeHook.evaluate(context);
+            }
+
+            if (background != null) {
+                background.evaluate(context);
             }
 
             for (StepStatement step : steps) {

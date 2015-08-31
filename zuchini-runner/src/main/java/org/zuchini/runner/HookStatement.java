@@ -1,12 +1,16 @@
 package org.zuchini.runner;
 
+import org.zuchini.model.Scenario;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class HookStatement implements Statement {
+    private final Scenario scenario;
     private final Method method;
 
-    public HookStatement(Method method) {
+    public HookStatement(Scenario scenario, Method method) {
+        this.scenario = scenario;
         this.method = method;
     }
 

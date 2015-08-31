@@ -3,7 +3,7 @@ package org.zuchini.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class StepContainer implements Commented, Tagged, LocationAware {
+public abstract class StepContainer implements Named, Commented, Tagged, LocationAware {
     private final int lineNumber;
     private final Feature feature;
     private final String keyword;
@@ -22,15 +22,6 @@ public abstract class StepContainer implements Commented, Tagged, LocationAware 
     @Override
     public String getUri() {
         return feature.getUri();
-    }
-
-    public List<Step> getStepsIncludingBackground() {
-        List<Step> steps = new ArrayList<>();
-        for (Background background : feature.getBackground()) {
-            steps.addAll(background.getSteps());
-        }
-        steps.addAll(this.steps);
-        return steps;
     }
 
     public Feature getFeature() {

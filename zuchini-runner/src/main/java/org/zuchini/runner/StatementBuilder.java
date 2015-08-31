@@ -1,5 +1,6 @@
 package org.zuchini.runner;
 
+import org.zuchini.model.Background;
 import org.zuchini.model.Feature;
 import org.zuchini.model.Outline;
 import org.zuchini.model.Scenario;
@@ -76,10 +77,28 @@ class StatementBuilder {
     }
 
     private SimpleScenarioStatement buildScenarioStatement(Scenario scenario) {
-        final List<Step> steps = scenario.getStepsIncludingBackground();
-        final List<StepStatement> statements = new ArrayList<>(steps.size());
-        for (Step step : steps) {
-            statements.add(buildStepStatement(step));
+        final List<StepStatement> scenarioSteps = new ArrayList<>();
+        final List<StepStatement> backgroundSteps = new ArrayList<>();
+
+        final BackgroundStatement backgroundStatement;
+
+        if (scenario.getBackground().isEmpty()) {
+            backgroundStatement = null;
+        } else {
+            // TODO: Make nullable or optional instead of list
+            final Background background = scenario.getBackground().get(0);
+            final List<Step> steps = background.getSteps();
+            for (Step step : steps) {
+                backgroundSteps.add(buildStepStatement(step));
+            }
+            backgroundStatement = new BackgroundStatement(background, backgroundSteps);
+        }
+
+        {
+            final List<Step> steps = scenario.getSteps();
+            for (Step step : steps) {
+                scenarioSteps.add(buildStepStatement(step));
+            }
         }
 
         final List<HookStatement> beforeHooks = new ArrayList<>();
@@ -96,10 +115,10 @@ class StatementBuilder {
                 }
             }
 
-            list.add(new HookStatement(hookDefinition.getMethod()));
+            list.add(new HookStatement(scenario, hookDefinition.getMethod()));
         }
 
-        return new SimpleScenarioStatement(scenario, statements, beforeHooks, afterHooks);
+        return new SimpleScenarioStatement(scenario, backgroundStatement, scenarioSteps, beforeHooks, afterHooks);
     }
 
     private StepStatement buildStepStatement(Step step) {

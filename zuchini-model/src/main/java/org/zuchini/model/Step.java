@@ -3,7 +3,7 @@ package org.zuchini.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Step implements Commented, Tagged, LocationAware, RowContainer {
+public class Step implements Named, Commented, Tagged, LocationAware, RowContainer {
     private final StepContainer stepContainer;
     private final int lineNumber;
     private final String keyword;
@@ -18,6 +18,10 @@ public class Step implements Commented, Tagged, LocationAware, RowContainer {
         this.lineNumber = lineNumber;
         this.keyword = keyword;
         this.description = description;
+    }
+
+    public StepContainer getStepContainer() {
+        return stepContainer;
     }
 
     @Override
