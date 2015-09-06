@@ -51,7 +51,7 @@ step            : annotation*
                   (row+ | document+)?;
 
 row             : annotation*
-                  WS? PIPE (cell PIPE)+ EOL;
+                  WS? PIPE (cell PIPE)+ WS? EOL;
 
 cell            : ~(PIPE|EOL)*;
 

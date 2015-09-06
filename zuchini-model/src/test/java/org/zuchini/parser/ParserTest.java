@@ -182,6 +182,31 @@ public class ParserTest {
     }
 
     @Test
+    public void shouldSupportedTrailingSpacesAfterRows() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Tables\n\nScenario: Step with table\nGiven a table:\n  | A | B |\t\n  | 1 | 2 |  \n");
+
+        StepContainer scenario = feature.getScenarios().get(0);
+
+        List<Step> steps = scenario.getSteps();
+        {
+            Step step = steps.get(0);
+            assertEquals("Given", step.getKeyword());
+            assertEquals("a table:", step.getDescription());
+            List<Row> rows = step.getRows();
+
+            {
+                Row row = rows.get(0);
+                assertEquals(asList("A", "B"), row.getCells());
+            }
+            {
+                Row row = rows.get(1);
+                assertEquals(asList("1", "2"), row.getCells());
+            }
+        }
+    }
+
+    @Test
     public void shouldParseEscapedPipesInTable() {
         Feature feature = FeatureParser.getFeature(
                 "Feature: Tables\n\nScenario: Step with table\nGiven a table:\n  |  A  |\n  | X\\|X |\n");
