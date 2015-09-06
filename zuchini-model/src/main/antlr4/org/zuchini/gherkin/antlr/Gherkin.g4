@@ -55,7 +55,9 @@ row             : annotation*
 
 cell            : ~(PIPE|EOL)*;
 
-document        : WS? TRIPLE_QUOTE documentContent TRIPLE_QUOTE EOL;
+document        : documentIndent TRIPLE_QUOTE documentContent TRIPLE_QUOTE EOL;
+
+documentIndent  : WS?;
 
 documentContent : ~TRIPLE_QUOTE*?;
 

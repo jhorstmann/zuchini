@@ -100,6 +100,14 @@ class FeatureWalker implements GherkinListener {
     }
 
     @Override
+    public void enterDocumentIndent(@NotNull GherkinParser.DocumentIndentContext ctx) {
+    }
+
+    @Override
+    public void exitDocumentIndent(@NotNull GherkinParser.DocumentIndentContext ctx) {
+    }
+
+    @Override
     public void enterComment(@NotNull GherkinParser.CommentContext ctx) {
         commentContainer.getComments().add(ctx.lineContent().getText());
     }

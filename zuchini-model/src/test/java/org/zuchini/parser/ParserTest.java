@@ -368,6 +368,40 @@ public class ParserTest {
     }
 
     @Test
+    public void shouldStripIndentFromDocuments() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Documents\n\nScenario: Documents\nGiven the following string:\n  \"\"\"  ABC\n    DEF\n    GHI\"\"\"\n");
+
+        assertEquals("Feature", feature.getKeyword());
+        assertEquals("Documents", feature.getDescription());
+
+        StepContainer scenario = feature.getScenarios().get(0);
+
+        Step step = scenario.getSteps().get(0);
+
+        assertEquals("Given", step.getKeyword());
+        assertEquals("the following string:", step.getDescription());
+        assertEquals(asList("ABC\n  DEF\n  GHI"), step.getDocs());
+    }
+
+    @Test
+    public void shouldStripIndentFromDocumentsAndRetainLineBreaks() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Documents\r\n\r\nScenario: Documents\r\nGiven the following string:\r\n\t\"\"\"\tABC\r\n\t\tDEF\r\n\t\tGHI\r\n\"\"\"\r\n");
+
+        assertEquals("Feature", feature.getKeyword());
+        assertEquals("Documents", feature.getDescription());
+
+        StepContainer scenario = feature.getScenarios().get(0);
+
+        Step step = scenario.getSteps().get(0);
+
+        assertEquals("Given", step.getKeyword());
+        assertEquals("the following string:", step.getDescription());
+        assertEquals(asList("ABC\r\n\tDEF\r\n\tGHI\r\n"), step.getDocs());
+    }
+
+    @Test
     public void shouldIgnoreTrailingComments() {
         Feature feature = FeatureParser.getFeature(
                 "#header comment\nFeature: Trailing comments\n\nScenario: Scenario\nGiven a step\n\n#trailing comment\n");

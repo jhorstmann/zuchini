@@ -1,5 +1,6 @@
 package org.zuchini.parser;
 
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.zuchini.gherkin.antlr.GherkinBaseVisitor;
@@ -19,6 +20,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 import static java.util.Arrays.asList;
 import static org.zuchini.parser.ParserHelper.visitNodes;
@@ -87,15 +90,24 @@ public class Visitors  {
     }
 
     static class DocumentsVisitor extends  AggregatingVisitor<String> {
-
-        @Override
-        public List<String> visitDocumentContent(@NotNull GherkinParser.DocumentContentContext ctx) {
-            return Collections.singletonList(ctx.getText());
-        }
+        private static final Pattern NEWLINE = Pattern.compile("(?:\\n|\\r\\n)");
 
         @Override
         public List<String> visitDocument(@NotNull GherkinParser.DocumentContext ctx) {
-            return visitDocumentContent(ctx.documentContent());
+            final String  indent = ctx.documentIndent().getText();
+            final String text = ctx.documentContent().getText();
+            if (indent != null && indent.length() > 0) {
+                final StringBuilder sb = new StringBuilder(text.length());
+                final StringTokenizer tok = new StringTokenizer(text, "\r\n", true);
+                while (tok.hasMoreTokens()) {
+                    final String line = tok.nextToken();
+                    sb.append(line.startsWith(indent) ? line.substring(indent.length()) : line);
+                }
+
+                return Collections.singletonList(sb.toString());
+            } else {
+                return Collections.singletonList(text);
+            }
         }
     }
 
