@@ -7,6 +7,7 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class ParserTest {
 
@@ -76,6 +77,24 @@ public class ParserTest {
             assertEquals("Given", step.getKeyword());
             assertEquals("a customer", step.getDescription());
         }
+    }
+
+    @Test
+    public void shouldParseEmptyScenario() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Should support emtpy scenario\n\nScenario: Empty scenario\n");
+
+        assertEquals(1, feature.getLineNumber());
+        assertEquals("Feature", feature.getKeyword());
+        assertEquals("Should support emtpy scenario", feature.getDescription());
+
+        StepContainer scenario = feature.getScenarios().get(0);
+        assertEquals(3, scenario.getLineNumber());
+        assertEquals("Scenario", scenario.getKeyword());
+        assertEquals("Empty scenario", scenario.getDescription());
+
+        assertNotNull(scenario.getSteps());
+        assertEquals(0, scenario.getSteps().size());
     }
 
     @Test
@@ -266,6 +285,44 @@ public class ParserTest {
     public void shouldParseMultipleTags() {
         Feature feature = FeatureParser.getFeature(
                 "Feature: Tags\n\n@Tag1 @Tag2\nScenario: Tags on scenario and steps\n@Tag3\n@Tag4 @Tag5\nGiven a tagged step\n");
+
+        assertEquals("Feature", feature.getKeyword());
+        assertEquals("Tags", feature.getDescription());
+
+        StepContainer scenario = feature.getScenarios().get(0);
+        assertEquals("Scenario", scenario.getKeyword());
+        assertEquals(asList("Tag1", "Tag2"), scenario.getTags());
+
+        Step step = scenario.getSteps().get(0);
+
+        assertEquals("Given", step.getKeyword());
+        assertEquals("a tagged step", step.getDescription());
+        assertEquals(asList("Tag3", "Tag4", "Tag5"), step.getTags());
+    }
+
+    @Test
+    public void shouldParseMultipleTagsWithWhitespace() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Tags\n\n@Tag1    @Tag2\nScenario: Tags on scenario and steps\n\t@Tag3\n  @Tag4 @Tag5\n\n  Given a tagged step\n");
+
+        assertEquals("Feature", feature.getKeyword());
+        assertEquals("Tags", feature.getDescription());
+
+        StepContainer scenario = feature.getScenarios().get(0);
+        assertEquals("Scenario", scenario.getKeyword());
+        assertEquals(asList("Tag1", "Tag2"), scenario.getTags());
+
+        Step step = scenario.getSteps().get(0);
+
+        assertEquals("Given", step.getKeyword());
+        assertEquals("a tagged step", step.getDescription());
+        assertEquals(asList("Tag3", "Tag4", "Tag5"), step.getTags());
+    }
+
+    @Test
+    public void shouldParseMultipleTagsWithTrailingWhitespace() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Tags\n\n@Tag1 @Tag2 \nScenario: Tags on scenario and steps\n@Tag3 \n  @Tag4  @Tag5   \n\n  Given a tagged step\n");
 
         assertEquals("Feature", feature.getKeyword());
         assertEquals("Tags", feature.getDescription());

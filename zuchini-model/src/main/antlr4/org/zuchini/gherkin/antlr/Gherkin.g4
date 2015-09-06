@@ -9,7 +9,7 @@ lineContent     : ~EOL+;
 comment         : WS? HASH lineContent EOL;
 
 annotation      : comment
-                | WS? tag (WS tag)* EOL
+                | WS? tag ((WS | EOL+) tag)* WS* EOL
                 | WS? EOL;
 
 trailingComment : comment;
@@ -33,12 +33,12 @@ abstractScenario: scenario | outline;
 
 scenario        : annotation*
                   WS? SCENARIO_KW WS? COLON WS? lineContent EOL
-                  step+
+                  step*
                   EOL*;
 
 outline         : annotation*
                   WS? OUTLINE_KW WS? COLON WS? lineContent EOL
-                  step+
+                  step*
                   examples+
                   EOL*;
 
