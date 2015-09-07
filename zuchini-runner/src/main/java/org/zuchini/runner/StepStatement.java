@@ -58,7 +58,7 @@ public class StepStatement implements Statement {
                 typedArguments[stringArguments.length] = docs.get(0);
                 return typedArguments;
             } else {
-                String description = step.getDescription();
+                String description = step.getName();
                 String methodName = method.getDeclaringClass().getName() + "." + method.getName();
                 throw new IllegalStateException("Could not convert parameters " + Arrays.toString(stringArguments) + " for step [" + description + "] to method [" + methodName + "] with arguments " + Arrays.toString(parameterTypes));
             }

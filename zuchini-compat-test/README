@@ -1,0 +1,23 @@
+## Tests that are unsupported
+
+### Because they use non-english keywords or special commments for switching language
+
+ - language.feature
+ - spaces_in_language.feature
+ - i18n_no.feature
+
+### Because they use multi-line descriptions
+
+ - descriptions.feature
+
+Use comments on feature or steps instead
+
+## Failing tests
+
+ - example_tokens_everywhere.feature
+
+   Stripping of docstring is implemented differently, zuchini keeps leading and trailing newlines.
+
+ - docstrings.feature
+
+   Triple-backquote is not supported as a delimiter, replaced with docstrings_only_triple_quotes.feature

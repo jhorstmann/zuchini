@@ -14,33 +14,36 @@ annotation      : comment
 
 trailingComment : comment;
 
-featureTitle    : lineContent (EOL lineContent)*;
+descriptionLine : WS? ~(FEATURE_KW | BACKGROUND_KW | SCENARIO_KW | OUTLINE_KW | STEP_KW | EXAMPLES_KW | AT | HASH | PIPE | WS | EOL) ~EOL* EOL
+                | WS? EOL
+                ;
+
+name     : descriptionLine+
+                ;
 
 feature         : annotation*
-                  WS? FEATURE_KW WS? COLON WS? featureTitle EOL
-                  EOL*
+                  WS? FEATURE_KW WS? COLON WS? lineContent EOL
+                  name?
                   background?
                   abstractScenario*
-                  (EOL | trailingComment)*
+                  (WS? EOL | trailingComment)*
                   EOF;
 
 background      : annotation*
                   WS? BACKGROUND_KW WS? COLON WS? lineContent EOL
-                  step+
-                  EOL*;
+                  (step | WS? EOL)+;
 
 abstractScenario: scenario | outline;
 
 scenario        : annotation*
                   WS? SCENARIO_KW WS? COLON WS? lineContent EOL
-                  step*
-                  EOL*;
+                  (step | WS? EOL)*;
 
 outline         : annotation*
                   WS? OUTLINE_KW WS? COLON WS? lineContent EOL
-                  step*
+                  (step | WS? EOL)*
                   examples+
-                  EOL*;
+                  (WS? EOL)*;
 
 examples        : annotation*
                   WS? EXAMPLES_KW WS? COLON WS? lineContent? EOL
@@ -55,7 +58,7 @@ row             : annotation*
 
 cell            : ~(PIPE|EOL)*;
 
-document        : documentIndent TRIPLE_QUOTE documentContent TRIPLE_QUOTE EOL;
+document        : documentIndent TRIPLE_QUOTE documentContent TRIPLE_QUOTE WS? EOL;
 
 documentIndent  : WS?;
 

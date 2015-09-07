@@ -74,8 +74,8 @@ class EnterTheMatrixRunListener extends RunListener {
 
     @Override
     public void testRunFinished(Result result) throws Exception {
-        printf(TEMPLATE_TEST_SUITE_FINISHED, getCurrentTime(), currentScenario.description());
-        printf(TEMPLATE_TEST_SUITE_FINISHED, getCurrentTime(), currentFeature.description());
+        printf(TEMPLATE_TEST_SUITE_FINISHED, getCurrentTime(), currentScenario.name());
+        printf(TEMPLATE_TEST_SUITE_FINISHED, getCurrentTime(), currentFeature.name());
 
         printf(TEMPLATE_SCENARIO_COUNTING_FINISHED, getCurrentTime());
     }
@@ -89,26 +89,26 @@ class EnterTheMatrixRunListener extends RunListener {
         String timestamp = getCurrentTime();
 
         if (currentFeature == null) {
-            printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, feature.uri() + ":" + feature.lineNumber(), feature.description());
-            printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, scenario.uri() + ":" + scenario.lineNumber(), scenario.description());
+            printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, feature.uri() + ":" + feature.lineNumber(), feature.name());
+            printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, scenario.uri() + ":" + scenario.lineNumber(), scenario.name());
 
         }
 
         if (currentFeature != null && !Objects.equals(feature, currentFeature)) {
-            printf(TEMPLATE_TEST_SUITE_FINISHED, timestamp, currentScenario.description());
-            printf(TEMPLATE_TEST_SUITE_FINISHED, timestamp, currentFeature.description());
+            printf(TEMPLATE_TEST_SUITE_FINISHED, timestamp, currentScenario.name());
+            printf(TEMPLATE_TEST_SUITE_FINISHED, timestamp, currentFeature.name());
 
-            printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, feature.uri() + ":" + feature.lineNumber(), feature.description());
-            printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, scenario.uri() + ":" + scenario.lineNumber(), scenario.description());
+            printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, feature.uri() + ":" + feature.lineNumber(), feature.name());
+            printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, scenario.uri() + ":" + scenario.lineNumber(), scenario.name());
             printf(TEMPLATE_SCENARIO_STARTED, timestamp);
         } else if (currentScenario != null && !Objects.equals(scenario, currentScenario)) {
-            printf(TEMPLATE_TEST_SUITE_FINISHED, timestamp, currentScenario.description());
+            printf(TEMPLATE_TEST_SUITE_FINISHED, timestamp, currentScenario.name());
 
-            printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, scenario.uri() + ":" + scenario.lineNumber(), scenario.description());
+            printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, scenario.uri() + ":" + scenario.lineNumber(), scenario.name());
             printf(TEMPLATE_SCENARIO_STARTED, timestamp);
         }
 
-        printf(TEMPLATE_TEST_STARTED, timestamp, step.uri() + ":" + step.lineNumber(), step.description());
+        printf(TEMPLATE_TEST_STARTED, timestamp, step.uri() + ":" + step.lineNumber(), step.name());
 
         currentFeature = feature;
         currentScenario = scenario;
@@ -118,7 +118,7 @@ class EnterTheMatrixRunListener extends RunListener {
     public void testFinished(Description description) throws Exception {
         StepInfo step = description.getAnnotation(StepInfo.class);
         String timestamp = getCurrentTime();
-        printf(TEMPLATE_TEST_FINISHED, timestamp, timestamp, step.description());
+        printf(TEMPLATE_TEST_FINISHED, timestamp, timestamp, step.name());
     }
 
     @Override
@@ -127,7 +127,7 @@ class EnterTheMatrixRunListener extends RunListener {
         StepInfo step = description.getAnnotation(StepInfo.class);
         String timestamp = getCurrentTime();
         failure.getException().printStackTrace();
-        printf(TEMPLATE_TEST_FAILED, timestamp, "", escape(failure.getMessage()), step.description(), "error = 'true'");
+        printf(TEMPLATE_TEST_FAILED, timestamp, "", escape(failure.getMessage()), step.name(), "error = 'true'");
         printf(TEMPLATE_SCENARIO_FAILED, timestamp);
     }
 
@@ -137,15 +137,15 @@ class EnterTheMatrixRunListener extends RunListener {
         StepInfo step = description.getAnnotation(StepInfo.class);
         String timestamp = getCurrentTime();
         failure.getException().printStackTrace();
-        printf(TEMPLATE_TEST_PENDING, step.description(), timestamp);
+        printf(TEMPLATE_TEST_PENDING, step.name(), timestamp);
     }
 
     @Override
     public void testIgnored(Description description) throws Exception {
         StepInfo step = description.getAnnotation(StepInfo.class);
         String timestamp = getCurrentTime();
-        printf(TEMPLATE_TEST_STARTED, timestamp, step.uri() + ":" + step.lineNumber(), step.description());
-        printf(TEMPLATE_TEST_PENDING, step.description(), timestamp);
+        printf(TEMPLATE_TEST_STARTED, timestamp, step.uri() + ":" + step.lineNumber(), step.name());
+        printf(TEMPLATE_TEST_PENDING, step.name(), timestamp);
         //printf(TEMPLATE_SCENARIO_FAILED, timestamp);
     }
 }

@@ -56,7 +56,7 @@
         "keyword": {
           "type": "string"
         },
-        "title": {
+        "name": {
           "type": "string"
         },
         "tags": {
@@ -75,7 +75,7 @@
       "required": [
         "id",
         "keyword",
-        "title",
+        "name",
         "scenarios"
       ]
     },
@@ -85,7 +85,7 @@
         "keyword": {
           "type": "string"
         },
-        "title": {
+        "name": {
           "type": "string"
         },
         "line": {
@@ -112,7 +112,7 @@
       },
       "required": [
         "keyword",
-        "title",
+        "name",
         "steps",
         "results"
       ]
@@ -143,7 +143,7 @@
         "keyword": {
           "type": "string"
         },
-        "title": {
+        "name": {
           "type": "string"
         },
         "line": {
@@ -164,7 +164,7 @@
       },
       "required": [
         "keyword",
-        "title"
+        "name"
       ]
     },
     "datatable": {

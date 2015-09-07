@@ -7,17 +7,17 @@ public class Feature implements Named, Commented, Tagged, LocationAware{
     private final String uri;
     private final int lineNumber;
     private final String keyword;
-    private final String description;
+    private final String name;
     private final List<String> comments = new ArrayList<>();
     private final List<String> tags = new ArrayList<>();
     private final List<Background> background = new ArrayList<>();
     private final List<StepContainer> scenarios = new ArrayList<>();
 
-    public Feature(String uri, int lineNumber, String keyword, String description) {
+    public Feature(String uri, int lineNumber, String keyword, String name) {
         this.uri = uri;
         this.lineNumber = lineNumber;
         this.keyword = keyword;
-        this.description = description;
+        this.name = name;
     }
 
     public String getUri() {
@@ -32,8 +32,8 @@ public class Feature implements Named, Commented, Tagged, LocationAware{
         return keyword;
     }
 
-    public String getDescription() {
-        return description;
+    public String getName() {
+        return name;
     }
 
     public List<String> getComments() {
@@ -54,6 +54,6 @@ public class Feature implements Named, Commented, Tagged, LocationAware{
 
     @Override
     public String toString() {
-        return "Feature@" + uri + ":" + lineNumber + "[" + description + "]";
+        return "Feature@" + uri + ":" + lineNumber + "[" + name + "]";
     }
 }

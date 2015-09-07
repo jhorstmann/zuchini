@@ -1,0 +1,87 @@
+[
+  {
+    "name": "Scenario: minimalistic",
+    "source": [
+      {
+        "column": 3,
+        "line": 3
+      }
+    ],
+    "steps": [
+      {
+        "source": [
+          {
+            "column": 5,
+            "line": 4
+          },
+          {
+            "column": 7,
+            "line": 9
+          }
+        ],
+        "text": "the foo"
+      }
+    ],
+    "tags": [
+      {
+        "name": "@foo",
+        "source": {
+          "column": 5,
+          "line": 6
+        }
+      }
+    ]
+  },
+  {
+    "name": "Scenario: minimalistic",
+    "source": [
+      {
+        "column": 3,
+        "line": 3
+      }
+    ],
+    "steps": [
+      {
+        "source": [
+          {
+            "column": 5,
+            "line": 4
+          },
+          {
+            "column": 7,
+            "line": 14
+          }
+        ],
+        "text": "the bar"
+      }
+    ],
+    "tags": [
+      {
+        "name": "@bar",
+        "source": {
+          "column": 5,
+          "line": 11
+        }
+      }
+    ]
+  },
+  {
+    "name": "Scenario: ha ok",
+    "source": [
+      {
+        "column": 3,
+        "line": 17
+      }
+    ],
+    "steps": [],
+    "tags": [
+      {
+        "name": "@zap",
+        "source": {
+          "column": 3,
+          "line": 16
+        }
+      }
+    ]
+  }
+]

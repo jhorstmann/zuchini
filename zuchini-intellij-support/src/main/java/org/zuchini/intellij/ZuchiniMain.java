@@ -79,8 +79,8 @@ public class ZuchiniMain {
                 @Override
                 public boolean shouldRun(Description description) {
                     ScenarioInfo scenario = description.getAnnotation(ScenarioInfo.class);
-                    // TODO: Does not work for scenario outlines with parameters appended to the description
-                    return scenario == null || scenario.description().equals(name);
+                    // TODO: Does not work for scenario outlines with parameters appended to the name
+                    return scenario == null || scenario.name().equals(name);
                 }
 
                 @Override

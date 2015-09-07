@@ -1,5 +1,6 @@
 package org.zuchini.parser;
 
+import org.junit.Ignore;
 import org.zuchini.model.*;
 import org.junit.Test;
 
@@ -18,19 +19,89 @@ public class ParserTest {
 
         assertEquals(1, feature.getLineNumber());
         assertEquals("Feature", feature.getKeyword());
-        assertEquals("Simple Feature", feature.getDescription());
+        assertEquals("Simple Feature", feature.getName());
 
         StepContainer scenario = feature.getScenarios().get(0);
         assertEquals(3, scenario.getLineNumber());
         assertEquals("Scenario", scenario.getKeyword());
-        assertEquals("Simple Scenario", scenario.getDescription());
+        assertEquals("Simple Scenario", scenario.getName());
 
         List<Step> steps = scenario.getSteps();
         {
             Step step = steps.get(0);
             assertEquals(4, step.getLineNumber());
             assertEquals("Given", step.getKeyword());
-            assertEquals("a customer", step.getDescription());
+            assertEquals("a customer", step.getName());
+        }
+    }
+
+    @Test
+    public void shouldNotRequireNewLineAfterFeatureStatement() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Simple Feature\nScenario: Simple Scenario\nGiven a customer\n");
+
+        assertEquals(1, feature.getLineNumber());
+        assertEquals("Feature", feature.getKeyword());
+        assertEquals("Simple Feature", feature.getName());
+
+        StepContainer scenario = feature.getScenarios().get(0);
+        assertEquals(2, scenario.getLineNumber());
+        assertEquals("Scenario", scenario.getKeyword());
+        assertEquals("Simple Scenario", scenario.getName());
+
+        List<Step> steps = scenario.getSteps();
+        {
+            Step step = steps.get(0);
+            assertEquals(3, step.getLineNumber());
+            assertEquals("Given", step.getKeyword());
+            assertEquals("a customer", step.getName());
+        }
+    }
+
+    @Test
+    public void shouldSupportWhitespaceOnlyLines() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Simple Feature\n  \nScenario: Simple Scenario\n  \nGiven a customer\n");
+
+        assertEquals(1, feature.getLineNumber());
+        assertEquals("Feature", feature.getKeyword());
+        assertEquals("Simple Feature", feature.getName());
+
+        StepContainer scenario = feature.getScenarios().get(0);
+        assertEquals(3, scenario.getLineNumber());
+        assertEquals("Scenario", scenario.getKeyword());
+        assertEquals("Simple Scenario", scenario.getName());
+
+        List<Step> steps = scenario.getSteps();
+        {
+            Step step = steps.get(0);
+            assertEquals(5, step.getLineNumber());
+            assertEquals("Given", step.getKeyword());
+            assertEquals("a customer", step.getName());
+        }
+    }
+
+    @Test
+    @Ignore("Not yet implemented")
+    public void shouldNotRequireNewlineAtEndOfFile() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Simple Feature\n\nScenario: Simple Scenario\nGiven a customer");
+
+        assertEquals(1, feature.getLineNumber());
+        assertEquals("Feature", feature.getKeyword());
+        assertEquals("Simple Feature", feature.getName());
+
+        StepContainer scenario = feature.getScenarios().get(0);
+        assertEquals(3, scenario.getLineNumber());
+        assertEquals("Scenario", scenario.getKeyword());
+        assertEquals("Simple Scenario", scenario.getName());
+
+        List<Step> steps = scenario.getSteps();
+        {
+            Step step = steps.get(0);
+            assertEquals(4, step.getLineNumber());
+            assertEquals("Given", step.getKeyword());
+            assertEquals("a customer", step.getName());
         }
     }
 
@@ -41,18 +112,18 @@ public class ParserTest {
 
         assertEquals(1, feature.getLineNumber());
         assertEquals("Feature", feature.getKeyword());
-        assertEquals("Keywords", feature.getDescription());
+        assertEquals("Keywords", feature.getName());
 
         StepContainer scenario = feature.getScenarios().get(0);
         assertEquals("Scenario", scenario.getKeyword());
-        assertEquals("Background Given When Then", scenario.getDescription());
+        assertEquals("Background Given When Then", scenario.getName());
 
         List<Step> steps = scenario.getSteps();
         {
             Step step = steps.get(0);
             assertEquals(4, step.getLineNumber());
             assertEquals("Given", step.getKeyword());
-            assertEquals("Given Examples:", step.getDescription());
+            assertEquals("Given Examples:", step.getName());
         }
     }
 
@@ -63,19 +134,19 @@ public class ParserTest {
 
         assertEquals(1, feature.getLineNumber());
         assertEquals("Feature", feature.getKeyword());
-        assertEquals("Simple Feature", feature.getDescription());
+        assertEquals("Simple Feature", feature.getName());
 
         StepContainer scenario = feature.getBackground().get(0);
         assertEquals(3, scenario.getLineNumber());
         assertEquals("Background", scenario.getKeyword());
-        assertEquals("Simple Background", scenario.getDescription());
+        assertEquals("Simple Background", scenario.getName());
 
         List<Step> steps = scenario.getSteps();
         {
             Step step = steps.get(0);
             assertEquals(4, step.getLineNumber());
             assertEquals("Given", step.getKeyword());
-            assertEquals("a customer", step.getDescription());
+            assertEquals("a customer", step.getName());
         }
     }
 
@@ -86,12 +157,12 @@ public class ParserTest {
 
         assertEquals(1, feature.getLineNumber());
         assertEquals("Feature", feature.getKeyword());
-        assertEquals("Should support emtpy scenario", feature.getDescription());
+        assertEquals("Should support emtpy scenario", feature.getName());
 
         StepContainer scenario = feature.getScenarios().get(0);
         assertEquals(3, scenario.getLineNumber());
         assertEquals("Scenario", scenario.getKeyword());
-        assertEquals("Empty scenario", scenario.getDescription());
+        assertEquals("Empty scenario", scenario.getName());
 
         assertNotNull(scenario.getSteps());
         assertEquals(0, scenario.getSteps().size());
@@ -104,7 +175,10 @@ public class ParserTest {
 
         assertEquals(1, feature.getLineNumber());
         assertEquals("Feature", feature.getKeyword());
-        assertEquals("Checkout\nAs a customer\nI want to place orders", feature.getDescription());
+        assertEquals("Checkout", feature.getName());
+
+        // TODO: Implement multiline descriptions
+        // assertEquals("As a customer\nI want to place orders\n", feature.getDescription());
     }
 
     @Test
@@ -114,7 +188,7 @@ public class ParserTest {
 
         assertEquals(7, feature.getLineNumber());
         assertEquals("Feature", feature.getKeyword());
-        assertEquals("Commented Feature", feature.getDescription());
+        assertEquals("Commented Feature", feature.getName());
 
         assertEquals(asList("Comment 1", "Comment 2", "Comment 3"), feature.getComments());
     }
@@ -126,7 +200,7 @@ public class ParserTest {
 
         assertEquals(10, feature.getLineNumber());
         assertEquals("Feature", feature.getKeyword());
-        assertEquals("Tagged and Commented Feature", feature.getDescription());
+        assertEquals("Tagged and Commented Feature", feature.getName());
 
         assertEquals(asList("Comment 1", "Comment 2", "Comment 3"), feature.getComments());
         assertEquals(asList("Tag1", "Tag2", "Tag3", "Tag4", "Tag5"), feature.getTags());
@@ -144,14 +218,14 @@ public class ParserTest {
             Step step = steps.get(0);
             assertEquals(5, step.getLineNumber());
             assertEquals("Given", step.getKeyword());
-            assertEquals("a commented step", step.getDescription());
+            assertEquals("a commented step", step.getName());
             assertEquals(asList(" Comment 1"), step.getComments());
         }
         {
             Step step = steps.get(1);
             assertEquals(7, step.getLineNumber());
             assertEquals("Then", step.getKeyword());
-            assertEquals("the comment is parsed", step.getDescription());
+            assertEquals("the comment is parsed", step.getName());
             assertEquals(asList(" Comment 2"), step.getComments());
         }
     }
@@ -167,7 +241,7 @@ public class ParserTest {
         {
             Step step = steps.get(0);
             assertEquals("Given", step.getKeyword());
-            assertEquals("a table:", step.getDescription());
+            assertEquals("a table:", step.getName());
             List<Row> rows = step.getRows();
 
             {
@@ -192,7 +266,7 @@ public class ParserTest {
         {
             Step step = steps.get(0);
             assertEquals("Given", step.getKeyword());
-            assertEquals("a table:", step.getDescription());
+            assertEquals("a table:", step.getName());
             List<Row> rows = step.getRows();
 
             {
@@ -217,7 +291,7 @@ public class ParserTest {
         {
             Step step = steps.get(0);
             assertEquals("Given", step.getKeyword());
-            assertEquals("a table:", step.getDescription());
+            assertEquals("a table:", step.getName());
             List<Row> rows = step.getRows();
 
             {
@@ -237,11 +311,11 @@ public class ParserTest {
                 "Feature: Outline\n\nScenario Outline: Scenario outline\nGiven a customer from <Country>\nExamples:\n| Country |\n| DE |\n");
 
         assertEquals("Feature", feature.getKeyword());
-        assertEquals("Outline", feature.getDescription());
+        assertEquals("Outline", feature.getName());
 
         StepContainer scenario = feature.getScenarios().get(0);
         assertEquals("Scenario Outline", scenario.getKeyword());
-        assertEquals("Scenario outline", scenario.getDescription());
+        assertEquals("Scenario outline", scenario.getName());
 
         List<Row> examples = ((Outline) scenario).getExampleRows();
         {
@@ -260,18 +334,18 @@ public class ParserTest {
                 "Feature: Outline\n\nScenario Outline: Scenario outline\nGiven a customer from <Country>\nExamples: Europa\n| Country |\n| DE |\nExamples: America\n| Country |\n| US |\n");
 
         assertEquals("Feature", feature.getKeyword());
-        assertEquals("Outline", feature.getDescription());
+        assertEquals("Outline", feature.getName());
 
         Outline outline = (Outline) feature.getScenarios().get(0);
         assertEquals("Scenario Outline", outline.getKeyword());
-        assertEquals("Scenario outline", outline.getDescription());
+        assertEquals("Scenario outline", outline.getName());
 
 
         List<Examples> examples = outline.getExamples();
         assertEquals(2, examples.size());
         {
             Examples example = examples.get(0);
-            assertEquals("Europa", example.getDescription());
+            assertEquals("Europa", example.getName());
             List<Row> rows = example.getRows();
             assertEquals(2, rows.size());
             assertEquals(asList("Country"), rows.get(0).getCells());
@@ -279,7 +353,7 @@ public class ParserTest {
         }
         {
             Examples example = examples.get(1);
-            assertEquals("America", example.getDescription());
+            assertEquals("America", example.getName());
             List<Row> rows = example.getRows();
             assertEquals(2, rows.size());
             assertEquals(asList("Country"), rows.get(0).getCells());
@@ -293,7 +367,7 @@ public class ParserTest {
                 "Feature: Tags\n\n@TaggedScenario\nScenario: Tags on scenario and steps\n@TaggedStep\nGiven a tagged step\n");
 
         assertEquals("Feature", feature.getKeyword());
-        assertEquals("Tags", feature.getDescription());
+        assertEquals("Tags", feature.getName());
 
         StepContainer scenario = feature.getScenarios().get(0);
         assertEquals("Scenario", scenario.getKeyword());
@@ -302,7 +376,7 @@ public class ParserTest {
         Step step = scenario.getSteps().get(0);
 
         assertEquals("Given", step.getKeyword());
-        assertEquals("a tagged step", step.getDescription());
+        assertEquals("a tagged step", step.getName());
         assertEquals(asList("TaggedStep"), step.getTags());
     }
 
@@ -312,7 +386,7 @@ public class ParserTest {
                 "Feature: Tags\n\n@Tag1 @Tag2\nScenario: Tags on scenario and steps\n@Tag3\n@Tag4 @Tag5\nGiven a tagged step\n");
 
         assertEquals("Feature", feature.getKeyword());
-        assertEquals("Tags", feature.getDescription());
+        assertEquals("Tags", feature.getName());
 
         StepContainer scenario = feature.getScenarios().get(0);
         assertEquals("Scenario", scenario.getKeyword());
@@ -321,7 +395,7 @@ public class ParserTest {
         Step step = scenario.getSteps().get(0);
 
         assertEquals("Given", step.getKeyword());
-        assertEquals("a tagged step", step.getDescription());
+        assertEquals("a tagged step", step.getName());
         assertEquals(asList("Tag3", "Tag4", "Tag5"), step.getTags());
     }
 
@@ -331,7 +405,7 @@ public class ParserTest {
                 "Feature: Tags\n\n@Tag1    @Tag2\nScenario: Tags on scenario and steps\n\t@Tag3\n  @Tag4 @Tag5\n\n  Given a tagged step\n");
 
         assertEquals("Feature", feature.getKeyword());
-        assertEquals("Tags", feature.getDescription());
+        assertEquals("Tags", feature.getName());
 
         StepContainer scenario = feature.getScenarios().get(0);
         assertEquals("Scenario", scenario.getKeyword());
@@ -340,7 +414,7 @@ public class ParserTest {
         Step step = scenario.getSteps().get(0);
 
         assertEquals("Given", step.getKeyword());
-        assertEquals("a tagged step", step.getDescription());
+        assertEquals("a tagged step", step.getName());
         assertEquals(asList("Tag3", "Tag4", "Tag5"), step.getTags());
     }
 
@@ -350,7 +424,7 @@ public class ParserTest {
                 "Feature: Tags\n\n@Tag1 @Tag2 \nScenario: Tags on scenario and steps\n@Tag3 \n  @Tag4  @Tag5   \n\n  Given a tagged step\n");
 
         assertEquals("Feature", feature.getKeyword());
-        assertEquals("Tags", feature.getDescription());
+        assertEquals("Tags", feature.getName());
 
         StepContainer scenario = feature.getScenarios().get(0);
         assertEquals("Scenario", scenario.getKeyword());
@@ -359,7 +433,7 @@ public class ParserTest {
         Step step = scenario.getSteps().get(0);
 
         assertEquals("Given", step.getKeyword());
-        assertEquals("a tagged step", step.getDescription());
+        assertEquals("a tagged step", step.getName());
         assertEquals(asList("Tag3", "Tag4", "Tag5"), step.getTags());
     }
 
@@ -368,10 +442,13 @@ public class ParserTest {
         Feature feature = FeatureParser.getFeature(
                 "Feature: Tagged Background\n\n@Test\nBackground: Tagged Background\nGiven a customer\n");
 
+        assertEquals("Feature", feature.getKeyword());
+        assertEquals("Tagged Background", feature.getName());
+
         StepContainer background = feature.getBackground().get(0);
         assertEquals(4, background.getLineNumber());
         assertEquals("Background", background.getKeyword());
-        assertEquals("Tagged Background", background.getDescription());
+        assertEquals("Tagged Background", background.getName());
         assertEquals(asList("Test"), background.getTags());
     }
 
@@ -381,14 +458,14 @@ public class ParserTest {
                 "Feature: Documents\n\nScenario: Documents\nGiven the following string:\n\"\"\"ABC\nDEF\nGHI\"\"\"\n");
 
         assertEquals("Feature", feature.getKeyword());
-        assertEquals("Documents", feature.getDescription());
+        assertEquals("Documents", feature.getName());
 
         StepContainer scenario = feature.getScenarios().get(0);
 
         Step step = scenario.getSteps().get(0);
 
         assertEquals("Given", step.getKeyword());
-        assertEquals("the following string:", step.getDescription());
+        assertEquals("the following string:", step.getName());
         assertEquals(asList("ABC\nDEF\nGHI"), step.getDocs());
     }
 
@@ -398,14 +475,14 @@ public class ParserTest {
                 "Feature: Documents\n\nScenario: Documents\nGiven the following string:\n  \"\"\"  ABC\n    DEF\n    GHI\"\"\"\n");
 
         assertEquals("Feature", feature.getKeyword());
-        assertEquals("Documents", feature.getDescription());
+        assertEquals("Documents", feature.getName());
 
         StepContainer scenario = feature.getScenarios().get(0);
 
         Step step = scenario.getSteps().get(0);
 
         assertEquals("Given", step.getKeyword());
-        assertEquals("the following string:", step.getDescription());
+        assertEquals("the following string:", step.getName());
         assertEquals(asList("ABC\n  DEF\n  GHI"), step.getDocs());
     }
 
@@ -415,14 +492,14 @@ public class ParserTest {
                 "Feature: Documents\r\n\r\nScenario: Documents\r\nGiven the following string:\r\n\t\"\"\"\tABC\r\n\t\tDEF\r\n\t\tGHI\r\n\"\"\"\r\n");
 
         assertEquals("Feature", feature.getKeyword());
-        assertEquals("Documents", feature.getDescription());
+        assertEquals("Documents", feature.getName());
 
         StepContainer scenario = feature.getScenarios().get(0);
 
         Step step = scenario.getSteps().get(0);
 
         assertEquals("Given", step.getKeyword());
-        assertEquals("the following string:", step.getDescription());
+        assertEquals("the following string:", step.getName());
         assertEquals(asList("ABC\r\n\tDEF\r\n\tGHI\r\n"), step.getDocs());
     }
 

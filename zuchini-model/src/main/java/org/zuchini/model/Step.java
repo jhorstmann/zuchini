@@ -7,17 +7,17 @@ public class Step implements Named, Commented, Tagged, LocationAware, RowContain
     private final StepContainer stepContainer;
     private final int lineNumber;
     private final String keyword;
-    private final String description;
+    private final String name;
     private final List<String> tags = new ArrayList<>();
     private final List<String> comments = new ArrayList<>();
     private final List<Row> rows = new ArrayList<>();
     private final List<String> docs = new ArrayList<>();
 
-    public Step(StepContainer stepContainer, int lineNumber, String keyword, String description) {
+    public Step(StepContainer stepContainer, int lineNumber, String keyword, String name) {
         this.stepContainer = stepContainer;
         this.lineNumber = lineNumber;
         this.keyword = keyword;
-        this.description = description;
+        this.name = name;
     }
 
     public StepContainer getStepContainer() {
@@ -37,8 +37,8 @@ public class Step implements Named, Commented, Tagged, LocationAware, RowContain
         return keyword;
     }
 
-    public String getDescription() {
-        return description;
+    public String getName() {
+        return name;
     }
 
     public List<String> getTags() {
@@ -59,6 +59,6 @@ public class Step implements Named, Commented, Tagged, LocationAware, RowContain
 
     @Override
     public String toString() {
-        return "Step@" + lineNumber + "[" + description + "]";
+        return "Step@" + lineNumber + "[" + name + "]";
     }
 }

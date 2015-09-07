@@ -50,9 +50,9 @@ public class Outline extends StepContainer {
     }
 
     private Scenario buildScenario(Pattern pattern, Row exampleRow, Map<String, String> exampleValues) {
-        Scenario scenario = new Scenario(getFeature(), exampleRow.getLineNumber(), getKeyword(), getDescription(), exampleValues);
+        Scenario scenario = new Scenario(getFeature(), exampleRow.getLineNumber(), getKeyword(), getName(), exampleValues);
         for (Step exampleStep : getSteps()) {
-            String stepDescription = replaceExampleValues(exampleStep.getDescription(), pattern, exampleValues);
+            String stepDescription = replaceExampleValues(exampleStep.getName(), pattern, exampleValues);
             Step step = new Step(scenario, exampleStep.getLineNumber(), exampleStep.getKeyword(), stepDescription);
             step.getComments().addAll(exampleStep.getComments());
             step.getTags().addAll(exampleStep.getTags());

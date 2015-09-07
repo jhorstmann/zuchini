@@ -1,6 +1,5 @@
 package org.zuchini.parser;
 
-import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.zuchini.gherkin.antlr.GherkinBaseVisitor;
@@ -123,6 +122,7 @@ public class Visitors  {
     static class RowVisitor extends GherkinBaseVisitor<Row> {
 
         private final Feature feature;
+
         RowVisitor(Feature feature) {
             this.feature = feature;
         }
@@ -236,7 +236,7 @@ public class Visitors  {
         @Override
         public Feature visitFeature(@NotNull GherkinParser.FeatureContext ctx) {
             Token keyword = ctx.FEATURE_KW().getSymbol();
-            Feature feature = new Feature(uri, keyword.getLine(), keyword.getText(), ctx.featureTitle().getText());
+            Feature feature = new Feature(uri, keyword.getLine(), keyword.getText(), ctx.lineContent().getText());
             feature.getTags().addAll(visitNodesAndAggregate(ctx.annotation(), new TagsVisitor()));
             feature.getComments().addAll(visitNodesAndAggregate(ctx.annotation(), new CommentsVisitor()));
             feature.getBackground().addAll(visitOptionalNode(ctx.background(), new BackgroundVisitor(feature)));

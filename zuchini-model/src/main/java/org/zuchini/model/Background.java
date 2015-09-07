@@ -8,6 +8,6 @@ public class Background extends StepContainer {
 
     @Override
     public String toString() {
-        return "Background@" + getUri() + ":" + getLineNumber() + "[" + getDescription() + "]";
+        return "Background@" + getUri() + ":" + getLineNumber() + "[" + getName() + "]";
     }
 }

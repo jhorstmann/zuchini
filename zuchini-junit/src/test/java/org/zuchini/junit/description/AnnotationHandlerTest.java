@@ -64,8 +64,8 @@ public class AnnotationHandlerTest {
 
         String string = featureInfo.toString();
         Assert.assertTrue(string.startsWith("@" + FeatureInfo.class.getName() + "["));
-        Assert.assertTrue(string.contains("description=I can convert a feature to an annotation"));
-        Assert.assertTrue(string.contains("description=I can convert a scenario to an annotation"));
+        Assert.assertTrue(string.contains("name=I can convert a feature to an annotation"));
+        Assert.assertTrue(string.contains("name=I can convert a scenario to an annotation"));
     }
 
 }

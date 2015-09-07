@@ -7,16 +7,16 @@ public class Examples implements Named, Tagged, Commented, LocationAware, RowCon
     private final Outline outline;
     private final int lineNumber;
     private final String keyword;
-    private final String description;
+    private final String name;
     private final List<String> comments = new ArrayList<>();
     private final List<String> tags = new ArrayList<>();
     private final List<Row> rows = new ArrayList<>();
 
-    public Examples(Outline outline, int lineNumber, String keyword, String description) {
+    public Examples(Outline outline, int lineNumber, String keyword, String name) {
         this.outline = outline;
         this.lineNumber = lineNumber;
         this.keyword = keyword;
-        this.description = description;
+        this.name = name;
     }
 
     @Override
@@ -32,8 +32,8 @@ public class Examples implements Named, Tagged, Commented, LocationAware, RowCon
         return keyword;
     }
 
-    public String getDescription() {
-        return description;
+    public String getName() {
+        return name;
     }
 
     public List<String> getComments() {

@@ -41,7 +41,7 @@ class FeatureWalker implements GherkinListener {
     public void enterFeature(@NotNull GherkinParser.FeatureContext ctx) {
         Token keyword = ctx.FEATURE_KW().getSymbol();
 
-        feature = new Feature(uri, keyword.getLine(), keyword.getText(), ctx.featureTitle().getText());
+        feature = new Feature(uri, keyword.getLine(), keyword.getText(), ctx.lineContent().getText());
         commentContainer = feature;
         tagContainer = feature;
     }
@@ -51,11 +51,19 @@ class FeatureWalker implements GherkinListener {
     }
 
     @Override
-    public void enterFeatureTitle(@NotNull GherkinParser.FeatureTitleContext ctx) {
+    public void enterName(@NotNull GherkinParser.NameContext ctx) {
     }
 
     @Override
-    public void exitFeatureTitle(@NotNull GherkinParser.FeatureTitleContext ctx) {
+    public void exitName(@NotNull GherkinParser.NameContext ctx) {
+    }
+
+    @Override
+    public void enterDescriptionLine(@NotNull GherkinParser.DescriptionLineContext ctx) {
+    }
+
+    @Override
+    public void exitDescriptionLine(@NotNull GherkinParser.DescriptionLineContext ctx) {
     }
 
     @Override

@@ -7,16 +7,16 @@ public abstract class StepContainer implements Named, Commented, Tagged, Locatio
     private final int lineNumber;
     private final Feature feature;
     private final String keyword;
-    private final String description;
+    private final String name;
     private final List<String> tags = new ArrayList<>();
     private final List<String> comments = new ArrayList<>();
     private final List<Step> steps = new ArrayList<>();
 
-    public StepContainer(Feature feature, int lineNumber, String keyword, String description) {
+    public StepContainer(Feature feature, int lineNumber, String keyword, String name) {
         this.feature = feature;
         this.lineNumber = lineNumber;
         this.keyword = keyword;
-        this.description = description;
+        this.name = name;
     }
 
     @Override
@@ -48,8 +48,8 @@ public abstract class StepContainer implements Named, Commented, Tagged, Locatio
         return comments;
     }
 
-    public String getDescription() {
-        return description;
+    public String getName() {
+        return name;
     }
 
     public List<Step> getSteps() {

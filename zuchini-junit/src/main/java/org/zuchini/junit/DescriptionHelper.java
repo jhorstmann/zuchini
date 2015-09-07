@@ -45,17 +45,17 @@ class DescriptionHelper {
 
     static Description createFeatureDescription(Class<?> runner, Feature feature, List<? extends Describable> children, Annotation... annotations) {
         return createUniqueDescription(runner, feature.getUri(), feature.getLineNumber(), feature.getKeyword(),
-                feature.getDescription(), children, annotations);
+                feature.getName(), children, annotations);
     }
 
     static Description createOutlineDescription(Class<?> runner, Outline outline, List<? extends Describable> children, Annotation... annotations) {
         return createUniqueDescription(runner, outline.getUri(), outline.getLineNumber(), outline.getKeyword(),
-                outline.getDescription(), children, annotations);
+                outline.getName(), children, annotations);
     }
 
     static Description createScenarioDescription(Class<?> runner, Scenario scenario, List<? extends Describable> children, Annotation... annotations) {
         return createUniqueDescription(runner, scenario.getUri(), scenario.getLineNumber(), scenario.getKeyword(),
-                scenario.getDescription(), children, annotations);
+                scenario.getName(), children, annotations);
     }
 
     static Description createScenarioDescription(Class<?> runner, Scenario scenario, Annotation... annotations) {
@@ -64,7 +64,7 @@ class DescriptionHelper {
 
     static Description createStepDescription(Class<?> runner, Step step, Annotation... annotations) {
         return createUniqueDescription(runner, step.getUri(), step.getLineNumber(), step.getKeyword(),
-                step.getDescription(), Collections.<Describable>emptyList(), annotations);
+                step.getName(), Collections.<Describable>emptyList(), annotations);
     }
 
 }

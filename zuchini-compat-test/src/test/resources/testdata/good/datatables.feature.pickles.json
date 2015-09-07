@@ -1,0 +1,112 @@
+[
+  {
+    "name": "Scenario: minimalistic",
+    "source": [
+      {
+        "column": 3,
+        "line": 3
+      }
+    ],
+    "steps": [
+      {
+        "argument": {
+          "rows": [
+            [
+              "foo",
+              "bar"
+            ],
+            [
+              "boz",
+              "boo"
+            ]
+          ]
+        },
+        "source": [
+          {
+            "column": 5,
+            "line": 4
+          }
+        ],
+        "text": "a simple data table"
+      },
+      {
+        "argument": {
+          "rows": [
+            [
+              "foo"
+            ]
+          ]
+        },
+        "source": [
+          {
+            "column": 5,
+            "line": 7
+          }
+        ],
+        "text": "a data table with a single cell"
+      },
+      {
+        "argument": {
+          "rows": [
+            [
+              "foo",
+              "bar",
+              "boz"
+            ]
+          ]
+        },
+        "source": [
+          {
+            "column": 5,
+            "line": 9
+          }
+        ],
+        "text": "a data table with different fromatting"
+      },
+      {
+        "argument": {
+          "rows": [
+            [
+              "foo",
+              "",
+              "boz"
+            ]
+          ]
+        },
+        "source": [
+          {
+            "column": 5,
+            "line": 11
+          }
+        ],
+        "text": "a data table with an empty cell"
+      },
+      {
+        "argument": {
+          "rows": [
+            [
+              "foo",
+              "bar"
+            ],
+            [
+              "boz",
+              "boo"
+            ],
+            [
+              "boz2",
+              "boo2"
+            ]
+          ]
+        },
+        "source": [
+          {
+            "column": 5,
+            "line": 13
+          }
+        ],
+        "text": "a data table with comments and newlines inside"
+      }
+    ],
+    "tags": []
+  }
+]

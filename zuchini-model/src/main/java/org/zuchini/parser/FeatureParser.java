@@ -1,6 +1,7 @@
 package org.zuchini.parser;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.BufferedTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.zuchini.gherkin.antlr.GherkinLexer;
@@ -13,12 +14,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URL;
 
 public class FeatureParser {
 
     private static final String DEFAULT_CHARSET = "utf-8";
 
     private FeatureParser() {
+    }
+
+    public static Feature getFeature(URL url) throws IOException {
+        try (final InputStream in = url.openStream()) {
+            return getFeature(url.toExternalForm(), in);
+        }
     }
 
     public static Feature getFeature(File file) throws IOException {
@@ -67,6 +75,7 @@ public class FeatureParser {
     static GherkinParser newParser(ANTLRInputStream inputStream) {
         GherkinLexer lexer = new GherkinLexer(inputStream);
         GherkinParser parser = new GherkinParser(new BufferedTokenStream(lexer));
+        parser.setErrorHandler(new BailErrorStrategy());
         return parser;
     }
 }

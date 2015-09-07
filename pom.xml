@@ -15,6 +15,7 @@
         <version.junit>4.11</version.junit>
         <version.hamcrest>1.3</version.hamcrest>
         <version.spring>4.1.7.RELEASE</version.spring>
+        <version.jackson>2.6.1</version.jackson>
 
     </properties>
     <build>
@@ -71,6 +72,21 @@
                 <artifactId>spring-test</artifactId>
                 <version>${version.spring}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-module-parameter-names</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <modules>
@@ -80,6 +96,10 @@
         <module>zuchini-junit</module>
         <module>zuchini-spring</module>
         <module>zuchini-compat-annotations</module>
+        <!-- TODO: Include once tests are passing -->
+        <!--
+        <module>zuchini-compat-test</module>
+        -->
         <module>zuchini-intellij-support</module>
         <module>zuchini-examples</module>
         <module>zuchini-reporter</module>

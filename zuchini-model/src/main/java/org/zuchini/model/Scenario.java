@@ -19,6 +19,6 @@ public class Scenario extends StepContainer {
 
     @Override
     public String toString() {
-        return "Scenario@" + getUri() + ":" + getLineNumber() + "[" + getDescription() + "]";
+        return "Scenario@" + getUri() + ":" + getLineNumber() + "[" + getName() + "]";
     }
 }

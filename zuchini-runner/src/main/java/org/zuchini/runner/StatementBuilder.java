@@ -122,10 +122,10 @@ class StatementBuilder {
     }
 
     private StepStatement buildStepStatement(Step step) {
-        Closure closure = methodCache.get(step.getDescription());
+        Closure closure = methodCache.get(step.getName());
         if (closure == null) {
-            closure = findMethod(step.getDescription());
-            methodCache.put(step.getDescription(), closure);
+            closure = findMethod(step.getName());
+            methodCache.put(step.getName(), closure);
         }
         return new StepStatement(step, closure.getMethod(), closure.getArguments());
     }

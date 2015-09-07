@@ -152,7 +152,7 @@ public class JsonReporter extends RunListener {
                 final FeatureInfo feature = featureEntry.getKey();
                 final Collection<ScenarioResult> value = featureEntry.getValue();
                 // TODO: distinguish feature title and user story
-                final String name = feature.description();
+                final String name = feature.name();
 
                 json.writeStartObject();
 
@@ -165,7 +165,7 @@ public class JsonReporter extends RunListener {
 
                 json.writeStringField("keyword", feature.keyword());
                 json.writeStringField("title", name);
-                json.writeStringField("description", feature.description());
+                json.writeStringField("name", feature.name());
 
                 writeScenarios(json, value, generatedIds);
 
@@ -235,7 +235,7 @@ public class JsonReporter extends RunListener {
         for (Map.Entry<ScenarioInfo, List<ScenarioResult>> scenarioEntry
                 : scenarios.entrySet()) {
             final ScenarioInfo scenario = scenarioEntry.getKey();
-            final String description = scenario.description();
+            final String description = scenario.name();
 
             json.writeStartObject();
 
@@ -277,7 +277,7 @@ public class JsonReporter extends RunListener {
         json.writeNumberField("line", step.lineNumber());
 
         json.writeStringField("keyword", step.keyword());
-        json.writeStringField("title", step.description());
+        json.writeStringField("title", step.name());
 
         writeStringArray(json, "tags", step.tags());
         writeStringArray(json, "comments", step.comments());

@@ -4,7 +4,7 @@ public @interface OutlineInfo {
     String uri();
     int lineNumber();
     String keyword();
-    String description();
+    String name();
     String[] tags();
     String[] comments();
 
