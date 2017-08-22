@@ -6,6 +6,14 @@ A reimplementation of gherkin and cucumber for java based on antlr4 and junit.
 [![Build Status](https://img.shields.io/travis/jhorstmann/zuchini.svg)](https://travis-ci.org/jhorstmann/zuchini)
 [![Maven Central](https://img.shields.io/maven-central/v/org.zuchini/zuchini-junit.svg)](https://search.maven.org/#artifactdetails%7Corg.zuchini%7Czuchini-junit%7C0.2.0%7Cjar)
 
+## Why zuchini
+
+Why the rewrite? Why not just use cucumber like everyone else?
+
+The main argument is that cucumber does not support one crucial feature: Having your step implementations spread out over multiple classes.
+
+Also parallelism is not really supported in cucumber itself. Therefore if you want/need to run a lot of your tests in parallel you should give zuchini a shot :) 
+
 ## Usage
 
 To start using zuchini just add the dependency to the pom.
