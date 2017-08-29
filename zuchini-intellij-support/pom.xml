@@ -21,7 +21,7 @@
         </dependency>
         <dependency>
             <groupId>org.zuchini</groupId>
-            <artifactId>zuchini-compat-annotations</artifactId>
+            <artifactId>zuchini-compat-step-definition</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

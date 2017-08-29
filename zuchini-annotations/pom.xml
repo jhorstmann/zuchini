@@ -13,4 +13,13 @@
 
     <artifactId>zuchini-annotations</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.zuchini</groupId>
+            <artifactId>zuchini-compat-step-definition</artifactId>
+            <version>${project.version}</version>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
 </project>

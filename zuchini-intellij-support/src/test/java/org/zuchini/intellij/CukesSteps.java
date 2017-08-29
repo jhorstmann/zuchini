@@ -2,8 +2,8 @@ package org.zuchini.intellij;
 
 import org.junit.Assert;
 import org.junit.internal.AssumptionViolatedException;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
+import org.zuchini.annotations.Given;
+import org.zuchini.annotations.Then;
 
 
 public class CukesSteps {
