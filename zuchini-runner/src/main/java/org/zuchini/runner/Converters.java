@@ -11,46 +11,82 @@ import java.util.TreeMap;
 
 import static java.util.Arrays.asList;
 
-public class Converters {
+class Converters {
 
-    static enum DefaultConverters implements Converter {
-        BYTE() {
+    enum DefaultConverters implements Converter<Object> {
+        BYTE_PRIMITIVE {
             @Override
             public Object convert(String argument) {
                 return Byte.valueOf(argument);
             }
         },
-        SHORT() {
+        BYTE_WRAPPER {
+            @Override
+            public Object convert(String argument) {
+                return argument == null ? null : BYTE_PRIMITIVE.convert(argument);
+            }
+        },
+        SHORT_PRIMITIVE {
             @Override
             public Object convert(String argument) {
                 return Short.valueOf(argument);
             }
         },
-        INT() {
+        SHORT_WRAPPER {
+            @Override
+            public Object convert(String argument) {
+                return SHORT_PRIMITIVE.convert(argument);
+            }
+        },
+        INT_PRIMITIVE() {
             @Override
             public Object convert(String argument) {
                 return Integer.valueOf(argument);
             }
         },
-        LONG() {
+        INT_WRAPPER() {
+            @Override
+            public Object convert(String argument) {
+                return argument == null ? null : INT_PRIMITIVE.convert(argument);
+            }
+        },
+        LONG_PRIMITIVE {
             @Override
             public Object convert(String argument) {
                 return Long.valueOf(argument);
             }
         },
-        FLOAT() {
+        LONG_WRAPPER {
+            @Override
+            public Object convert(String argument) {
+                return argument == null ? null : LONG_PRIMITIVE.convert(argument);
+            }
+        },
+        FLOAT_PRIMITIVE {
             @Override
             public Object convert(String argument) {
                 return Float.valueOf(argument);
             }
         },
-        DOUBLE() {
+        FLOAT_WRAPPER {
+            @Override
+            public Object convert(String argument) {
+                return argument == null ? null : FLOAT_PRIMITIVE.convert(argument);
+            }
+        },
+        DOUBLE_PRIMITIVE {
             @Override
             public Object convert(String argument) {
                 return Double.valueOf(argument);
             }
         },
-        CHARACTER() {
+        DOUBLE_WRAPPER {
+            @Override
+            public Object convert(String argument) {
+                return argument == null ? null : DOUBLE_PRIMITIVE.convert(argument);
+            }
+        },
+        CHARACTER_PRIMITIVE {
             @Override
             public Object convert(String argument) {
                 if (argument.length() != 1) {
@@ -60,7 +96,13 @@ public class Converters {
                 }
             }
         },
-        BOOLEAN() {
+        CHARACTER_WRAPPER {
+            @Override
+            public Object convert(String argument) {
+                return argument == null ? null : CHARACTER_PRIMITIVE.convert(argument);
+            }
+        },
+        BOOLEAN_PRIMITIVE {
             private final Map<String, Boolean> MAP = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
             {
                 for (String value : asList("true", "1", "yes", "y")) {
@@ -81,6 +123,12 @@ public class Converters {
                 }
             }
         },
+        BOOLEAN_WRAPPER {
+            @Override
+            public Object convert(String argument) {
+                return argument == null ? null : BOOLEAN_PRIMITIVE.convert(argument);
+            }
+        },
         STRING() {
             @Override
             public Object convert(String argument) {
@@ -98,10 +146,12 @@ public class Converters {
             public Object convert(String argument) {
                 return new BigDecimal(argument);
             }
-        }
+        };
+
     }
 
     static class EnumConverter<E extends Enum<E>> implements Converter<E> {
+
         private final Class<E> enumClass;
 
         EnumConverter(Class<E> enumClass) {
@@ -116,29 +166,31 @@ public class Converters {
                 return Enum.valueOf(enumClass, argument);
             }
         }
+
     }
 
     private static final Annotation[] EMPTY_ANNOTATIONS = new Annotation[0];
+
     private static final Map<Class<?>, Converter<?>> DEFAULT_CONVERTERS;
 
     static {
         Map<Class<?>, Converter<?>> map = new HashMap<>(32);
-        map.put(Byte.TYPE, DefaultConverters.BYTE);
-        map.put(Byte.class, DefaultConverters.BYTE);
-        map.put(Short.TYPE, DefaultConverters.SHORT);
-        map.put(Short.class, DefaultConverters.SHORT);
-        map.put(Integer.TYPE, DefaultConverters.INT);
-        map.put(Integer.class, DefaultConverters.INT);
-        map.put(Long.TYPE, DefaultConverters.LONG);
-        map.put(Long.class, DefaultConverters.LONG);
-        map.put(Float.TYPE, DefaultConverters.FLOAT);
-        map.put(Float.class, DefaultConverters.FLOAT);
-        map.put(Double.TYPE, DefaultConverters.DOUBLE);
-        map.put(Double.class, DefaultConverters.DOUBLE);
-        map.put(Character.TYPE, DefaultConverters.CHARACTER);
-        map.put(Character.class, DefaultConverters.CHARACTER);
-        map.put(Boolean.TYPE, DefaultConverters.BOOLEAN);
-        map.put(Boolean.class, DefaultConverters.BOOLEAN);
+        map.put(Byte.TYPE, DefaultConverters.BYTE_PRIMITIVE);
+        map.put(Byte.class, DefaultConverters.BYTE_WRAPPER);
+        map.put(Short.TYPE, DefaultConverters.SHORT_PRIMITIVE);
+        map.put(Short.class, DefaultConverters.SHORT_WRAPPER);
+        map.put(Integer.TYPE, DefaultConverters.INT_PRIMITIVE);
+        map.put(Integer.class, DefaultConverters.INT_WRAPPER);
+        map.put(Long.TYPE, DefaultConverters.LONG_PRIMITIVE);
+        map.put(Long.class, DefaultConverters.LONG_WRAPPER);
+        map.put(Float.TYPE, DefaultConverters.FLOAT_PRIMITIVE);
+        map.put(Float.class, DefaultConverters.FLOAT_WRAPPER);
+        map.put(Double.TYPE, DefaultConverters.DOUBLE_PRIMITIVE);
+        map.put(Double.class, DefaultConverters.DOUBLE_WRAPPER);
+        map.put(Character.TYPE, DefaultConverters.CHARACTER_PRIMITIVE);
+        map.put(Character.class, DefaultConverters.CHARACTER_WRAPPER);
+        map.put(Boolean.TYPE, DefaultConverters.BOOLEAN_PRIMITIVE);
+        map.put(Boolean.class, DefaultConverters.BOOLEAN_WRAPPER);
         map.put(String.class, DefaultConverters.STRING);
         map.put(Object.class, DefaultConverters.STRING);
         map.put(BigInteger.class, DefaultConverters.BIGINT);
@@ -151,14 +203,14 @@ public class Converters {
 
     }
 
-    public static <T> Converter<T> getConverter(Scope scope, Class<T> parameterType) {
+    static <T> Converter<T> getConverter(Scope scope, Class<T> parameterType) {
         return getConverter(scope, parameterType, EMPTY_ANNOTATIONS);
     }
 
-    public static <T> Converter<T> getConverter(Scope scope, Class<T> parameterType, Annotation[] parameterAnnotations) {
+    static <T> Converter<T> getConverter(Scope scope, Class<T> parameterType, Annotation[] parameterAnnotations) {
         for (Annotation parameterAnnotation : parameterAnnotations) {
             if (parameterAnnotation.annotationType() == Convert.class) {
-                final Class<Converter<?>> argumentConverterClass = ((Convert) parameterAnnotation).value();
+                final Class<? extends Converter<?>> argumentConverterClass = ((Convert) parameterAnnotation).value();
                 final Converter<?> converter = scope.getObject(argumentConverterClass);
                 return cast(parameterType, converter);
             }
