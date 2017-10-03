@@ -35,7 +35,7 @@ class Converters {
         SHORT_WRAPPER {
             @Override
             public Object convert(String argument) {
-                return SHORT_PRIMITIVE.convert(argument);
+                return argument == null ? null : SHORT_PRIMITIVE.convert(argument);
             }
         },
         INT_PRIMITIVE() {
