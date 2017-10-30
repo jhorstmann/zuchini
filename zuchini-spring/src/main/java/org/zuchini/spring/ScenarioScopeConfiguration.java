@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Collections;
 
 @Configuration
-public class SpringZuchiniConfiguration {
+public class ScenarioScopeConfiguration {
 
     @Bean
     public static SpringThreadLocalScope getSpringThreadLocalScope() {
