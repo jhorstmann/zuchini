@@ -8,7 +8,7 @@
     <packaging>pom</packaging>
     <name>zuchini</name>
     <description>An alternative implementation of cucumber for the jvm based on antlr and junit</description>
-    <url>https://github.com/jhorstmann/i18n</url>
+    <url>https://github.com/jhorstmann/zuchini</url>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
