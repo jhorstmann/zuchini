@@ -1,136 +1,181 @@
-zuchini
-=======
-
-A reimplementation of gherkin and cucumber for java based on antlr4 and junit.
+# Zuchini - A gherkin / cucumber implementation for java based on antlr4 and junit.
 
 [![Build Status](https://img.shields.io/travis/jhorstmann/zuchini.svg)](https://travis-ci.org/jhorstmann/zuchini)
 [![Maven Central](https://img.shields.io/maven-central/v/org.zuchini/zuchini-junit.svg)](https://search.maven.org/#artifactdetails%7Corg.zuchini%7Czuchini-junit%7C0.2.0%7Cjar)
 
-## Why zuchini
+## Why Zuchini instead of Cucumber-JVM?
 
-Why the rewrite? Why not just use cucumber like everyone else?
+The main benefit is better integration with junit and spring-framework. This allows leveraging existing features of junit like
 
-The main argument is that cucumber does not support one crucial feature: Having your step implementations spread out over multiple classes.
+ - [Parallel test execution](zuchini-examples/zuchini-examples-parallel/pom.xml)
+ - [Automatically retrying flaky test](zuchini-examples/zuchini-examples-flaky/pom.xml)
+ - [Filtering which tests to execute](zuchini-examples/zuchini-examples-filtering/pom.xml)
 
-Also parallelism is not really supported in cucumber itself. Therefore if you want/need to run a lot of your tests in parallel you should give zuchini a shot :) 
+The spring integration brings the following improvements
+
+ - Step definition classes are normal spring components
+ - No need to repeat context configuration annotations on each step definition class
+ - Special [scenario scope](zuchini-spring/src/main/java/org/zuchini/spring/ScenarioScoped.java) that allows to configure mocks and keep state per scenario 
+
+On the technical side the goals are
+
+ - Clean implementation by delegating features to existing frameworks like junit and spring
+ - Separation between gherkin model and test execution
+ - Reusable [gherkin parser with a clearly defined grammar](zuchini-model/src/main/antlr4/org/zuchini/gherkin/antlr/Gherkin.g4)
 
 ## Usage
 
-To start using zuchini just add the dependency to the pom.
-````        
+To start using zuchini add the dependency to the pom:
+
+```xml
 <dependency>
     <groupId>org.zuchini</groupId>
     <artifactId>zuchini-junit</artifactId>
-    <version>VERSION</version>
+    <version>${version.zuchini}</version>
     <scope>test</scope>
 </dependency>
-````
+```
 
-After this is added you can start creating feature files with the standard [Gherkin](https://github.com/cucumber/cucumber/wiki/Gherkin) syntax.
-Step definitions can be added in the same way as with cucumber.
+Add a feature file containing your scenarios in `src/test/resources/features`:
 
-## Reporting
+```gherkin
+Feature: Hello World
 
-To enable reporting add the zuchini-reporting dependency to your project.
-````        
+  Scenario: Hello World
+    Given the user name is 'World'
+    When the user clicks the hello button
+    Then the output is 'Hello World'
+```
+
+Implement the steps by creating a java class containing annotated methods:
+
+```java
+public class HelloWorldSteps {
+    private String name;
+    private String output;
+
+    @Given("^the user name is '([^']+)'$")
+    public void userNameIs(String name) {
+        this.name = name;
+    }
+
+    @When("^the user clicks the hello button$")
+    public void clickTheButton() {
+        this.output = "Hello " + name;
+    }
+
+    @Then("^the output is '([^']+)'")
+    public void outputIs(String expectedOutput) {
+        Assert.assertEquals("Output should be", expectedOutput, output);
+    }
+}
+```
+
+Implement a Junit runner for executing the features. The annotation parameters `featurePackages` and `stepDefinitionPackages` specify in which packages to search for features and step definitions respectively.
+
+```java
+@RunWith(Zuchini.class)
+@ZuchiniOptions(
+    featurePackages = {"features/helloworld"},
+    stepDefinitionPackages = {"org.zuchini.junit.helloworld"})
+public class HelloWorldTest {
+}
+```
+
+## Reporting and test listeners
+
+By default zuchini will report execution of scenarios without details about the individual steps. To enable reporting per step, set the `reportIndividualSteps` property in `ZuchiniOptions` to `true`.
+
+Zuchini allows to add additional `RunListener`'s to monitor test execution, using the `listeners` property of `ZuchiniOptions`. One such `RunListener` for generating test reports in json format is included in the `zuchini-reporting` artifact. 
+
+```xml
 <dependency>
     <groupId>org.zuchini</groupId>
     <artifactId>zuchini-reporting</artifactId>
-    <version>VERSION</version>
+    <version>${version.zuchini}</version>
     <scope>test</scope>
 </dependency>
-````
+```
 
-Additionally you have to configure your surefire plugin to write the report to a given file:
-````
+```java
+@RunWith(Zuchini.class)
+@ZuchiniOptions(
+    featurePackages = {"features/helloworld"},
+    stepDefinitionPackages = {"org.zuchini.junit.helloworld"},
+    listeners = {JsonReporter.class})
+public class HelloWorldTest {
+}
+```
+
+The report will be written to `zuchini-report.json` in a [format described by json schema](zuchini-reporter/schema.json).
+
+**Note**: The report format differs from the format used by cucumber-jvm and therefore cannot be interpreted by the usual report generation plugins.
+
+The output file name can be overriden using a system property `zuchini.reporter.output`, for example using maven and the surefire plugin:
+
+```xml
 <plugin>
     <artifactId>maven-surefire-plugin</artifactId>
-    <version>2.18</version>
     <configuration>
         <systemPropertyVariables>
             <zuchini.reporter.output>${project.build.directory}/report.json</zuchini.reporter.output>
         </systemPropertyVariables>
     </cofiguration>
 </plugin>
-````
+```
 
-Now add the `JsonReporter` listener to your zuchini test case.
-````
-@RunWith(SpringZuchini.class)
-@ZuchiniOptions(
-    stepDefinitionPackages = {"de/my/company/features"},
-    featurePackages = {"features"},
-    listeners = JsonReporter.class)
-public class ZuchiniTest {
-}
-````
+## Usage with spring framework
 
-This will produce a json report at the given location.
+To use autowiring of spring beans in your step definition classes you need to use the `SpringZuchini` runner.
 
-**ATTENTION**: This report does not conform to the cucumber standard and therefore cannot be interpreted by the usual report generation plugins! 
-
-
-## Possible problems
-
-### Intellij Idea step definitions unknown
-
-Idea will tell you that your steps have no definition and will offer to create one for you. To get Idea to recognize your implementation
-switch the annotations from the zuchini annotations to the original cucumber annotations.
-
-To do this just add
-````        
-<dependency>
-    <groupId>org.zuchini</groupId>
-    <artifactId>zuchini-compat-annotations</artifactId>
-    <version>VERSION</version>
-    <scope>test</scope>
-</dependency>
-````
-to your dependency list. Then a version of the original `Given`, `When` and `Then` annotations are usable without having the whole cukes set in your classpath (we are trying to avoid it in the end, right ;) ).
-
-### Spring Boot 1.5 crashes
-
-
-To run zuchini tests with Spring Boot 1.5 or above just add the zuchini-spring dependency to your project.
-````        
+```xml
 <dependency>
     <groupId>org.zuchini</groupId>
     <artifactId>zuchini-spring</artifactId>
-    <version>VERSION</version>
+    <version>${version.zuchini}</version>
     <scope>test</scope>
 </dependency>
-````
-Now annotate your zuchini test with `@SpringBootTest` instead of the old `@ContextConfiguration` annotation and you are good to go.
+```
 
-````
+The spring configuration has to be specified on the junit test class, same as it would be for normal junit and spring tests.
+
+```java
 @RunWith(SpringZuchini.class)
 @ZuchiniOptions(
-    stepDefinitionPackages = {"de/my/project/features"},
-    featurePackages = {"features"}
-@SpringBootTest
-public class ZuchiniTest {
+    featurePackages = {"features/hellospring"},
+    stepDefinitionPackages = "org.zuchini.spring.helloworld")
+@ContextConfiguration(classes = {HelloSpringConfiguration.class, ScenarioScopeConfiguration.class})
+public class CukesSpringTest {
 }
+```
 
-````
+The `ScenarioScopeConfiguration` defines a spring scope per executed scenario that you can use on your step definition classes, so that a new instance is instanciated by spring for each scenario:
 
-If this does crash on you with some internal Spring Exceptions just exclude the spring dependencies from zuchini-spring like so:
-````
+```java
+@Component
+@ScenarioScoped
+public class HelloWorldSteps {
+}
+```
+
+**Note:** If you use spring-boot with `@EnableAutoConfiguration` you no longer have to add the `ScenarioScopeConfiguration` explicitly and the scenario scope is available without further configuration.
+
+For an example for how to test REST endpoints in a spring-boot project using `MockMvc` check out the [`zuchini-examples-mockmvc` project](zuchini-examples-mockmvc/src/test/java/org/zuchini/examples/mockmvc/HelloFeatureTest.java).
+
+
+## IntelliJ integration
+
+To enable running individual scenarios directly from the feature files in IntelliJ you have to add the `zuchini-intellij-support` dependency:
+
+```xml
 <dependency>
     <groupId>org.zuchini</groupId>
-    <artifactId>zuchini-spring</artifactId>
-    <version>VERSION</version>
+    <artifactId>zuchini-intellij-support</artifactId>
+    <version>${version.zuchini}</version>
     <scope>test</scope>
-    <exclusions>
-        <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-        </exclusion>
-        <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-        </exclusion>
-    </exclusions>
 </dependency>
-````
-Most probably though this is a sign that your dependencies are not set up correctly as Spring Boot should overwrite 
-the version that you are referencing here.
+```
+
+This makes it look to IntelliJ like the original cucumber-jvm implementation is on the classpath and enable the cucumber plugin.
+
+IntelliJ currently does not directly support the zuchini annotations and so will highlight all steps in the feature files as "not implemented". To avoid this you have to use the original cucumber annotations on your step definition methods. A copy of those annotations is included in the `zuchini-compat-annotations` artifact, which is a transitive dependency of the above `zuchini-intellij-support`. 
