@@ -1,7 +1,7 @@
 package org.zuchini.spring.cukes.cukes;
 
 import org.junit.Assert;
-import org.junit.internal.AssumptionViolatedException;
+import org.junit.AssumptionViolatedException;
 import org.springframework.stereotype.Component;
 import org.zuchini.annotations.Given;
 import org.zuchini.annotations.Then;

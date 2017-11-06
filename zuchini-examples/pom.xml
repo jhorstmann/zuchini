@@ -20,5 +20,6 @@
         <module>zuchini-examples-datatables</module>
         <module>zuchini-examples-hooks</module>
         <module>zuchini-examples-reporting</module>
+        <module>zuchini-examples-mockmvc</module>
     </modules>
 </project>

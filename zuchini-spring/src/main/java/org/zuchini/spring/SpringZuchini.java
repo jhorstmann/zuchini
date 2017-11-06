@@ -2,27 +2,34 @@ package org.zuchini.spring;
 
 import org.junit.runner.Runner;
 import org.junit.runners.Suite;
+import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 import org.springframework.test.context.TestContextManager;
 import org.springframework.test.context.junit4.statements.RunAfterTestClassCallbacks;
 import org.springframework.test.context.junit4.statements.RunBeforeTestClassCallbacks;
 import org.zuchini.junit.ZuchiniRunnerDelegate;
 
+import java.io.IOException;
 import java.util.Collections;
 
 public class SpringZuchini extends Suite {
     private final TestContextManager testContextManager;
 
     public SpringZuchini(Class<?> testClass) throws Exception {
-        super(testClass, Collections.<Runner>singletonList(new ZuchiniRunnerDelegate(testClass, new BeanFactoryScope(false), new BeanFactoryScope(true))));
+        this(testClass, new ScopeExecutionListener());
+    }
 
-        // Hack because java does not allow any code before the super constructor call
-        ZuchiniRunnerDelegate delegate = (ZuchiniRunnerDelegate) getChildren().get(0);
-        BeanFactoryScope globalScope = (BeanFactoryScope) delegate.getGlobalScope();
-        BeanFactoryScope scenarioScope = (BeanFactoryScope) delegate.getScenarioScope();
+    private SpringZuchini(Class<?> testClass, ScopeExecutionListener scopeExecutionListener) throws Exception {
+        super(testClass, Collections.<Runner>singletonList(delegate(testClass, scopeExecutionListener)));
 
         this.testContextManager = new TestContextManager(testClass);
-        this.testContextManager.registerTestExecutionListeners(new ScopeExecutionListener(globalScope, scenarioScope));
+        this.testContextManager.registerTestExecutionListeners(scopeExecutionListener);
+    }
+
+    private static ZuchiniRunnerDelegate delegate(Class<?> testClass, ScopeExecutionListener scopeExecutionListener) throws InitializationError, IOException {
+        return new ZuchiniRunnerDelegate(testClass,
+                scopeExecutionListener.getGlobalScope(),
+                scopeExecutionListener.getScenarioScope());
     }
 
     @Override

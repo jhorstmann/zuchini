@@ -4,14 +4,27 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListener;
+import org.zuchini.runner.Context;
 
-class ScopeExecutionListener implements TestExecutionListener {
+class ScopeExecutionListener implements TestExecutionListener, Context {
     private final BeanFactoryScope globalScope;
     private final BeanFactoryScope scenarioScope;
 
-    ScopeExecutionListener(BeanFactoryScope globalScope, BeanFactoryScope scenarioScope) {
+    public ScopeExecutionListener() {
+        this(new BeanFactoryScope(false), new BeanFactoryScope(true));
+    }
+
+    private ScopeExecutionListener(BeanFactoryScope globalScope, BeanFactoryScope scenarioScope) {
         this.globalScope = globalScope;
         this.scenarioScope = scenarioScope;
+    }
+
+    public BeanFactoryScope getGlobalScope() {
+        return globalScope;
+    }
+
+    public BeanFactoryScope getScenarioScope() {
+        return scenarioScope;
     }
 
     @Override
