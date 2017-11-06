@@ -107,7 +107,7 @@ public class HelloWorldTest {
 }
 ```
 
-The report will be written to `zuchini-report.json` in a [format described by json schema](zuchini-reporter/schema.json).
+The report will be written to `zuchini-report.json` in a [format described by this json schema](zuchini-reporter/schema.json).
 
 **Note**: The report format differs from the format used by cucumber-jvm and therefore cannot be interpreted by the usual report generation plugins.
 
@@ -149,19 +149,30 @@ public class CukesSpringTest {
 }
 ```
 
-The `ScenarioScopeConfiguration` defines a spring scope per executed scenario that you can use on your step definition classes, so that a new instance is instanciated by spring for each scenario:
+The `ScenarioScopeConfiguration` defines a spring scope per executed scenario that you can use on your step definition classes, so that a new instance is instantiated by spring for each scenario:
 
 ```java
 @Component
 @ScenarioScoped
-public class HelloWorldSteps {
+public class HelloSpringSteps {
 }
 ```
 
 **Note:** If you use spring-boot with `@EnableAutoConfiguration` you no longer have to add the `ScenarioScopeConfiguration` explicitly and the scenario scope is available without further configuration.
 
-For an example for how to test REST endpoints in a spring-boot project using `MockMvc` check out the [`zuchini-examples-mockmvc` project](zuchini-examples-mockmvc/src/test/java/org/zuchini/examples/mockmvc/HelloFeatureTest.java).
+For an example for how to test REST endpoints in a spring-boot project using `MockMvc` check out the [`zuchini-examples-mockmvc` project](zuchini-examples-mockmvc/).
 
+```java
+@RunWith(SpringZuchini.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@AutoConfigureMockMvc
+@ZuchiniOptions(
+    featurePackages = "features/mockmvc",
+    stepDefinitionPackages = "org.zuchini.examples.mockmvc"
+)
+public class HelloSpringTest {
+}
+```
 
 ## IntelliJ integration
 
