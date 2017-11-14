@@ -176,6 +176,7 @@
         <module>zuchini-model</module>
         <module>zuchini-runner</module>
         <module>zuchini-junit</module>
+        <module>zuchini-junit5</module>
         <module>zuchini-spring</module>
         <module>zuchini-compat-annotations</module>
         <!-- TODO: Include once tests are passing -->

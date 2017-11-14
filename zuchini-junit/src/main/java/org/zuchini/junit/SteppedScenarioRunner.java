@@ -14,8 +14,6 @@ import org.zuchini.junit.description.StepInfo;
 import org.zuchini.model.Step;
 import org.zuchini.runner.Context;
 import org.zuchini.runner.FeatureStatement;
-import org.zuchini.runner.HookStatement;
-import org.zuchini.runner.Scope;
 import org.zuchini.runner.SimpleScenarioStatement;
 import org.zuchini.runner.Statement;
 import org.zuchini.runner.StepStatement;
@@ -101,49 +99,28 @@ class SteppedScenarioRunner extends Runner {
 
     @Override
     public void run(RunNotifier notifier) {
-        final Scope scenarioScope = context.getScenarioScope();
-        scenarioScope.begin();
+        final Iterator<DescribedStepStatement> it = children.iterator();
+
         try {
-            final Iterator<DescribedStepStatement> it = children.iterator();
-            boolean first = true;
+            while (it.hasNext()) {
+                final DescribedStepStatement describedStepStatement = it.next();
+                final Description stepDescription = describedStepStatement.getDescription();
+                final Statement stepStatement = describedStepStatement.getStepStatement();
 
-            try {
-                while (it.hasNext()) {
-                    final DescribedStepStatement describedStepStatement = it.next();
-                    final Description stepDescription = describedStepStatement.getDescription();
-                    final Statement stepStatement = describedStepStatement.getStepStatement();
+                try {
+                    notifier.fireTestStarted(stepDescription);
 
-                    try {
-                        notifier.fireTestStarted(stepDescription);
-
-                        if (first) {
-                            for (HookStatement hook : scenarioStatement.getBeforeHooks()) {
-                                evaluate(notifier, hook, stepDescription);
-                            }
-                            first = false;
-                        }
-
-                        evaluate(notifier, stepStatement, stepDescription);
-
-                        final boolean last = !it.hasNext();
-                        if (last) {
-                            for (HookStatement hook : scenarioStatement.getAfterHooks()) {
-                                evaluate(notifier, hook, stepDescription);
-                            }
-                        }
-                    } finally {
-                        notifier.fireTestFinished(stepDescription);
-                    }
-                }
-            } catch (IgnoreRemainingStepsException e) {
-                while (it.hasNext()) {
-                    final DescribedStepStatement describedStepStatement = it.next();
-                    final Description stepDescription = describedStepStatement.getDescription();
-                    notifier.fireTestIgnored(stepDescription);
+                    evaluate(notifier, stepStatement, stepDescription);
+                } finally {
+                    notifier.fireTestFinished(stepDescription);
                 }
             }
-        } finally {
-            scenarioScope.end();
+        } catch (IgnoreRemainingStepsException e) {
+            while (it.hasNext()) {
+                final DescribedStepStatement describedStepStatement = it.next();
+                final Description stepDescription = describedStepStatement.getDescription();
+                notifier.fireTestIgnored(stepDescription);
+            }
         }
     }
 

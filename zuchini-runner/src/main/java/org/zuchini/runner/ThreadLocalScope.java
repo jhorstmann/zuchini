@@ -8,6 +8,9 @@ public class ThreadLocalScope implements Scope {
 
     @Override
     public void begin() {
+        if (threadLocalObjects.get() != null) {
+            throw new IllegalStateException("Scope is already initialized");
+        }
         threadLocalObjects.set(new HashMap<Class<?>, Object>());
     }
 
