@@ -1,9 +1,10 @@
 sudo: false
 language: java
-install: true
 jobs:
   include:
     - jdk: oraclejdk8
+      install: true
       script: mvn -V -B clean verify
     - jdk: openjdk7
+      install: true
       script: mvn -V -B clean verify -pl !zuchini-junit5
