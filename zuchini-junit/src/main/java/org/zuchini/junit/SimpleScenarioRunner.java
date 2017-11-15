@@ -46,8 +46,6 @@ class SimpleScenarioRunner extends Runner {
 
     @Override
     public void run(RunNotifier notifier) {
-        Scope scenarioScope = context.getScenarioScope();
-        scenarioScope.begin();
         try {
             notifier.fireTestStarted(description);
             scenarioStatement.evaluate(context);
@@ -57,7 +55,6 @@ class SimpleScenarioRunner extends Runner {
             notifier.fireTestFailure(new Failure(description, throwable));
         } finally {
             notifier.fireTestFinished(description);
-            scenarioScope.end();
         }
     }
 

@@ -5,6 +5,7 @@ import org.zuchini.model.Row;
 import org.zuchini.model.Step;
 import org.zuchini.runner.tables.Datatable;
 
+import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,11 +16,29 @@ public class StepStatement implements Statement {
     private final Step step;
     private final Method method;
     private final String[] stringArguments;
+    @Nullable
+    private final Statement before;
+    @Nullable
+    private final Statement after;
+    @Nullable
+    private final Statement exceptional;
 
     public StepStatement(Step step, Method method, String[] stringArguments) {
         this.step = step;
         this.method = method;
         this.stringArguments = stringArguments;
+        this.before = null;
+        this.after = null;
+        this.exceptional = null;
+    }
+
+    public StepStatement(Step step, Method method, String[] stringArguments, @Nullable Statement before, @Nullable Statement after, @Nullable Statement exceptional) {
+        this.step = step;
+        this.method = method;
+        this.stringArguments = stringArguments;
+        this.before = before;
+        this.after = after;
+        this.exceptional = exceptional;
     }
 
     public Step getStep() {
@@ -67,13 +86,30 @@ public class StepStatement implements Statement {
 
     @Override
     public void evaluate(Context context) throws Throwable {
+        if (before != null) {
+            before.evaluate(context);
+        }
         try {
-            Scope scenarioScope = context.getScenarioScope();
-            Object target = scenarioScope.getObject(method.getDeclaringClass());
-            Object[] typedArguments = convertArguments(context);
-            method.invoke(target, typedArguments);
-        } catch (InvocationTargetException ex) {
-            throw ex.getCause();
+            try {
+                Scope scenarioScope = context.getScenarioScope();
+                Object target = scenarioScope.getObject(method.getDeclaringClass());
+                Object[] typedArguments = convertArguments(context);
+                method.invoke(target, typedArguments);
+            } catch (InvocationTargetException ex) {
+                throw ex.getCause();
+            }
+        } catch (Throwable throwable) {
+            if (exceptional != null) {
+                try {
+                    exceptional.evaluate(context);
+                } catch (Throwable throwable2) {
+                    throwable.addSuppressed(throwable2);
+                }
+            }
+            throw throwable;
+        }
+        if (after != null) {
+            after.evaluate(context);
         }
     }
 }

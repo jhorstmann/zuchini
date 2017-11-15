@@ -44,17 +44,17 @@ class StatementBuilder {
         this.methodCache = new HashMap<>();
     }
 
-    public List<FeatureStatement> buildFeatureStatements(List<Feature> features) {
-        List<FeatureStatement> statements = new ArrayList<>(features.size());
+    List<FeatureStatement> buildFeatureStatements(List<Feature> features) {
+        final List<FeatureStatement> statements = new ArrayList<>(features.size());
         for (Feature feature : features) {
             statements.add(buildFeatureStatement(feature));
         }
         return statements;
     }
 
-    public FeatureStatement buildFeatureStatement(Feature feature) {
-        List<StepContainer> scenarios = feature.getScenarios();
-        List<ScenarioStatement> statements = new ArrayList<>(scenarios.size());
+    private FeatureStatement buildFeatureStatement(Feature feature) {
+        final List<StepContainer> scenarios = feature.getScenarios();
+        final List<ScenarioStatement> statements = new ArrayList<>(scenarios.size());
         for (StepContainer stepContainer : scenarios) {
             if (stepContainer instanceof Outline) {
                 Outline outline = (Outline) stepContainer;
@@ -67,8 +67,8 @@ class StatementBuilder {
     }
 
     private OutlineStatement buildOutlineStatement(Outline outline) {
-        List<Scenario> scenarios = outline.buildScenarios();
-        List<SimpleScenarioStatement> statements = new ArrayList<>(scenarios.size());
+        final List<Scenario> scenarios = outline.buildScenarios();
+        final List<SimpleScenarioStatement> statements = new ArrayList<>(scenarios.size());
         for (Scenario scenario : scenarios) {
             statements.add(buildScenarioStatement(scenario));
         }
@@ -77,29 +77,12 @@ class StatementBuilder {
     }
 
     private SimpleScenarioStatement buildScenarioStatement(Scenario scenario) {
-        final List<StepStatement> scenarioSteps = new ArrayList<>();
-        final List<StepStatement> backgroundSteps = new ArrayList<>();
+        final List<Step> steps = new ArrayList<>();
 
-        final BackgroundStatement backgroundStatement;
-
-        if (scenario.getBackground().isEmpty()) {
-            backgroundStatement = null;
-        } else {
-            // TODO: Make nullable or optional instead of list
-            final Background background = scenario.getBackground().get(0);
-            final List<Step> steps = background.getSteps();
-            for (Step step : steps) {
-                backgroundSteps.add(buildStepStatement(step));
-            }
-            backgroundStatement = new BackgroundStatement(background, backgroundSteps);
+        for (Background background : scenario.getBackground()) {
+            steps.addAll(background.getSteps());
         }
-
-        {
-            final List<Step> steps = scenario.getSteps();
-            for (Step step : steps) {
-                scenarioSteps.add(buildStepStatement(step));
-            }
-        }
+        steps.addAll(scenario.getSteps());
 
         final List<HookStatement> beforeHooks = new ArrayList<>();
         final List<HookStatement> afterHooks = new ArrayList<>();
@@ -115,24 +98,43 @@ class StatementBuilder {
                 }
             }
 
-            list.add(new HookStatement(scenario, hookDefinition.getMethod()));
+            list.add(new HookStatement(hookDefinition.getMethod()));
         }
 
-        return new SimpleScenarioStatement(scenario, backgroundStatement, scenarioSteps, beforeHooks, afterHooks);
+        final BeforeScenarioStatement beforeScenarioStatement = new BeforeScenarioStatement(beforeHooks);
+        final AfterScenarioStatement afterScenarioStatement = new AfterScenarioStatement(afterHooks);
+
+        final List<StepStatement> stepStatements = new ArrayList<>(steps.size());
+
+        if (!steps.isEmpty()) {
+            final Step firstStep = steps.get(0);
+            final Step lastStep = steps.get(steps.size() - 1);
+
+            for (Step step : steps) {
+                final Statement beforeStep = step == firstStep ? beforeScenarioStatement : null;
+                final Statement afterStep = step == lastStep ? afterScenarioStatement : null;
+                final Statement exceptional = afterScenarioStatement;
+                final Closure closure = findClosure(step);
+                final StepStatement stepStatement = new StepStatement(step, closure.getMethod(), closure.getArguments(), beforeStep, afterStep, exceptional);
+                stepStatements.add(stepStatement);
+            }
+        }
+
+        return new SimpleScenarioStatement(scenario, stepStatements);
     }
 
-    private StepStatement buildStepStatement(Step step) {
+    private Closure findClosure(Step step) {
         Closure closure = methodCache.get(step.getName());
         if (closure == null) {
             closure = findMethod(step.getName());
             methodCache.put(step.getName(), closure);
         }
-        return new StepStatement(step, closure.getMethod(), closure.getArguments());
+        return closure;
     }
 
     private String[] groups(Matcher matcher) {
-        int groupCount = matcher.groupCount();
-        String[] groups = new String[groupCount];
+        final int groupCount = matcher.groupCount();
+        final String[] groups = new String[groupCount];
         for (int i = 0; i < groupCount; i++) {
             groups[i] = matcher.group(i+1);
         }
@@ -140,13 +142,13 @@ class StatementBuilder {
     }
 
     private Closure findMethod(String description) {
-        List<Closure> methods = new ArrayList<>(2);
+        final List<Closure> methods = new ArrayList<>(2);
         for (StepDefinition stepDefinition : stepDefinitions) {
-            Pattern pattern = stepDefinition.getPattern();
-            Matcher matcher = pattern.matcher(description);
+            final Pattern pattern = stepDefinition.getPattern();
+            final Matcher matcher = pattern.matcher(description);
             if (matcher.matches()) {
-                Method method = stepDefinition.getMethod();
-                Closure closure = new Closure(method, groups(matcher));
+                final Method method = stepDefinition.getMethod();
+                final Closure closure = new Closure(method, groups(matcher));
                 methods.add(closure);
             }
         }

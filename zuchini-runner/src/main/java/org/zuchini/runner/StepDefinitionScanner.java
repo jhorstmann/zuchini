@@ -5,7 +5,6 @@ import org.zuchini.annotations.Before;
 import org.zuchini.annotations.StepAnnotation;
 import org.zuchini.runner.internal.ClasspathScanner;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
