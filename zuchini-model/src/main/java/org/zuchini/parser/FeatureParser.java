@@ -69,13 +69,15 @@ public class FeatureParser {
     }
 
     static Feature parseWithVisitor(ANTLRInputStream inputStream) {
-        return newParser(inputStream).feature().accept(new Visitors.FeatureVisitor(inputStream.getSourceName()));
+        GherkinParser.FeatureContext feature = newParser(inputStream).feature();
+        return feature.accept(new Visitors.FeatureVisitor(inputStream.getSourceName()));
     }
 
     static GherkinParser newParser(ANTLRInputStream inputStream) {
         GherkinLexer lexer = new GherkinLexer(inputStream);
         GherkinParser parser = new GherkinParser(new BufferedTokenStream(lexer));
-        parser.setErrorHandler(new BailErrorStrategy());
+        parser.removeErrorListeners();
+        parser.addErrorListener(ThrowingErrorListener.INSTANCE);
         return parser;
     }
 }
