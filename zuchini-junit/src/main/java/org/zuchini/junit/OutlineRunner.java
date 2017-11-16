@@ -36,11 +36,11 @@ class OutlineRunner extends ParentRunner<Runner> {
     private static List<Runner> buildChildren(Class<?> testClass, Context context, FeatureStatement featureStatement, OutlineStatement outline, boolean reportIndividualSteps) throws InitializationError {
         List<SimpleScenarioStatement> scenarios = outline.getScenarios();
         List<Runner> children = new ArrayList<>(scenarios.size());
-        for (ScenarioStatement scenario : scenarios) {
+        for (SimpleScenarioStatement scenario : scenarios) {
             if (reportIndividualSteps) {
-                children.add(new SteppedScenarioRunner(testClass, context, featureStatement, (SimpleScenarioStatement) scenario));
+                children.add(new SteppedScenarioRunner(testClass, context, featureStatement, scenario, outline));
             } else {
-                children.add(new SimpleScenarioRunner(testClass, context, featureStatement, (SimpleScenarioStatement) scenario));
+                children.add(new SimpleScenarioRunner(testClass, context, featureStatement, scenario, outline));
             }
         }
         return children;

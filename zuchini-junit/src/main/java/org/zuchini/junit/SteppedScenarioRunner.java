@@ -7,19 +7,14 @@ import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
-import org.zuchini.junit.description.AnnotationHandler;
-import org.zuchini.junit.description.FeatureInfo;
-import org.zuchini.junit.description.ScenarioInfo;
-import org.zuchini.junit.description.StepInfo;
+import org.zuchini.junit.description.*;
 import org.zuchini.model.Step;
-import org.zuchini.runner.Context;
-import org.zuchini.runner.FeatureStatement;
-import org.zuchini.runner.SimpleScenarioStatement;
-import org.zuchini.runner.Statement;
-import org.zuchini.runner.StepStatement;
+import org.zuchini.runner.*;
 
+import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,14 +48,17 @@ class SteppedScenarioRunner extends Runner {
     private final Context context;
     private final FeatureStatement featureStatement;
     private final SimpleScenarioStatement scenarioStatement;
+    @Nullable
+    private final OutlineStatement outlineStatement;
     private final List<DescribedStepStatement> children;
     private final Description description;
 
-    public SteppedScenarioRunner(Class<?> testClass, Context context, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
+    public SteppedScenarioRunner(Class<?> testClass, Context context, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement, @Nullable OutlineStatement outlineStatement) throws InitializationError {
         this.testClass = testClass;
         this.context = context;
         this.featureStatement = featureStatement;
         this.scenarioStatement = scenarioStatement;
+        this.outlineStatement = outlineStatement;
         this.children = buildChildren();
         this.description = DescriptionHelper.createScenarioDescription(testClass, scenarioStatement.getScenario(), children,
                 getRunnerAnnotations());
@@ -78,18 +76,20 @@ class SteppedScenarioRunner extends Runner {
     }
 
     private Annotation[] getStepAnnotations(Step step) {
-        return new Annotation[]{
-                AnnotationHandler.create(FeatureInfo.class, featureStatement.getFeature()),
-                AnnotationHandler.create(ScenarioInfo.class, scenarioStatement.getScenario()),
-                AnnotationHandler.create(StepInfo.class, step)
-        };
+        final Annotation[] runnerAnnotations = getRunnerAnnotations();
+        final Annotation[] stepAnnotations = Arrays.copyOf(runnerAnnotations, runnerAnnotations.length + 1);
+        stepAnnotations[stepAnnotations.length-1] = AnnotationHandler.create(StepInfo.class, step);
+        return stepAnnotations;
     }
 
     private Annotation[] getRunnerAnnotations() {
-        return new Annotation[]{
-                AnnotationHandler.create(FeatureInfo.class, featureStatement.getFeature()),
-                AnnotationHandler.create(ScenarioInfo.class, scenarioStatement.getScenario())
-        };
+        final Annotation[] annotations = new Annotation[outlineStatement == null ? 2 : 3];
+        annotations[0] = AnnotationHandler.create(FeatureInfo.class, featureStatement.getFeature());
+        annotations[1] = AnnotationHandler.create(ScenarioInfo.class, scenarioStatement.getScenario());
+        if (outlineStatement != null) {
+            annotations[2] = AnnotationHandler.create(OutlineInfo.class, outlineStatement.getOutline());
+        }
+        return annotations;
     }
 
     @Override

@@ -5,12 +5,14 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.manipulation.Filter;
 import org.zuchini.junit.description.FeatureInfo;
+import org.zuchini.junit.description.OutlineInfo;
 import org.zuchini.junit.description.ScenarioInfo;
 
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class ZuchiniMain {
 
@@ -73,12 +75,22 @@ public class ZuchiniMain {
             });
         }
         if (name != null) {
+            final Pattern namePattern = Pattern.compile(name);
             request = request.filterWith(new Filter() {
                 @Override
                 public boolean shouldRun(Description description) {
                     ScenarioInfo scenario = description.getAnnotation(ScenarioInfo.class);
-                    // TODO: Does not work for scenario outlines with parameters appended to the name
-                    return scenario == null || scenario.name().equals(name);
+                    OutlineInfo outline = description.getAnnotation(OutlineInfo.class);
+                    if (outline != null) {
+                        // match against original outline name instead of nested scenarios whose names have parameter values appended
+                        String outlineName = outline.name();
+                        return namePattern.matcher(outlineName).matches();
+                    } else if (scenario == null) {
+                        return true;
+                    } else {
+                        String scenarioName = scenario.name();
+                        return namePattern.matcher(scenarioName).matches();
+                    }
                 }
 
                 @Override

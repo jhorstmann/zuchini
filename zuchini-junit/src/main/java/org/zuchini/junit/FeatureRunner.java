@@ -39,9 +39,9 @@ class FeatureRunner extends ParentRunner<Runner> {
                 children.add(new OutlineRunner(testClass, context, featureStatement, (OutlineStatement)scenario, reportIndividualSteps));
             } else if (scenario instanceof SimpleScenarioStatement) {
                 if (reportIndividualSteps) {
-                    children.add(new SteppedScenarioRunner(testClass, context, featureStatement, (SimpleScenarioStatement) scenario));
+                    children.add(new SteppedScenarioRunner(testClass, context, featureStatement, (SimpleScenarioStatement) scenario, null));
                 } else {
-                    children.add(new SimpleScenarioRunner(testClass, context, featureStatement, (SimpleScenarioStatement) scenario));
+                    children.add(new SimpleScenarioRunner(testClass, context, featureStatement, (SimpleScenarioStatement) scenario, null));
                 }
             } else {
                 throw new IllegalStateException("Unknown scenario type [" + scenario.getClass().getName() + "]");
