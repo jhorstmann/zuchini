@@ -75,6 +75,8 @@ public class FeatureParser {
 
     static GherkinParser newParser(ANTLRInputStream inputStream) {
         GherkinLexer lexer = new GherkinLexer(inputStream);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(ThrowingErrorListener.INSTANCE);
         GherkinParser parser = new GherkinParser(new BufferedTokenStream(lexer));
         parser.removeErrorListeners();
         parser.addErrorListener(ThrowingErrorListener.INSTANCE);
