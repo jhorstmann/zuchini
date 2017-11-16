@@ -15,9 +15,10 @@ import java.util.List;
 public class ZuchiniMain {
 
     public static void main(String[] args) throws Throwable {
-        List<File> features = new ArrayList<>();
+        List<File> featureFiles = new ArrayList<>();
         List<String> glue = new ArrayList<>();
         String name = null;
+
         for (int i = 0; i < args.length; i++) {
             if ("--glue".equals(args[i])) {
                 glue.add(args[++i]);
@@ -27,7 +28,7 @@ public class ZuchiniMain {
                 name = args[++i];
 
             } else if (!args[i].startsWith("--")) {
-                features.add(new File(args[i]));
+                featureFiles.add(new File(args[i]));
             }
         }
 
@@ -36,10 +37,10 @@ public class ZuchiniMain {
         }
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
-        run(cl, features, glue, name);
+        run(cl, featureFiles, glue, name);
     }
 
-    public static void run(final ClassLoader cl, final List<File> features, final List<String> glue,
+    public static void run(final ClassLoader cl, final List<File> featureFiles, final List<String> glue,
                            final String name) throws Throwable {
 
         RunnerScanner runnerScanner = new RunnerScanner(cl, glue);
@@ -47,7 +48,7 @@ public class ZuchiniMain {
         Class<?> runner = runnerScanner.getRunner();
 
         Request request = Request.classes(runner);
-        if (!features.isEmpty()) {
+        if (!featureFiles.isEmpty()) {
             request = request.filterWith(new Filter() {
                 @Override
                 public boolean shouldRun(Description description) {
@@ -55,13 +56,10 @@ public class ZuchiniMain {
                     if (feature == null) {
                         return true;
                     } else  {
-                        for (File file : features) {
-                            URL url = cl.getResource(feature.uri());
-                            if (url != null) {
-                                String featureFile = url.getFile().replace("/target/test-classes/", "/src/test/resources/");
-                                if (featureFile.startsWith(file.getPath())) {
-                                    return true;
-                                }
+                        String featureUri = feature.uri();
+                        for (File file : featureFiles) {
+                            if (file.toURI().toASCIIString().endsWith(featureUri)) {
+                                return true;
                             }
                         }
                         return false;
@@ -70,7 +68,7 @@ public class ZuchiniMain {
 
                 @Override
                 public String describe() {
-                    return "Filter by files " + features.toString();
+                    return "Filter by files " + featureFiles.toString();
                 }
             });
         }
