@@ -47,6 +47,7 @@ public class ZuchiniMain {
             Result result = run(cl, featureFiles, glue, name);
             System.exit(result.wasSuccessful() ? 0 : -1);
         } catch (Throwable throwable) {
+            throwable.printStackTrace();
             System.exit(-2);
         }
     }
