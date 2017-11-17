@@ -9,7 +9,7 @@ import org.zuchini.spring.SpringZuchini;
 @RunWith(SpringZuchini.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-@ZuchiniOptions(featurePackages = {"features/mockmvc"},
+@ZuchiniOptions(featurePackages = {"org/zuchini/examples/mockmvc"},
         stepDefinitionPackages = "org.zuchini.examples.mockmvc",
         reportIndividualSteps = true)
 public class HelloFeatureTest {
