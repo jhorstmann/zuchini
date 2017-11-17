@@ -8,12 +8,11 @@ import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
 import org.zuchini.junit.description.AnnotationHandler;
 import org.zuchini.junit.description.FeatureInfo;
+import org.zuchini.junit.description.OutlineInfo;
 import org.zuchini.junit.description.ScenarioInfo;
-import org.zuchini.runner.Context;
-import org.zuchini.runner.FeatureStatement;
-import org.zuchini.runner.Scope;
-import org.zuchini.runner.SimpleScenarioStatement;
+import org.zuchini.runner.*;
 
+import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 
 class SimpleScenarioRunner extends Runner {
@@ -22,21 +21,27 @@ class SimpleScenarioRunner extends Runner {
     private final Context context;
     private final FeatureStatement featureStatement;
     private final SimpleScenarioStatement scenarioStatement;
+    @Nullable
+    private final OutlineStatement outlineStatement;
     private final Description description;
 
-    public SimpleScenarioRunner(Class<?> testClass, Context context, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement) throws InitializationError {
+    public SimpleScenarioRunner(Class<?> testClass, Context context, FeatureStatement featureStatement, SimpleScenarioStatement scenarioStatement, @Nullable OutlineStatement outlineStatement) throws InitializationError {
         this.testClass = testClass;
         this.context = context;
         this.featureStatement = featureStatement;
         this.scenarioStatement = scenarioStatement;
+        this.outlineStatement = outlineStatement;
         this.description = DescriptionHelper.createScenarioDescription(testClass, scenarioStatement.getScenario(), getRunnerAnnotations());
     }
 
     private Annotation[] getRunnerAnnotations() {
-        return new Annotation[] {
-                AnnotationHandler.create(FeatureInfo.class, featureStatement.getFeature()),
-                AnnotationHandler.create(ScenarioInfo.class, scenarioStatement.getScenario())
-        };
+        final Annotation[] annotations = new Annotation[outlineStatement == null ? 2 : 3];
+        annotations[0] = AnnotationHandler.create(FeatureInfo.class, featureStatement.getFeature());
+        annotations[1] = AnnotationHandler.create(ScenarioInfo.class, scenarioStatement.getScenario());
+        if (outlineStatement != null) {
+            annotations[2] = AnnotationHandler.create(OutlineInfo.class, outlineStatement.getOutline());
+        }
+        return annotations;
     }
 
     @Override

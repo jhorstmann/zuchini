@@ -31,6 +31,5 @@ public class OutlineStatement extends ScenarioStatement {
         for (SimpleScenarioStatement scenario : scenarios) {
             scenario.evaluate(context);
         }
-
     }
 }

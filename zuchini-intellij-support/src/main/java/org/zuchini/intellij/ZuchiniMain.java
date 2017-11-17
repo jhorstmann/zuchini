@@ -3,21 +3,24 @@ package org.zuchini.intellij;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
+import org.junit.runner.Result;
 import org.junit.runner.manipulation.Filter;
 import org.zuchini.junit.description.FeatureInfo;
+import org.zuchini.junit.description.OutlineInfo;
 import org.zuchini.junit.description.ScenarioInfo;
 
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class ZuchiniMain {
 
     public static void main(String[] args) throws Throwable {
-        List<File> features = new ArrayList<>();
+        List<File> featureFiles = new ArrayList<>();
         List<String> glue = new ArrayList<>();
         String name = null;
+
         for (int i = 0; i < args.length; i++) {
             if ("--glue".equals(args[i])) {
                 glue.add(args[++i]);
@@ -27,7 +30,7 @@ public class ZuchiniMain {
                 name = args[++i];
 
             } else if (!args[i].startsWith("--")) {
-                features.add(new File(args[i]));
+                featureFiles.add(new File(args[i]));
             }
         }
 
@@ -36,10 +39,19 @@ public class ZuchiniMain {
         }
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
-        run(cl, features, glue, name);
+        // Exit the jvm to stop any running non-daemon threads, for example embedded servlet containers
+        // Use same exit codes as IntelliJ JUnit4IdeaTestRunner
+        // See https://github.com/JetBrains/intellij-community/blob/7fa96faf725f9ee605444bacb794c21906a3e699/plugins/junit_rt/src/com/intellij/junit4/JUnit4IdeaTestRunner.java#L69
+        try {
+            Result result = run(cl, featureFiles, glue, name);
+            System.exit(result.wasSuccessful() ? 0 : -1);
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+            System.exit(-2);
+        }
     }
 
-    public static void run(final ClassLoader cl, final List<File> features, final List<String> glue,
+    public static Result run(final ClassLoader cl, final List<File> featureFiles, final List<String> glue,
                            final String name) throws Throwable {
 
         RunnerScanner runnerScanner = new RunnerScanner(cl, glue);
@@ -47,7 +59,7 @@ public class ZuchiniMain {
         Class<?> runner = runnerScanner.getRunner();
 
         Request request = Request.classes(runner);
-        if (!features.isEmpty()) {
+        if (!featureFiles.isEmpty()) {
             request = request.filterWith(new Filter() {
                 @Override
                 public boolean shouldRun(Description description) {
@@ -55,13 +67,10 @@ public class ZuchiniMain {
                     if (feature == null) {
                         return true;
                     } else  {
-                        for (File file : features) {
-                            URL url = cl.getResource(feature.uri());
-                            if (url != null) {
-                                String featureFile = url.getFile().replace("/target/test-classes/", "/src/test/resources/");
-                                if (featureFile.startsWith(file.getPath())) {
-                                    return true;
-                                }
+                        String featureUri = feature.uri();
+                        for (File file : featureFiles) {
+                            if (file.toURI().toASCIIString().endsWith(featureUri)) {
+                                return true;
                             }
                         }
                         return false;
@@ -70,17 +79,27 @@ public class ZuchiniMain {
 
                 @Override
                 public String describe() {
-                    return "Filter by files " + features.toString();
+                    return "Filter by files " + featureFiles.toString();
                 }
             });
         }
         if (name != null) {
+            final Pattern namePattern = Pattern.compile(name);
             request = request.filterWith(new Filter() {
                 @Override
                 public boolean shouldRun(Description description) {
                     ScenarioInfo scenario = description.getAnnotation(ScenarioInfo.class);
-                    // TODO: Does not work for scenario outlines with parameters appended to the name
-                    return scenario == null || scenario.name().equals(name);
+                    OutlineInfo outline = description.getAnnotation(OutlineInfo.class);
+                    if (outline != null) {
+                        // match against original outline name instead of nested scenarios whose names have parameter values appended
+                        String outlineName = outline.name();
+                        return namePattern.matcher(outlineName).matches();
+                    } else if (scenario == null) {
+                        return true;
+                    } else {
+                        String scenarioName = scenario.name();
+                        return namePattern.matcher(scenarioName).matches();
+                    }
                 }
 
                 @Override
@@ -93,6 +112,8 @@ public class ZuchiniMain {
 
         JUnitCore core = new JUnitCore();
         core.addListener(new EnterTheMatrixRunListener(System.err));
-        core.run(request);
+        Result result = core.run(request);
+
+        return result;
     }
 }

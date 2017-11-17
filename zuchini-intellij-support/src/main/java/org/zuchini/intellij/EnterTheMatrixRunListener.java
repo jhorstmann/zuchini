@@ -23,23 +23,19 @@ class EnterTheMatrixRunListener extends RunListener {
             "##teamcity[testFailed timestamp = '%s' details = '%s' message = '%s' name = '%s' %s]";
     private static final String TEMPLATE_SCENARIO_FAILED = "##teamcity[customProgressStatus timestamp='%s' type='testFailed']";
     private static final String TEMPLATE_TEST_PENDING =
-            "##teamcity[testIgnored name = '%s' message = 'Skipped step' timestamp = '%s']";
+            "##teamcity[testIgnored timestamp = '%s' name = '%s' message = 'Skipped step']";
     private static final String TEMPLATE_TEST_FINISHED =
-            "##teamcity[testFinished timestamp = '%s' diagnosticInfo = 'cucumber f/s=(1344855950447, 1344855950447), duration=0, time.now=%s' duration = '0' name = '%s']";
+            "##teamcity[testFinished timestamp = '%s' duration = '0' name = '%s']";
     private static final String TEMPLATE_ENTER_THE_MATRIX = "##teamcity[enteredTheMatrix timestamp = '%s']";
     private static final String TEMPLATE_TEST_SUITE_STARTED =
             "##teamcity[testSuiteStarted timestamp = '%s' locationHint = 'file://%s' name = '%s']";
     private static final String TEMPLATE_TEST_SUITE_FINISHED = "##teamcity[testSuiteFinished timestamp = '%s' name = '%s']";
-    private static final String TEMPLATE_SCENARIO_COUNTING_STARTED =
-            "##teamcity[customProgressStatus testsCategory = 'Scenarios' count = '0' timestamp = '%s']";
-    private static final String TEMPLATE_SCENARIO_COUNTING_FINISHED =
-            "##teamcity[customProgressStatus testsCategory = '' count = '0' timestamp = '%s']";
-    private static final String TEMPLATE_SCENARIO_STARTED = "##teamcity[customProgressStatus type = 'testStarted' timestamp = '%s']";
+
     private final Appendable out;
     private FeatureInfo currentFeature;
     private ScenarioInfo currentScenario;
 
-    public EnterTheMatrixRunListener(Appendable out) {
+    EnterTheMatrixRunListener(Appendable out) {
         this.out = out;
     }
 
@@ -69,15 +65,12 @@ class EnterTheMatrixRunListener extends RunListener {
     @Override
     public void testRunStarted(Description description) throws Exception {
         printf(TEMPLATE_ENTER_THE_MATRIX, getCurrentTime());
-        printf(TEMPLATE_SCENARIO_COUNTING_STARTED, getCurrentTime());
     }
 
     @Override
     public void testRunFinished(Result result) throws Exception {
         printf(TEMPLATE_TEST_SUITE_FINISHED, getCurrentTime(), currentScenario.name());
         printf(TEMPLATE_TEST_SUITE_FINISHED, getCurrentTime(), currentFeature.name());
-
-        printf(TEMPLATE_SCENARIO_COUNTING_FINISHED, getCurrentTime());
     }
 
     @Override
@@ -90,8 +83,11 @@ class EnterTheMatrixRunListener extends RunListener {
 
         if (currentFeature == null) {
             printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, feature.uri() + ":" + feature.lineNumber(), feature.name());
-            printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, scenario.uri() + ":" + scenario.lineNumber(), scenario.name());
-
+            if (step != null) {
+                printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, scenario.uri() + ":" + scenario.lineNumber(), scenario.name());
+            } else {
+                printf(TEMPLATE_TEST_STARTED, timestamp, scenario.uri() + ":" + scenario.lineNumber(), scenario.name());
+            }
         }
 
         if (currentFeature != null && !Objects.equals(feature, currentFeature)) {
@@ -99,16 +95,24 @@ class EnterTheMatrixRunListener extends RunListener {
             printf(TEMPLATE_TEST_SUITE_FINISHED, timestamp, currentFeature.name());
 
             printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, feature.uri() + ":" + feature.lineNumber(), feature.name());
-            printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, scenario.uri() + ":" + scenario.lineNumber(), scenario.name());
-            printf(TEMPLATE_SCENARIO_STARTED, timestamp);
+            if (step != null) {
+                printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, scenario.uri() + ":" + scenario.lineNumber(), scenario.name());
+            } else {
+                printf(TEMPLATE_TEST_STARTED, timestamp, scenario.uri() + ":" + scenario.lineNumber(), scenario.name());
+            }
         } else if (currentScenario != null && !Objects.equals(scenario, currentScenario)) {
             printf(TEMPLATE_TEST_SUITE_FINISHED, timestamp, currentScenario.name());
 
-            printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, scenario.uri() + ":" + scenario.lineNumber(), scenario.name());
-            printf(TEMPLATE_SCENARIO_STARTED, timestamp);
+            if (step != null) {
+                printf(TEMPLATE_TEST_SUITE_STARTED, timestamp, scenario.uri() + ":" + scenario.lineNumber(), scenario.name());
+            } else {
+                printf(TEMPLATE_TEST_STARTED, timestamp, scenario.uri() + ":" + scenario.lineNumber(), scenario.name());
+            }
         }
 
-        printf(TEMPLATE_TEST_STARTED, timestamp, step.uri() + ":" + step.lineNumber(), step.name());
+        if (step != null) {
+            printf(TEMPLATE_TEST_STARTED, timestamp, step.uri() + ":" + step.lineNumber(), step.name());
+        }
 
         currentFeature = feature;
         currentScenario = scenario;
@@ -116,9 +120,11 @@ class EnterTheMatrixRunListener extends RunListener {
 
     @Override
     public void testFinished(Description description) throws Exception {
+        ScenarioInfo scenario = description.getAnnotation(ScenarioInfo.class);
         StepInfo step = description.getAnnotation(StepInfo.class);
+        String name = step != null ? step.name() : scenario.name();
         String timestamp = getCurrentTime();
-        printf(TEMPLATE_TEST_FINISHED, timestamp, timestamp, step.name());
+        printf(TEMPLATE_TEST_FINISHED, timestamp, name);
     }
 
     @Override
@@ -128,24 +134,26 @@ class EnterTheMatrixRunListener extends RunListener {
         String timestamp = getCurrentTime();
         failure.getException().printStackTrace();
         printf(TEMPLATE_TEST_FAILED, timestamp, "", escape(failure.getMessage()), step.name(), "error = 'true'");
-        printf(TEMPLATE_SCENARIO_FAILED, timestamp);
     }
 
     @Override
     public void testAssumptionFailure(Failure failure) {
         Description description = failure.getDescription();
+        ScenarioInfo scenario = description.getAnnotation(ScenarioInfo.class);
         StepInfo step = description.getAnnotation(StepInfo.class);
+        String name = step != null ? step.name() : scenario.name();
         String timestamp = getCurrentTime();
         failure.getException().printStackTrace();
-        printf(TEMPLATE_TEST_PENDING, step.name(), timestamp);
+        printf(TEMPLATE_TEST_PENDING, timestamp, name);
     }
 
     @Override
     public void testIgnored(Description description) throws Exception {
+        ScenarioInfo scenario = description.getAnnotation(ScenarioInfo.class);
         StepInfo step = description.getAnnotation(StepInfo.class);
+        String name = step != null ? step.name() : scenario.name();
         String timestamp = getCurrentTime();
-        printf(TEMPLATE_TEST_STARTED, timestamp, step.uri() + ":" + step.lineNumber(), step.name());
-        printf(TEMPLATE_TEST_PENDING, step.name(), timestamp);
-        //printf(TEMPLATE_SCENARIO_FAILED, timestamp);
+        printf(TEMPLATE_TEST_PENDING, timestamp, name);
+        printf(TEMPLATE_TEST_FINISHED, timestamp, name);
     }
 }
