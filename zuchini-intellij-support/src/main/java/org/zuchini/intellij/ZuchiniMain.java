@@ -3,6 +3,7 @@ package org.zuchini.intellij;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
+import org.junit.runner.Result;
 import org.junit.runner.manipulation.Filter;
 import org.zuchini.junit.description.FeatureInfo;
 import org.zuchini.junit.description.OutlineInfo;
@@ -39,10 +40,18 @@ public class ZuchiniMain {
         }
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
-        run(cl, featureFiles, glue, name);
+        // Exit the jvm to stop any running non-daemon threads, for example embedded servlet containers
+        // Use same exit codes as IntelliJ JUnit4IdeaTestRunner
+        // See https://github.com/JetBrains/intellij-community/blob/7fa96faf725f9ee605444bacb794c21906a3e699/plugins/junit_rt/src/com/intellij/junit4/JUnit4IdeaTestRunner.java#L69
+        try {
+            Result result = run(cl, featureFiles, glue, name);
+            System.exit(result.wasSuccessful() ? 0 : -1);
+        } catch (Throwable throwable) {
+            System.exit(-2);
+        }
     }
 
-    public static void run(final ClassLoader cl, final List<File> featureFiles, final List<String> glue,
+    public static Result run(final ClassLoader cl, final List<File> featureFiles, final List<String> glue,
                            final String name) throws Throwable {
 
         RunnerScanner runnerScanner = new RunnerScanner(cl, glue);
@@ -103,6 +112,8 @@ public class ZuchiniMain {
 
         JUnitCore core = new JUnitCore();
         core.addListener(new EnterTheMatrixRunListener(System.err));
-        core.run(request);
+        Result result = core.run(request);
+
+        return result;
     }
 }
