@@ -86,10 +86,10 @@ public class StepStatement implements Statement {
 
     @Override
     public void evaluate(Context context) throws Throwable {
-        if (before != null) {
-            before.evaluate(context);
-        }
         try {
+            if (before != null) {
+                before.evaluate(context);
+            }
             try {
                 Scope scenarioScope = context.getScenarioScope();
                 Object target = scenarioScope.getObject(method.getDeclaringClass());
