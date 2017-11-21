@@ -21,7 +21,6 @@ class EnterTheMatrixRunListener extends RunListener {
             "##teamcity[testStarted timestamp = '%s' locationHint = 'file:///%s' captureStandardOutput = 'true' name = '%s']";
     private static final String TEMPLATE_TEST_FAILED =
             "##teamcity[testFailed timestamp = '%s' details = '%s' message = '%s' name = '%s' %s]";
-    private static final String TEMPLATE_SCENARIO_FAILED = "##teamcity[customProgressStatus timestamp='%s' type='testFailed']";
     private static final String TEMPLATE_TEST_PENDING =
             "##teamcity[testIgnored timestamp = '%s' name = '%s' message = 'Skipped step']";
     private static final String TEMPLATE_TEST_FINISHED =
@@ -118,11 +117,15 @@ class EnterTheMatrixRunListener extends RunListener {
         currentScenario = scenario;
     }
 
-    @Override
-    public void testFinished(Description description) throws Exception {
+    private static String getTestName(Description description) {
         ScenarioInfo scenario = description.getAnnotation(ScenarioInfo.class);
         StepInfo step = description.getAnnotation(StepInfo.class);
-        String name = step != null ? step.name() : scenario.name();
+        return step != null ? step.name() : scenario.name();
+    }
+
+    @Override
+    public void testFinished(Description description) throws Exception {
+        String name = getTestName(description);
         String timestamp = getCurrentTime();
         printf(TEMPLATE_TEST_FINISHED, timestamp, name);
     }
@@ -130,18 +133,16 @@ class EnterTheMatrixRunListener extends RunListener {
     @Override
     public void testFailure(Failure failure) throws Exception {
         Description description = failure.getDescription();
-        StepInfo step = description.getAnnotation(StepInfo.class);
+        String name = getTestName(description);
         String timestamp = getCurrentTime();
         failure.getException().printStackTrace();
-        printf(TEMPLATE_TEST_FAILED, timestamp, "", escape(failure.getMessage()), step.name(), "error = 'true'");
+        printf(TEMPLATE_TEST_FAILED, timestamp, "", escape(failure.getMessage()), name, "error = 'true'");
     }
 
     @Override
     public void testAssumptionFailure(Failure failure) {
         Description description = failure.getDescription();
-        ScenarioInfo scenario = description.getAnnotation(ScenarioInfo.class);
-        StepInfo step = description.getAnnotation(StepInfo.class);
-        String name = step != null ? step.name() : scenario.name();
+        String name = getTestName(description);
         String timestamp = getCurrentTime();
         failure.getException().printStackTrace();
         printf(TEMPLATE_TEST_PENDING, timestamp, name);
@@ -149,9 +150,7 @@ class EnterTheMatrixRunListener extends RunListener {
 
     @Override
     public void testIgnored(Description description) throws Exception {
-        ScenarioInfo scenario = description.getAnnotation(ScenarioInfo.class);
-        StepInfo step = description.getAnnotation(StepInfo.class);
-        String name = step != null ? step.name() : scenario.name();
+        String name = getTestName(description);
         String timestamp = getCurrentTime();
         printf(TEMPLATE_TEST_PENDING, timestamp, name);
         printf(TEMPLATE_TEST_FINISHED, timestamp, name);
