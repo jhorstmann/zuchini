@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.zuchini</groupId>
     <artifactId>zuchini-parent</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
+    <version>0.4.0</version>
     <packaging>pom</packaging>
     <name>zuchini</name>
     <description>An alternative implementation of cucumber for the jvm based on antlr and junit</description>
