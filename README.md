@@ -47,6 +47,8 @@ Feature: Hello World
     Then the output is 'Hello World'
 ```
 
+Currently due to [a bug](https://github.com/jhorstmann/zuchini/issues/8) the feature files has to end with a newline.
+
 Implement the steps by creating a java class containing annotated methods:
 
 ```java
@@ -91,7 +93,7 @@ Zuchini allows to add additional `RunListener`'s to monitor test execution, usin
 ```xml
 <dependency>
     <groupId>org.zuchini</groupId>
-    <artifactId>zuchini-reporting</artifactId>
+    <artifactId>zuchini-reporter</artifactId>
     <version>${version.zuchini}</version>
     <scope>test</scope>
 </dependency>
