@@ -91,7 +91,7 @@ Zuchini allows to add additional `RunListener`'s to monitor test execution, usin
 ```xml
 <dependency>
     <groupId>org.zuchini</groupId>
-    <artifactId>zuchini-reporting</artifactId>
+    <artifactId>zuchini-reporter</artifactId>
     <version>${version.zuchini}</version>
     <scope>test</scope>
 </dependency>
