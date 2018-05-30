@@ -51,7 +51,15 @@ public class FeatureParser {
     }
 
     public static Feature getFeature(String input) {
-        return getFeature(new ANTLRInputStream(input));
+        return getFeature(new ANTLRInputStream(appendNewLineAtEOFIfMissing(input)));
+    }
+
+    private static String appendNewLineAtEOFIfMissing(String input) {
+        final String newLine = System.getProperty("line.separator");
+        if (!input.endsWith(newLine)) {
+            input = input + newLine;
+        }
+        return input;
     }
 
     public static Feature getFeature(ANTLRInputStream inputStream) {
