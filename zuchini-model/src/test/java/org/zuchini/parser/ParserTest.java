@@ -518,4 +518,9 @@ public class ParserTest {
         assertEquals(asList(), step.getComments());
     }
 
+    @Test
+    public void shouldNotRequireNewLineAtEndOfFile() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Simple Feature\n\nScenario: Simple Scenario\nGiven a customer");
+    }
 }
