@@ -82,7 +82,6 @@ public class ParserTest {
     }
 
     @Test
-    @Ignore("Not yet implemented")
     public void shouldNotRequireNewlineAtEndOfFile() {
         Feature feature = FeatureParser.getFeature(
                 "Feature: Simple Feature\n\nScenario: Simple Scenario\nGiven a customer");
@@ -516,11 +515,5 @@ public class ParserTest {
 
         Step step = scenario.getSteps().get(0);
         assertEquals(asList(), step.getComments());
-    }
-
-    @Test
-    public void shouldNotRequireNewLineAtEndOfFile() {
-        Feature feature = FeatureParser.getFeature(
-                "Feature: Simple Feature\n\nScenario: Simple Scenario\nGiven a customer");
     }
 }

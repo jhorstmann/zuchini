@@ -55,7 +55,7 @@ public class FeatureParser {
     }
 
     private static String appendNewLineAtEOFIfMissing(String input) {
-        final String newLine = System.getProperty("line.separator");
+        final String newLine = System.lineSeparator();
         if (!input.endsWith(newLine)) {
             input = input + newLine;
         }
