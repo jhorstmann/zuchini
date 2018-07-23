@@ -188,7 +188,8 @@ public class Visitors  {
         @Override
         public Background visitBackground(@NotNull GherkinParser.BackgroundContext ctx) {
             Token keyword = ctx.BACKGROUND_KW().getSymbol();
-            Background background = new Background(feature, keyword.getLine(), keyword.getText(), ctx.lineContent().getText());
+            final String description = ctx.lineContent() == null ? "Background" : ctx.lineContent().getText();
+            Background background = new Background(feature, keyword.getLine(), keyword.getText(), description);
             background.getTags().addAll(visitNodesAndAggregate(ctx.annotation(), new TagsVisitor()));
             background.getComments().addAll(visitNodesAndAggregate(ctx.annotation(), new CommentsVisitor()));
             background.getSteps().addAll(visitNodes(ctx.step(), new StepVisitor(background)));

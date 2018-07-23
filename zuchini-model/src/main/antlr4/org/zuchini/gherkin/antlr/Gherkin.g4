@@ -30,7 +30,7 @@ feature         : annotation*
                   EOF;
 
 background      : annotation*
-                  WS? BACKGROUND_KW WS? COLON WS? lineContent EOL
+                  WS? BACKGROUND_KW WS? COLON WS? lineContent? EOL
                   (step | WS? EOL)+;
 
 abstractScenario: scenario | outline;
