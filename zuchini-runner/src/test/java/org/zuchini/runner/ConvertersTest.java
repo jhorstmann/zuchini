@@ -3,7 +3,6 @@ package org.zuchini.runner;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ConvertersTest {
@@ -44,7 +43,7 @@ public class ConvertersTest {
         }
 
         @Override
-        public <T> T getObject(Class<T> clazz) {
+        public <R> R getObject(Class<R> clazz) {
             return clazz == beanClass ? clazz.cast(bean) : null;
         }
 
