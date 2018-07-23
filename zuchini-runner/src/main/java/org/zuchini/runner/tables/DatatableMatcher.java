@@ -6,7 +6,8 @@ import org.hamcrest.TypeSafeDiagnosingMatcher;
 import java.util.Arrays;
 import java.util.List;
 
-class DatatableMatcher extends TypeSafeDiagnosingMatcher<Datatable> {
+public class DatatableMatcher extends TypeSafeDiagnosingMatcher<Datatable> {
+
     private final Datatable expected;
 
     DatatableMatcher(Datatable expected) {
@@ -42,7 +43,7 @@ class DatatableMatcher extends TypeSafeDiagnosingMatcher<Datatable> {
         int cols = array[0].length;
         String[] lines = new String[rows];
         for (int row = 0; row < rows; row++) {
-            assert(array[row].length == widths.length);
+            assert (array[row].length == widths.length);
 
             StringBuilder sb = new StringBuilder(128);
             sb.append(" | ");
@@ -66,7 +67,7 @@ class DatatableMatcher extends TypeSafeDiagnosingMatcher<Datatable> {
         String[][] array = toArray(table);
         int[] widths = new int[array[0].length];
         updateWidths(widths, array);
-        return formatDatatable(array,widths);
+        return formatDatatable(array, widths);
     }
 
     private static String[] formatDiff(String[] lines1, String[] lines2) {
