@@ -1,8 +1,12 @@
 package org.zuchini.parser;
 
-import org.junit.Ignore;
-import org.zuchini.model.*;
 import org.junit.Test;
+import org.zuchini.model.Examples;
+import org.zuchini.model.Feature;
+import org.zuchini.model.Outline;
+import org.zuchini.model.Row;
+import org.zuchini.model.Step;
+import org.zuchini.model.StepContainer;
 
 import java.util.List;
 
@@ -147,6 +151,14 @@ public class ParserTest {
             assertEquals("Given", step.getKeyword());
             assertEquals("a customer", step.getName());
         }
+    }
+
+    @Test
+    public void shouldParseBackgroundWithoutDescription() {
+        Feature feature = FeatureParser.getFeature(
+                "Feature: Simple Feature\n\nBackground:\nGiven a customer\n");
+        StepContainer scenario = feature.getBackground().get(0);
+        assertEquals("Background", scenario.getName());
     }
 
     @Test
