@@ -6,7 +6,7 @@ import org.hamcrest.TypeSafeDiagnosingMatcher;
 import java.util.Arrays;
 import java.util.List;
 
-public class DatatableMatcher extends TypeSafeDiagnosingMatcher<Datatable> {
+class DatatableMatcher extends TypeSafeDiagnosingMatcher<Datatable> {
 
     private final Datatable expected;
 
